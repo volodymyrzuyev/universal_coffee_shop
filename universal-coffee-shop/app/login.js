@@ -15,7 +15,7 @@ export default function AuthScreen() {
       </View>
 
       <View style={styles.buttonContainer}>
-        {/* We can navigate this to a new /signup screen later */}
+        {/* TODO - NAVIGATE TO SIGN UP FORM */}
         <TouchableOpacity 
           style={styles.primaryButton} 
           onPress={() => router.replace('/home')}>
@@ -23,7 +23,7 @@ export default function AuthScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          onPress={() => {/* This would navigate to the login form */}}>
+          onPress={() => {/* TODO - WILL ADD LOGIN FORM HERE */}}>
           <Text style={styles.secondaryButtonText}>
             ALREADY HAVE AN ACCOUNT? LOG IN
           </Text>
