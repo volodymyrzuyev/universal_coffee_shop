@@ -1,74 +1,85 @@
-import { useState } from 'react';
-import { StyleSheet, TextInput, Button } from 'react-native';
+//login screen
+// universal-coffee-shop/app/login.js
+import React from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useRouter } from 'expo-router';
 
-//Theme components for consistent styling
-import ThemedView from '../components/ThemedView';
-import ThemedText from '../components/ThemedText';
+export default function AuthScreen() {
+  const router = useRouter();
 
-// TODO: Integrate with backend API (Python FastAPI in /app)
-export default function LoginScreen() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  // Placeholder for backend integration
-
-  //Handle if a user missed an input
-  const handleLogin = async () => {
-    if (!username || !password) {
-      setError('Please enter both username and password.');
-      return;
-    }
-    setError('');
-    setLoading(true);
-
-    // TODO: Replace with actual API call to backend
-    //Still need some sort of time out here --
-    setTimeout(() => {
-      setLoading(false);
-      alert(`Login attempted for ${username} (integration pending)`);
-    }, 1000);
-  };
-//basic login screen layout for now we'll add to this 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Login</ThemedText>
-      {error ? <ThemedText style={{ color: 'red' }}>{error}</ThemedText> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        autoCapitalize="none"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Button title={loading ? "Logging in..." : "Login"} onPress={handleLogin} disabled={loading} />
-      {/* TODO: Add navigation to registration screen */}
-    </ThemedView>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>UNIVERSAL</Text>
+        <Text style={styles.stylizedTitle}>COFFEE SHOP</Text>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        {/* We can navigate this to a new /signup screen later */}
+        <TouchableOpacity 
+          style={styles.primaryButton} 
+          onPress={() => router.replace('/home')}>
+          <Text style={styles.primaryButtonText}>CREATE ACCOUNT</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={() => {/* This would navigate to the login form */}}>
+          <Text style={styles.secondaryButtonText}>
+            ALREADY HAVE AN ACCOUNT? LOG IN
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
     justifyContent: 'center',
-    padding: 32,
-    gap: 16,
   },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    marginBottom: 12,
-    borderRadius: 6,
-    backgroundColor: '#fff',
+  header: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 48,
+    color: '#000',
+    fontFamily: 'Anton-Regular',
+    textAlign: 'center',
+    lineHeight: 50,
+  },
+  stylizedTitle: {
+    fontSize: 54,
+    fontFamily: 'Canopee',
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 20,
+  },
+  primaryButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#000',
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  primaryButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontFamily: 'Anton-Regular',
+  },
+  secondaryButtonText: {
+    color: '#000',
+    fontSize: 14,
+    fontFamily: 'Anton-Regular',
   },
 });
