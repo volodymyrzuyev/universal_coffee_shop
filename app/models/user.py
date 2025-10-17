@@ -1,4 +1,4 @@
-from app.models.authProvider import AuthProvider
+from models.authProvider import AuthProvider
 
 
 class User(AuthProvider):

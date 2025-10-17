@@ -1,9 +1,6 @@
-"""
-Entrypoint for the python backend.
-"""
+from fastapi import FastAPI
+from routes import auth
 
-def main():
-    pass
+app = FastAPI()
 
-if __name__ == "__main__":
-    main()
+app.include_router(auth.router)
