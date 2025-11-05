@@ -7,10 +7,6 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Switch,
-  Pressable,
   TouchableOpacity,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
@@ -21,7 +17,7 @@ function AddCoffeeShop()
 {
 
 const [coffeeShopName, setCoffeeShopName] = useState("");
-const [OwnerName, setOwnerName] = useState("");
+const [OwnerID, setID] = useState("");
 const [streetAddress, setStreetAddress] = useState("");
 const [city, setCity] = useState("");
 const [state, setState] = useState("");
@@ -35,7 +31,7 @@ function fun1(e)
 
 function fun2(e)
 {
-    setOwnerName(e);
+    setID(e);
 }
 
 function fun3(e)
@@ -59,31 +55,23 @@ function fun6(e)
 }
 
  const submitForm = async () => {
-     try { 
-         
-      // Make a POST request to the API endpoint
-      const response = await fetch('http://127.0.0.1:8000/recieveForm', {
-        method: 'POST', // Specify HTTP method as POST
-        headers: {
-          'Content-Type': 'application/json', // Set content type to JSON
-        },
-        body: JSON.stringify({'Coffee_Shop_Name': coffeeShopName,  'Owner_Name' :OwnerName, 'Street_Address' : streetAddress, 'City':city, 'State':state,'Phone_Number':PhoneNum}) // Send data in the request body
-      });
-      
-      // Parse the JSON response
-      const data = await response.json();
-      if (response.ok) { // Check if the response status is OK (200-299)
-        console.log(data); // Log the response data to the console
-        Alert.alert("Post created at:", data.createdAt || "No timestamp"); // Show success alert with timestamp
-      } else {
-        console.error(data); // Log the error response to the console
-        Alert.alert("Error", data.error || "Request failed"); // Show error alert
-      }
-
-    } catch (error) { // Catch any errors during the request
-      console.error(error); // Log the error to the console
-      Alert.alert("Error", "Something went wrong."); // Show generic error alert
-    }
+   
+    fetch('http://10.0.14.252:8000/recieveForm', {
+    method: 'POST', // or 'PUT'
+    headers: {
+      'Content-Type': 'application/json', // Crucial header for JSON data
+    }, 
+    body: JSON.stringify({"Shop_Name": coffeeShopName, "Owner_ID" :OwnerID,"Street_Address":streetAddress, "City":city, "State":state, "Phone_Number": PhoneNum}) // Convert the JS object to a JSON string
+    })
+    .then(response => response.json()) // Parse the JSON response from the backend
+    .then(data => {
+    console.log('Success:', data);
+    // Handle the response data from the backend here
+    })
+    .catch((error) => {
+    console.error('Error:', error);
+    });
+    
   };
 
 
@@ -99,7 +87,7 @@ function fun6(e)
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
              
             <Text style={styles.text}>Owner name:</Text>
-            <TextInput placeholderTextColor={'#747474ff'} placeholder='John Doe' style={styles.input} value={OwnerName} onChangeText={fun2}></TextInput>
+            <TextInput placeholderTextColor={'#747474ff'} placeholder='John Doe' style={styles.input} value={OwnerID} onChangeText={fun2}></TextInput>
 
             <Text style={styles.text}>Street address:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='123 Fake Street' style={styles.input} value={streetAddress} onChangeText={fun3}></TextInput>

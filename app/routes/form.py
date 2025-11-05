@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from models import provider
 
 class CoffeeShop(BaseModel):
-     OwnerName:str
+     coffeeShopName:str
+     OwnerID:str
      streetAddress:str 
      city:str 
      state:str 
@@ -14,5 +15,10 @@ class CoffeeShop(BaseModel):
 router = APIRouter()
 
 @router.post("/recieveForm")
-async def getForm(CS : CoffeeShop):
-    return CS
+def getForm(CS : CoffeeShop):
+    print(f"Recieved data: Name={CS.coffeeShopName}")
+   
+
+    return {
+        "status": "success"     
+    }
