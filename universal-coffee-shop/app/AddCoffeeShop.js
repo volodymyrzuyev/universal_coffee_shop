@@ -24,7 +24,6 @@ const [state, setState] = useState("");
 const [PhoneNum, setPhoneNumber] = useState("");
 
 const [responseMessage, setResponseMessage] = useState("");
-const [messageColor, setMessageColor] = useState("black");
 
 
 function fun1(e){ setCoffeeShopName(e);}
@@ -63,15 +62,12 @@ function fun6(e){setPhoneNumber(e);}
         if (response.ok) {
             const result = await response.json();
             setResponseMessage(`Success! ${result.message}`);
-            setMessageColor('green');
         } else {
-            const errorData = await response.json();
-            setResponseMessage(`Error: ${response.status} - ${JSON.stringify(errorData.detail || errorData.message)}`);
-            setMessageColor('red');
+            setResponseMessage(`Error: ${response.status}`);
         }
     } catch (error) {
         setResponseMessage(`Network Error: ${error.message}`);
-        setMessageColor('red');
+       
     }
     
   };
