@@ -27,40 +27,20 @@ const [responseMessage, setResponseMessage] = useState("");
 const [messageColor, setMessageColor] = useState("black");
 
 
-function fun1(e)
-{
-    setCoffeeShopName(e);
-}
+function fun1(e){ setCoffeeShopName(e);}
 
-function fun2(e)
-{
-    setID(e);
-}
+function fun2(e){  setID(e);}
 
-function fun3(e)
-{
-    setStreetAddress(e);
-}
+function fun3(e){ setStreetAddress(e);}
 
-function fun4(e)
-{
-    setCity(e);
-}
+function fun4(e){setCity(e);}
 
-function fun5(e)
-{
-    setState(e);
-}
+function fun5(e){setState(e);}
 
-function fun6(e)
-{
-    setPhoneNumber(e);
-}
+function fun6(e){setPhoneNumber(e);}
 
-// Corrected payload in submitForm function
-const payload = {
-    // Keys match the Python Pydantic model exactly
-    'coffeeShopName': coffeeShopName, 
+ const form_content = {
+     'coffeeShopName': coffeeShopName, 
     'OwnerID': OwnerID, 
     'streetAddress': streetAddress, 
     'city': city, 
@@ -68,21 +48,16 @@ const payload = {
     'PhoneNum': PhoneNum, 
 };
 
- 
- 
-
  const submitForm = async () => {
    
      try {
-        // 3. Send the POST request
+         
         const response = await fetch('http://localhost:8000/items/', {
             method: 'POST',
-            // Crucial: Tell the server the data is JSON
-            headers: {
+             headers: {
                 'Content-Type': 'application/json'
             },
-            // Crucial: Convert the JavaScript object to a JSON string
-            body: JSON.stringify(payload)
+             body: JSON.stringify(form_content)
         });
 
         if (response.ok) {
@@ -127,7 +102,7 @@ const payload = {
 
             <Text style={styles.text}>Phone #:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='224-123-4567' style={styles.input} value={PhoneNum} onChangeText={fun6}></TextInput>
-            <Text>Current Value: {PhoneNum}</Text>
+            
 
             <Text style={styles.text}>Hours:</Text>
 
