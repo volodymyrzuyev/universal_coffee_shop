@@ -4,6 +4,8 @@ Please run "database_connect()" to connect to the database prior to transactions
 """
 import sqlite3
 import os
+from typing import List
+import uuid
 
 class DatabaseController:
 
@@ -83,6 +85,33 @@ class DatabaseController:
         """)
         self.connection.commit()
 
+        self.cursor.execute("BEGIN TRANSACTION;")
+        self.cursor.execute("""
+        CREATE TABLE stores(
+            store_id TEXT PRIMARY KEY,
+            coffee_shop_name TEXT,
+            owner_id TEXT,
+            street_address TEXT,
+            city TEXT,
+            state TEXT,
+            phone_number INTEGER,
+            FOREIGN KEY(owner_id) REFERENCES users(user_id)
+        );
+        """)
+        self.connection.commit()
+
+        self.cursor.execute("BEGIN TRANSACTION;")
+        self.cursor.execute("""
+        CREATE TABLE user_owns(
+            user_id TEXT,
+            store_id TEXT,
+            PRIMARY KEY(user_id, store_id),
+            FOREIGN KEY(user_id) REFERENCES users(user_id),
+            FOREIGN KEY(store_id) REFERENCES stores(store_id)
+        );
+        """)
+        self.connection.commit()
+
         self.database_close()
 
     def create_user(self, user_id: str, user_name: str, password: str, is_admin: bool) -> None:
@@ -148,6 +177,74 @@ class DatabaseController:
         """, (user_name,))
         result = self.cursor.fetchone()
         return result is None
+
+
+    """
+    ---------------------------
+    Functions for managing store data.
+    ---------------------------
+    """
+
+    def add_user_store(self, user_id: str, store_id: str) -> None:
+        """Creates a link in user_owns: a user owns/has access to a store."""
+        self.cursor.execute("BEGIN TRANSACTION;")
+        self.cursor.execute(
+            """
+            INSERT INTO user_owns (user_id, store_id)
+            VALUES (?, ?);
+            """,
+            (user_id, store_id),
+        )
+        self.connection.commit()
+
+    def get_store_by_id(self, store_id: str) -> tuple:
+        """Fetch a single store record by ID."""
+        self.cursor.execute(
+            """
+            SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
+            FROM stores WHERE store_id = ?;
+            """,
+            (store_id,),
+        )
+        return self.cursor.fetchone()
+
+    def get_stores_for_user(self, user_id: str) -> List[tuple]:
+        """Return all stores linked to a user via user_owns."""
+        self.cursor.execute(
+            """
+            SELECT s.store_id, s.coffee_shop_name, s.owner_id, s.street_address, s.city, s.state, s.phone_number
+            FROM stores s
+            JOIN user_owns uo ON uo.store_id = s.store_id
+            WHERE uo.user_id = ?;
+            """,
+            (user_id,),
+        )
+        return self.cursor.fetchall()
+
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int) -> str:
+        """
+        Creates a coffee shop with a generated unique store_id and returns it.
+        Also links the owner to the store in user_owns.
+        """
+        while True:
+            store_id = uuid.uuid4().hex
+            self.cursor.execute("SELECT 1 FROM stores WHERE store_id = ?;", (store_id,))
+            if self.cursor.fetchone() is None:
+                break
+
+        self.cursor.execute("BEGIN TRANSACTION;")
+        self.cursor.execute(
+            """
+            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
+            """,
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number),
+        )
+        self.connection.commit()
+
+        self.add_user_store(owner_id, store_id)
+
+        return store_id
     
     def __del__(self):
         if not self.is_closed:
