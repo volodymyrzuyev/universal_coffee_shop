@@ -85,7 +85,6 @@ class DatabaseController:
         """)
         self.connection.commit()
 
-        # New domain tables
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute("""
         CREATE TABLE stores(
