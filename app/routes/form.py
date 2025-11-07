@@ -4,6 +4,10 @@ from pydantic import BaseModel
 
 from models import provider
 
+router = APIRouter(
+     tags=["Coffeeshop Form Submission"]
+)
+
 class CoffeeShop(BaseModel):
      coffeeShopName:str
      OwnerID:str
@@ -12,13 +16,18 @@ class CoffeeShop(BaseModel):
      state:str 
      PhoneNum:str 
 
-router = APIRouter()
+ 
 
-@router.post("/recieveForm")
-def getForm(CS : CoffeeShop):
-    print(f"Recieved data: Name={CS.coffeeShopName}")
-   
+@router.post("/items/")
+async def getForm(CS : CoffeeShop):
 
-    return {
-        "status": "success"     
-    }
+    form_data = CS.model_dump()
+    form_data_string = str(form_data)
+
+    try:
+        with open("form_data_txt.txt","a") as f:
+              f.write(form_data_string + "\n")
+        return {"status": "success", "message": "Form data saved", "data_received": form_data}
+
+    except Exception as e:
+        return {"status": "error", "message": f"Failed to save data: {e}"}

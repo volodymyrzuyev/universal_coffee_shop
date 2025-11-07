@@ -23,6 +23,9 @@ const [city, setCity] = useState("");
 const [state, setState] = useState("");
 const [PhoneNum, setPhoneNumber] = useState("");
 
+const [responseMessage, setResponseMessage] = useState("");
+const [messageColor, setMessageColor] = useState("black");
+
 
 function fun1(e)
 {
@@ -54,23 +57,47 @@ function fun6(e)
     setPhoneNumber(e);
 }
 
+// Corrected payload in submitForm function
+const payload = {
+    // Keys match the Python Pydantic model exactly
+    'coffeeShopName': coffeeShopName, 
+    'OwnerID': OwnerID, 
+    'streetAddress': streetAddress, 
+    'city': city, 
+    'state': state, 
+    'PhoneNum': PhoneNum, 
+};
+
+ 
+ 
+
  const submitForm = async () => {
    
-    fetch('http://10.0.14.252:8000/recieveForm', {
-    method: 'POST', // or 'PUT'
-    headers: {
-      'Content-Type': 'application/json', // Crucial header for JSON data
-    }, 
-    body: JSON.stringify({"Shop_Name": coffeeShopName, "Owner_ID" :OwnerID,"Street_Address":streetAddress, "City":city, "State":state, "Phone_Number": PhoneNum}) // Convert the JS object to a JSON string
-    })
-    .then(response => response.json()) // Parse the JSON response from the backend
-    .then(data => {
-    console.log('Success:', data);
-    // Handle the response data from the backend here
-    })
-    .catch((error) => {
-    console.error('Error:', error);
-    });
+     try {
+        // 3. Send the POST request
+        const response = await fetch('http://localhost:8000/items/', {
+            method: 'POST',
+            // Crucial: Tell the server the data is JSON
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // Crucial: Convert the JavaScript object to a JSON string
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            setResponseMessage(`Success! ${result.message}`);
+            setMessageColor('green');
+        } else {
+            const errorData = await response.json();
+            setResponseMessage(`Error: ${response.status} - ${JSON.stringify(errorData.detail || errorData.message)}`);
+            setMessageColor('red');
+        }
+    } catch (error) {
+        setResponseMessage(`Network Error: ${error.message}`);
+        setMessageColor('red');
+    }
     
   };
 
@@ -149,7 +176,7 @@ function fun6(e)
 
         <TouchableOpacity onPress={submitForm}><Text style={styles.text}>Submit Form</Text></TouchableOpacity>
         
-     
+     <Text style={{ color: messageColor, marginTop: 10 }}>{responseMessage}</Text>
      
      </SafeAreaView>
 

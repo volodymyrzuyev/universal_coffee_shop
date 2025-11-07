@@ -1,0 +1,8 @@
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
+{'coffeeShopName': 'Starbucks', 'OwnerID': 'Aaron', 'streetAddress': '313 E Normal Ave', 'city': 'Normal', 'state': 'Illinois', 'PhoneNum': '2432432432'}
