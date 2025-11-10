@@ -3,6 +3,8 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
+import { useRouter } from 'expo-router';
+
 
 const DUMMY_DATA = [
   { id: '1', name: 'LAB COFFEE', logoUrl: 'https://placeholder.com/100', color: '#B0C4DE' },
@@ -12,6 +14,9 @@ const DUMMY_DATA = [
 ];
 
 export default function HomeScreen() {
+
+const router = useRouter();
+
   const renderHeader = () => (
     <>
       <View style={styles.header}>
@@ -19,7 +24,7 @@ export default function HomeScreen() {
           style={styles.searchBar}
           placeholder="Search coffee shops..."
         />
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton}>
