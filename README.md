@@ -41,5 +41,5 @@ In the terminal, in '....\Universal-Coffee-Shop' run:
 ###### 4. Type **'npx expo start'**
 ###### 5. Go back one directory with **'cd ..'**
 ###### 6. Type **'cd app'**
-###### 7. Type **'uvicorn main:app --host 0.0.0.0 --port 8080'** and the server should be running
+###### 7. Type **'uvicorn main:app --port 8080'** and the server should be running
 ###### 8. Now you should have a fully working frontend in one terminal and fully working backend in the other terminal
