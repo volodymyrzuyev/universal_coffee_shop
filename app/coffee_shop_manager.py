@@ -1,4 +1,4 @@
-import db_controller
+import app.databaseStuff.db_controller as db_controller
 
 
 class CoffeeShopManager:

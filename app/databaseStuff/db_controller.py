@@ -207,6 +207,19 @@ class DatabaseController:
             (store_id,),
         )
         return self.cursor.fetchone()
+    
+    def get_store_by_name(self, coffee_shop_name: str) -> tuple:
+        """Fetch a single store record by name."""
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM stores WHERE coffee_shop_name = ?;
+            """,
+            (coffee_shop_name,),
+        )
+        return self.cursor.fetchone()
+    
+
 
     def get_stores_for_user(self, user_id: str) -> List[tuple]:
         """Return all stores linked to a user via user_owns."""

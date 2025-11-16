@@ -31,3 +31,4 @@ async def read_items(pr):
 @router.get("/callback/{pr}")
 async def read_item(pr: str, code: str):
     return {"status": "success", "jwt": PROVIDERS[pr].callback(code)}
+
