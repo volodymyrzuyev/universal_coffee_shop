@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from db_controller import DatabaseController as db 
+from app.databaseStuff.db_controller import DatabaseController as db 
 
 class StoredObject(ABC):
     

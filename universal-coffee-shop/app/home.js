@@ -1,5 +1,5 @@
 // universal-coffee-shop/app/home.js
-import React from 'react';
+import {useState} from 'react';
 import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
@@ -13,35 +13,58 @@ const DUMMY_DATA = [
   { id: '4', name: 'LVL UP COFFEE BAR', logoUrl: 'https://placeholder.com/100', color: '#F08080' },
 ];
 
+//Searches for a coffeeshop when user enters a coffeeshop name
+async function searchCoffeeShop(coffeeShopName)
+{
+  try{
+       
+    const response = await fetch(`http://localhost:8080/home/getCoffee_Shop/${coffeeShopName}`);
+    const data = await response.json();
+    console.log(data+ "sddsd")
+    
+    if(!response.ok)
+    {
+      console.log("Not okay dude")
+    }
+  }
+  catch(error)
+  {
+    console.log("ERROR: "+error)
+  }
+   
+}
+
 export default function HomeScreen() {
+  
+const [coffeeShopName, setCoffeeShopName] = useState("");
+function fun1(e){ setCoffeeShopName(e);}
 
 const router = useRouter();
 
-  const renderHeader = () => (
-    <>
+  return (
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search coffee shops..."
-        />
+        <TextInput value={coffeeShopName} onChangeText={fun1} style={styles.searchBar} placeholder="Search coffee shops..."></TextInput>
+        
+         <TouchableOpacity onPress={() => {searchCoffeeShop(coffeeShopName)}} style={styles.iconButton}>
+            <Feather name="search" size={24} color="black" />
+        </TouchableOpacity>
+        
         <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.iconButton}>
             <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
       </View>
       <Text style={styles.sectionTitle}>NEARBY</Text>
-    </>
-  );
 
-  return (
-    <SafeAreaView style={styles.container}>
+      <Text>CoffeeShop: {coffeeShopName}</Text>
       <FlatList
         data={DUMMY_DATA}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
-        ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />

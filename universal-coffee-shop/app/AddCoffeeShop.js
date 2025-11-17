@@ -1,17 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Alert,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { SafeAreaView } from 'react-native-safe-area-context';
+ 
+import {useState} from 'react';
+import {View,Text,TextInput,StyleSheet,ScrollView,TouchableOpacity} from 'react-native';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function AddCoffeeShop()
 {
@@ -50,37 +41,46 @@ function fun6(e){setPhoneNumber(e);}
  const submitForm = async () => {
    
      try {
-         
-        const response = await fetch('http://localhost:8000/items/', {
+        const response = await fetch('http://10.0.14.252:8080/recieveForm/', {
             method: 'POST',
+            /*no-cors means that the method has to be GET, POST, or HEAD
+            Just using it to get more familiar with fetch api*/
+            mode: 'no-cors',
              headers: {
                 'Content-Type': 'application/json'
+               
             },
              body: JSON.stringify(form_content)
         });
-
+ 
         if (response.ok) {
-            const result = await response.json();
-            setResponseMessage(`Success! ${result.message}`);
+            /*this hits if everything runs correctly and fetch returns
+            with a status code in the range of 200 */
+            alert("Form submitted sucessfully")
+            const data = await response.json();;
+            setResponseMessage(data.storeName);
+            
         } else {
-            setResponseMessage(`Error: ${response.status}`);
+            /*This hits if the server address is correct, but the response from the
+            server gave an error like a 404 status code. One reason for an error 
+            could be an incorrect endpoint name*/
+            alert("There was an error when submitting the form, please try again. Make sure the phone number includes only numbers and '-'")
+            
         }
     } catch (error) {
-        setResponseMessage(`Network Error: ${error.message}`);
-       
+        //This hits if the server address is incorrect (couldn't reach the server)
+        setResponseMessage(`Network Error: ${error.message}`); 
     }
     
   };
 
-
-
-
     return (<>
      <SafeAreaView style={styles.container}>
-        
-        <Text>Please enter the details for your new Coffee shop</Text>
-        
+
         <ScrollView style={styles.form}>
+
+            <Text style={styles.text}>Please enter the details for your new Coffee shop</Text>
+
             <Text style={styles.text}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
              
@@ -146,9 +146,9 @@ function fun6(e){setPhoneNumber(e);}
         </ScrollView>
 
         <TouchableOpacity onPress={submitForm}><Text style={styles.text}>Submit Form</Text></TouchableOpacity>
-        
-     <Text style={{ color: messageColor, marginTop: 10 }}>{responseMessage}</Text>
-     
+
+        <Text>a thing probably: {responseMessage}</Text>
+         
      </SafeAreaView>
 
     
@@ -158,57 +158,33 @@ function fun6(e){setPhoneNumber(e);}
 }
 
 const styles = StyleSheet.create({
-  container: {
-    // 1. Ensure the View takes up the whole screen
-    flex: 1, 
+  container: 
+  { 
     
-    // 2. Center items horizontally
-    justifyContent: 'center', 
-    
-    // 3. Center items vertically
-    alignItems: 'center', 
-    
-    // (Optional: Set background color for visibility)
-    backgroundColor: '#fff', 
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    // Note: text-align is usually unnecessary here because the container is centered.
+    alignSelf:'center',
+    width:'75%'
   },
   form: 
   {
-    borderWidth: 2,
-    borderColor: 'black',
-    borderStyle: 'solid',
-    padding:20,
-    margin:10,
-    width:250
+    borderColor:'black',
+    borderWidth:'2px'
   },
-  input:
+  text: 
   {
-    borderWidth: 2,
-    borderColor: 'black',
-    borderStyle: 'solid',
-    fontSize:15,
-    color:'black',
-    marginBottom:15,
+    borderStyle:'solid',
+    backgroundColor:'lightblue',
+    textAlign:'center',
+    padding:'6px',
+    borderTopWidth:'2px',
+    borderBottomWidth:'2px',
+  },  
+  input: 
+  {
+    textAlign:'center',
+    padding:'6px',
   },
-  hours:
-  {
-    borderWidth: 2,
-    borderColor: 'black',
-    borderStyle: 'solid',
-    fontSize:15,
-    color:'black',
-    marginBottom:15,
-    width:'50%',
-  },
-  hoursView:
-  {
-    flexDirection:'row',
-    marginBottom:0,
-  }
+  hours: {},
+  hoursView: {}
 
 });
  
