@@ -95,8 +95,19 @@ class DatabaseController:
             city TEXT,
             state TEXT,
             phone_number INTEGER,
+            logo_url TEXT
             FOREIGN KEY(owner_id) REFERENCES users(user_id)
         );
+        """)
+        self.cursor.execute("""
+        CREATE TABLE menu_items(
+            store_id TEXT,
+            item_name TEXT,
+            item_price REAL,
+            picture_url TEXT
+            PRIMARY KEY (store_id, item_name)
+            FOREIGN KEY(store_id) REFERENCES stores(store_id)
+        );              
         """)
         self.connection.commit()
 
@@ -114,16 +125,25 @@ class DatabaseController:
 
         self.database_close()
 
-    def create_user(self, user_id: str, user_name: str, password: str, is_admin: bool) -> None:
+    def create_user(self, user_name: str, password: str, is_admin: bool) -> str:
         """
         Creates a new user in the database.
+        returns their ID
         """
+        while True:
+            user_id = uuid.uuid4().hex
+            self.cursor.execute("SELECT 1 FROM users WHERE user_id = ?;", (user_id,))
+            if self.cursor.fetchone() is None:
+                break
+
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute("""
         INSERT INTO users (user_id, user_name, password, is_admin)
         VALUES (?, ?, ?, ?);
         """, (user_id, user_name, password, int(is_admin)))
         self.connection.commit()
+
+        return user_id
     
     def get_user_from_id(self, user_id: str) -> tuple:
         """
@@ -133,6 +153,12 @@ class DatabaseController:
         SELECT * FROM users WHERE user_id = ?;
         """, (user_id,))
         return self.cursor.fetchone()
+    
+    def get_all_users(self) -> List[tuple]:
+        self.cursor.execute("""
+        SELECT * FROM users;
+        """)
+        return self.cursor.fetchall()
     
     def get_user_from_token(self, token: str, platform: str) -> tuple:
         """
@@ -156,6 +182,30 @@ class DatabaseController:
         self.cursor.execute(query, (token,))
         return self.cursor.fetchone()
     
+    def get_admin_users(self) -> List[tuple]:
+        self.cursor.execute("""
+        SELECT * FROM users
+        WHERE is_admin = 1;
+        """)
+
+        return self.cursor.fetchall()
+
+    def get_standard_users(self) -> List[tuple]:
+        self.cursor.execute("""
+        SELECT * FROM users
+        WHERE is_admin = 0;
+        """)
+
+        return self.cursor.fetchall()
+    
+    def get_user_by_email(self, email:str) -> tuple:
+        # ToDo: email doesn't actually exist.
+        self.cursor.execute("""
+            SELECT * FROM users
+            WHERE email = ?;
+        """, (email))
+        return self.cursor.fetchone()
+        
     def validate_password(self, user_id: str, password: str) -> bool:
         """
         Validates a user's password.
@@ -184,6 +234,19 @@ class DatabaseController:
     Functions for managing store data.
     ---------------------------
     """
+
+    def add_menu_item(self, store_id: str, item_name, item_price: float, picture_url:str) -> None:
+        self.cursor.execute("""
+            INSERT INTO menu_items (store_id, item_name, item_price, picture_url)
+            VALUES (?, ?, ?, ?)
+        """, (store_id, item_name, item_price, picture_url))
+        self.connection.commit()
+    
+    def remove_menu_item(self, store_id: str, item_name: str) -> None:
+        self.cursor.execute("""
+            DELETE FROM menu_items
+            WHERE store_id = ? AND item_name = ?
+        """, store_id, item_name)
 
     def add_user_store(self, user_id: str, store_id: str) -> None:
         """Creates a link in user_owns: a user owns/has access to a store."""
@@ -233,8 +296,20 @@ class DatabaseController:
             (user_id,),
         )
         return self.cursor.fetchall()
+    
+    def get_all_stores(self) -> List[tuple]:
+        """
+            Returns all existing stores.
+        """
+        self.cursor.execute(
+            """
+            SELECT * FROM stores;
+            """
+        )
 
-    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int) -> str:
+        return self.cursor.fetchall()
+
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) -> str:
         """
         Creates a coffee shop with a generated unique store_id and returns it.
         Also links the owner to the store in user_owns.
@@ -248,16 +323,17 @@ class DatabaseController:
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute(
             """
-            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number)
-            VALUES (?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number),
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url),
         )
         self.connection.commit()
 
         self.add_user_store(owner_id, store_id)
 
         return store_id
+    
     
     def __del__(self):
         if not self.is_closed:
