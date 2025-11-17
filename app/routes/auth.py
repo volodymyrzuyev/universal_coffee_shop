@@ -50,6 +50,34 @@ def createAuthRouter(
 
         return {"status": "success", "jwt": internalJWT}
 
+    class RegisterIn(BaseModel):
+        name: str
+        email: EmailStr
+        password: str
+
+    @router.post("/register")
+    async def register_user(payload: RegisterIn):
+
+        if not db.check_unique_username(payload.email):
+            db.database_close()
+            raise HTTPException(status_code=409, detail="Email already exists.")
+
+
+        user_id = db.create_user(payload.email, payload.password, False)
+
+        db.database_close()
+
+
+        return {
+            "ok": True,
+            "user": {
+                "id": user_id,
+                "name": payload.name,
+                "email": payload.email,
+                "role": "USER"
+            }
+        }
+
     class LoginIn(BaseModel):
         email: EmailStr
         password: str
