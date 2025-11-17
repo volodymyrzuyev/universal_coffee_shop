@@ -5,6 +5,12 @@ import databaseStuff.db_controller as db_controller
 import random
 import string
 import jwt
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import RedirectResponse
+import uuid, time, random
+from dotenv import load_dotenv
+from models import provider
+from pydantic import BaseModel, EmailStr
 
 from models import provider
 
@@ -43,5 +49,58 @@ def createAuthRouter(
         internalJWT = jwt.encode({"id": userID}, secretKey, algorithm="HS256")
 
         return {"status": "success", "jwt": internalJWT}
+
+    class LoginIn(BaseModel):
+        email: EmailStr
+        password: str
+
+    @router.post("/login")
+    async def login_user(payload: LoginIn):
+
+        try:
+
+            row = db.get_user_by_email(payload.email)
+            if row is None:
+                raise HTTPException(
+                    status_code=401, detail="Invalid email or password."
+                )
+            user_id, user_name, stored_pw, is_admin = row
+
+            if str(stored_pw) != payload.password:
+                raise HTTPException(
+                    status_code=401, detail="Invalid email or password."
+                )
+
+            mfa_enabled = True
+
+            if mfa_enabled:
+                code = f"{random.randint(0, 999999):06d}"
+                challenge_id = str(uuid.uuid4())
+                expires_at = int(time.time()) + 5 * 60
+
+                db.create_mfa_challenge(user_id, code, expires_at, challenge_id)
+
+                print(f"[MFA] Code for {payload.email}: {code}")
+
+                return {
+                    "mfa_required": True,
+                    "challenge_id": challenge_id,
+                }
+
+            token = ...
+            return {
+                "mfa_required": False,
+                "token": token,
+                "user_id": user_id,
+                "is_admin": bool(is_admin),
+            }
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            print("LOGIN_ERROR:", repr(e))
+            raise HTTPException(status_code=500, detail="Login failed.")
+        finally:
+            db.database_close()
 
     return router
