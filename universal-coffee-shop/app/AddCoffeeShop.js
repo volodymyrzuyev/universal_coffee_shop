@@ -47,8 +47,7 @@ function fun6(e){setPhoneNumber(e);}
             Just using it to get more familiar with fetch api*/
             mode: 'no-cors',
              headers: {
-                'Content-Type': 'application/json'
-               
+                'Content-Type': 'application/json'  
             },
              body: JSON.stringify(form_content)
         });
@@ -56,22 +55,20 @@ function fun6(e){setPhoneNumber(e);}
         if (response.ok) {
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
-            alert("Form submitted sucessfully")
-            const data = await response.json();;
+            alert("Form submitted sucessfully");
+            const data = await response.json();
             setResponseMessage(data.storeName);
             
         } else {
             /*This hits if the server address is correct, but the response from the
             server gave an error like a 404 status code. One reason for an error 
             could be an incorrect endpoint name*/
-            alert("There was an error when submitting the form, please try again. Make sure the phone number includes only numbers and '-'")
-            
+            alert("There was an error when submitting the form, please try again. Make sure the phone number includes only numbers and '-'")        
         }
     } catch (error) {
         //This hits if the server address is incorrect (couldn't reach the server)
         setResponseMessage(`Network Error: ${error.message}`); 
-    }
-    
+    } 
   };
 
     return (<>
@@ -99,7 +96,6 @@ function fun6(e){setPhoneNumber(e);}
             <Text style={styles.text}>Phone #:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='224-123-4567' style={styles.input} value={PhoneNum} onChangeText={fun6}></TextInput>
             
-
             <Text style={styles.text}>Hours:</Text>
 
             <Text style={{color:"black"}}>Monday</Text>
@@ -150,10 +146,6 @@ function fun6(e){setPhoneNumber(e);}
         <Text>a thing probably: {responseMessage}</Text>
          
      </SafeAreaView>
-
-    
-    
-    
         </>);
 }
 

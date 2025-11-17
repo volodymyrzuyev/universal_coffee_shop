@@ -209,15 +209,15 @@ class DatabaseController:
         return self.cursor.fetchone()
     
     def get_store_by_name(self, coffee_shop_name: str) -> tuple:
-        """Fetch a single store record by name."""
+        """Fetch all store records by name."""
         self.cursor.execute(
             """
             SELECT *
-            FROM stores WHERE coffee_shop_name = ?;
+            FROM stores WHERE coffee_shop_name LIKE ?;
             """,
             (coffee_shop_name,),
         )
-        return self.cursor.fetchone()
+        return self.cursor.fetchall()
     
 
 

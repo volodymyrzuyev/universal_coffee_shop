@@ -11,5 +11,5 @@ coffeeShopRouter = APIRouter(
 
 @coffeeShopRouter.get("/getCoffee_Shop/{coffeeShopName}")
 async def getCoffeeShop(coffeeShopName: str):
-    return {"Shop_Name":db.get_store_by_name(coffeeShopName)}
+    return {"Coffeeshop":db.get_store_by_name(coffeeShopName)}
 
