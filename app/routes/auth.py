@@ -1,16 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
+from models import provider
+from pydantic import BaseModel, EmailStr
 import databaseStuff.db_controller as db_controller
 import random
 import string
 import jwt
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
-import uuid, time, random
-from models import provider
-from pydantic import BaseModel, EmailStr
-
-from models import provider
+import time
+import uuid
 
 
 def createAuthRouter(
@@ -48,6 +47,7 @@ def createAuthRouter(
 
     class RegisterIn(BaseModel):
         name: str
+
         email: EmailStr
         password: str
 
@@ -55,12 +55,9 @@ def createAuthRouter(
     async def register_user(payload: RegisterIn):
 
         if not db.check_unique_username(payload.email):
-            db.database_close()
             raise HTTPException(status_code=409, detail="Email already exists.")
 
         user_id = db.create_user(payload.email, payload.password, False)
-
-        db.database_close()
 
         return {
             "ok": True,
@@ -86,6 +83,7 @@ def createAuthRouter(
                 raise HTTPException(
                     status_code=401, detail="Invalid email or password."
                 )
+
             user_id, user_name, stored_pw, is_admin = row
 
             if str(stored_pw) != payload.password:
