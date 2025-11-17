@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
-from dotenv import load_dotenv
 import databaseStuff.db_controller as db_controller
 import random
 import string
@@ -8,13 +7,10 @@ import jwt
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 import uuid, time, random
-from dotenv import load_dotenv
 from models import provider
 from pydantic import BaseModel, EmailStr
 
 from models import provider
-
-load_dotenv()
 
 
 def createAuthRouter(
@@ -62,11 +58,9 @@ def createAuthRouter(
             db.database_close()
             raise HTTPException(status_code=409, detail="Email already exists.")
 
-
         user_id = db.create_user(payload.email, payload.password, False)
 
         db.database_close()
-
 
         return {
             "ok": True,
@@ -74,8 +68,8 @@ def createAuthRouter(
                 "id": user_id,
                 "name": payload.name,
                 "email": payload.email,
-                "role": "USER"
-            }
+                "role": "USER",
+            },
         }
 
     class LoginIn(BaseModel):
@@ -130,5 +124,58 @@ def createAuthRouter(
             raise HTTPException(status_code=500, detail="Login failed.")
         finally:
             db.database_close()
+
+    class MFAStartOut(BaseModel):
+        mfa_required: bool
+        challenge_id: str | None = None
+
+    class MFAVerifyIn(BaseModel):
+        challenge_id: str
+        code: str
+
+    class MFAVerifyOut(BaseModel):
+        token: str
+        user_id: str
+        is_admin: bool
+
+    @router.post("/mfa/verify", response_model=MFAVerifyOut)
+    async def verify_mfa(payload: MFAVerifyIn):
+
+        try:
+            row = db.get_mfa_challenge(payload.challenge_id)
+            if row is None:
+                raise HTTPException(status_code=400, detail="Invalid challenge.")
+
+            challenge_id, user_id, code, expires_at, consumed = row
+
+            now = int(time.time())
+            if consumed or now > expires_at:
+                raise HTTPException(status_code=400, detail="Code expired.")
+
+            if payload.code != code:
+                raise HTTPException(status_code=400, detail="Invalid code.")
+
+            db.consume_mfa_challenge(challenge_id)
+
+            token = str(uuid.uuid4())
+
+            user_row = db.get_user_from_id(user_id)
+            if user_row is None:
+                raise HTTPException(status_code=500, detail="User not found")
+
+            _, _, _, is_admin = user_row
+
+            return MFAVerifyOut(
+                token=token,
+                user_id=user_id,
+                is_admin=bool(is_admin),
+            )
+        finally:
+            db.database_close()
+
+    @router.post("/logout")
+    async def logout():
+
+        return {"ok": True}
 
     return router
