@@ -6,11 +6,11 @@ import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 
 
-const DUMMY_DATA = [
-  { id: '1', name: 'LAB COFFEE', logoUrl: 'https://placeholder.com/100', color: '#B0C4DE' },
-  { id: '2', name: 'THE COFFEEHOUSE', logoUrl: 'https://placeholder.com/100', color: '#D3D3D3' },
-  { id: '3', name: 'CRAFTED', logoUrl: 'https://placeholder.com/100', color: '#FFFFFF' },
-  { id: '4', name: 'LVL UP COFFEE BAR', logoUrl: 'https://placeholder.com/100', color: '#F08080' },
+let DUMMY_DATA = [
+  {name: 'LAB COFFEE'},
+  {name: 'THE COFFEEHOUSE'},
+  {name: 'CRAFTED'},
+  {name: 'LVL UP COFFEE BAR'},
 ];
 
 //Searches for a coffeeshop when user enters a coffeeshop name
@@ -20,18 +20,23 @@ async function searchCoffeeShop(coffeeShopName)
        
     const response = await fetch(`http://localhost:8080/home/getCoffee_Shop/${coffeeShopName}`);
     const data = await response.json();
-    console.log(data+ "sddsd")
-    
-    if(!response.ok)
+    const arrayData = Object.values(data);
+    console.log(arrayData[0])
+    if(response.ok)
     {
-      console.log("Not okay dude")
-    }
+      DUMMY_DATA = [];
+      for(let i = 0; i < arrayData[0].length; i++)
+      {
+        DUMMY_DATA.push({name: arrayData[0][i][1]});
+      }
+     }
+
+     console.log(DUMMY_DATA)
   }
   catch(error)
   {
-    console.log("ERROR: "+error)
+    console.log("ERROR: "+ error)
   }
-   
 }
 
 export default function HomeScreen() {
@@ -61,6 +66,8 @@ const router = useRouter();
       <Text style={styles.sectionTitle}>NEARBY</Text>
 
       <Text>CoffeeShop: {coffeeShopName}</Text>
+
+      
       <FlatList
         data={DUMMY_DATA}
         keyExtractor={(item) => item.id}

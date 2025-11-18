@@ -27,6 +27,8 @@ function fun3(e){ setPassword(e);}
       console.log("Button Pressed")
       try 
       {
+        const myRequest = new Request("flowers.jpg");
+
        const response = await fetch("http://localhost:8000/createAdmin/", {method:"POST", body: JSON.stringify(adminInfo)});
        const result = await response.json();
        
