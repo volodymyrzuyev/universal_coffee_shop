@@ -159,6 +159,25 @@ class DatabaseController:
         SELECT * FROM users;
         """)
         return self.cursor.fetchall()
+
+    def add_user_id_to_token(self, token: str, platform:str, user_id:str) -> None:
+        """
+        Adds user_id to specific platform's token
+        Platform must be "google", "apple", or "facebook".
+        """
+        table_mapping = {
+            "google": "google_tokens",
+            "apple": "apple_tokens",
+            "facebook": "facebook_tokens"
+        }
+        table = table_mapping.get(platform)
+        if table is None:
+            raise ValueError("Invalid platform. Must be one of 'google', 'apple', or 'facebook'.")
+        self.cursor.execute(f"""
+        INSERT INTO {table} (token, user_id) 
+        VALUES (?, ?);
+        """, (token, user_id))
+        self.connection.commit()
     
     def get_user_from_token(self, token: str, platform: str) -> tuple:
         """
