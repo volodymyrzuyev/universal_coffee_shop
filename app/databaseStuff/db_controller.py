@@ -123,6 +123,19 @@ class DatabaseController:
         """)
         self.connection.commit()
 
+
+        self.cursor.execute("""
+        CREATE TABLE mfa_challenges (
+            challenge_id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            code TEXT NOT NULL,
+            expires_at INTEGER NOT NULL,
+            consumed INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        );
+        """)
+
+
         self.database_close()
 
     def create_user(self, user_name: str, password: str, is_admin: bool) -> str:
@@ -145,6 +158,7 @@ class DatabaseController:
 
         return user_id
     
+        
     def get_user_from_id(self, user_id: str) -> tuple:
         """
         Retrieves a user from the database by user ID.
@@ -246,14 +260,6 @@ class DatabaseController:
         """)
 
         return self.cursor.fetchall()
-    
-    def get_user_by_email(self, email:str) -> tuple:
-        # ToDo: email doesn't actually exist.
-        self.cursor.execute("""
-            SELECT * FROM users
-            WHERE email = ?;
-        """, (email))
-        return self.cursor.fetchone()
         
     def validate_password(self, user_id: str, password: str) -> bool:
         """
@@ -295,7 +301,7 @@ class DatabaseController:
         self.cursor.execute("""
             DELETE FROM menu_items
             WHERE store_id = ? AND item_name = ?
-        """, store_id, item_name)
+        """, (store_id, item_name))
 
     def add_user_store(self, user_id: str, store_id: str) -> None:
         """Creates a link in user_owns: a user owns/has access to a store."""
@@ -332,6 +338,17 @@ class DatabaseController:
         return self.cursor.fetchall()
     
 
+        
+    def get_user_by_email(self, email: str) -> tuple | None:
+        """
+        Returns (user_id, user_name, password, is_admin) for this email, or None.
+        Email is stored in users.user_name. Requires database_connect() first.
+        """
+        self.cursor.execute(
+            "SELECT user_id, user_name, password, is_admin FROM users WHERE user_name = ?;",
+            (email.lower().strip(),),
+        )
+        return self.cursor.fetchone()
 
     def get_stores_for_user(self, user_id: str) -> List[tuple]:
         """Return all stores linked to a user via user_owns."""
@@ -388,3 +405,38 @@ class DatabaseController:
         if not self.is_closed:
             print(f"Error: Closing {self.database_location} database on garbage collection. Please close databases manually before deletion.")
             self.database_close()
+
+
+    def create_mfa_challenge(self, user_id: str, code: str, expires_at: int, challenge_id: str) -> None:
+        """
+        Stores a one-time MFA challenge.
+        """
+        self.cursor.execute("""
+        INSERT INTO mfa_challenges (challenge_id, user_id, code, expires_at, consumed)
+        VALUES (?, ?, ?, ?, 0);
+        """, (challenge_id, user_id, code, expires_at))
+        self.connection.commit()
+    
+
+    def get_mfa_challenge(self, challenge_id: str):
+        """
+        Returns (challenge_id, user_id, code, expires_at, consumed) or None.
+        """
+        self.cursor.execute("""
+        SELECT challenge_id, user_id, code, expires_at, consumed
+        FROM mfa_challenges
+        WHERE challenge_id = ?;
+        """, (challenge_id,))
+        return self.cursor.fetchone()
+
+
+    def consume_mfa_challenge(self, challenge_id: str) -> None:
+        """
+        Marks the MFA challenge as used.
+        """
+        self.cursor.execute("""
+        UPDATE mfa_challenges
+        SET consumed = 1
+        WHERE challenge_id = ?;
+        """, (challenge_id,))
+        self.connection.commit()
