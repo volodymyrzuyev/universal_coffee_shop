@@ -1,8 +1,5 @@
-from fastapi import FastAPI
-from routes import auth
-from routes import form
+from coffee_shop_manager import CoffeeShopManager
 
-app = FastAPI()
 
-app.include_router(auth.router)
-app.include_router(form.router)
+cm = CoffeeShopManager()
+app = cm.app

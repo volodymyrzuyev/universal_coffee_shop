@@ -1,47 +1,77 @@
 // universal-coffee-shop/app/home.js
-import React from 'react';
+import {useState} from 'react';
 import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 
 
-const DUMMY_DATA = [
-  { id: '1', name: 'LAB COFFEE', logoUrl: 'https://placeholder.com/100', color: '#B0C4DE' },
-  { id: '2', name: 'THE COFFEEHOUSE', logoUrl: 'https://placeholder.com/100', color: '#D3D3D3' },
-  { id: '3', name: 'CRAFTED', logoUrl: 'https://placeholder.com/100', color: '#FFFFFF' },
-  { id: '4', name: 'LVL UP COFFEE BAR', logoUrl: 'https://placeholder.com/100', color: '#F08080' },
+let DUMMY_DATA = [
+  {name: 'LAB COFFEE'},
+  {name: 'THE COFFEEHOUSE'},
+  {name: 'CRAFTED'},
+  {name: 'LVL UP COFFEE BAR'},
 ];
 
+//Searches for a coffeeshop when user enters a coffeeshop name
+async function searchCoffeeShop(coffeeShopName)
+{
+  try{
+       
+    const response = await fetch(`http://localhost:8080/home/getCoffee_Shop/${coffeeShopName}`);
+    const data = await response.json();
+    const arrayData = Object.values(data);
+    console.log(arrayData[0])
+    if(response.ok)
+    {
+      DUMMY_DATA = [];
+      for(let i = 0; i < arrayData[0].length; i++)
+      {
+        DUMMY_DATA.push({name: arrayData[0][i][1]});
+      }
+     }
+
+     console.log(DUMMY_DATA)
+  }
+  catch(error)
+  {
+    console.log("ERROR: "+ error)
+  }
+}
+
 export default function HomeScreen() {
+  
+const [coffeeShopName, setCoffeeShopName] = useState("");
+function fun1(e){ setCoffeeShopName(e);}
 
 const router = useRouter();
 
-  const renderHeader = () => (
-    <>
+  return (
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search coffee shops..."
-        />
+        <TextInput value={coffeeShopName} onChangeText={fun1} style={styles.searchBar} placeholder="Search coffee shops..."></TextInput>
+        
+         <TouchableOpacity onPress={() => {searchCoffeeShop(coffeeShopName)}} style={styles.iconButton}>
+            <Feather name="search" size={24} color="black" />
+        </TouchableOpacity>
+        
         <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.iconButton}>
             <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
       </View>
       <Text style={styles.sectionTitle}>NEARBY</Text>
-    </>
-  );
 
-  return (
-    <SafeAreaView style={styles.container}>
+      <Text>CoffeeShop: {coffeeShopName}</Text>
+
+      
       <FlatList
         data={DUMMY_DATA}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
-        ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />

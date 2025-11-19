@@ -1,11 +1,9 @@
 from fastapi import APIRouter
-from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
-from config import db
+from databaseStuff.config import db
 
-from models import provider
 
-router = APIRouter(tags=["Coffeeshop Form Submission"])
+FormRouter = APIRouter(tags=["Coffeeshop Form Submission"])
 
 
 class CoffeeShop(BaseModel):
@@ -17,17 +15,19 @@ class CoffeeShop(BaseModel):
     PhoneNum: str
 
 
-@router.post("/items/")
+
+@FormRouter.post("/recieveForm/")
 async def getForm(CS: CoffeeShop):
-    return {
-        "status": "success",
-        "storeID": db.create_coffee_shop(
+
+    storeName = db.get_store_by_name(CS.coffeeShopName)
+
+    db.create_coffee_shop(
             CS.coffeeShopName,
             CS.OwnerID,
             CS.streetAddress,
             CS.city,
             CS.state,
-            int(CS.PhoneNum.replace("-", "")),
-        ),
-    }
+            int(CS.PhoneNum.replace("-", "")))
+
+    return {"storeName":storeName}
 
