@@ -181,6 +181,32 @@ class DatabaseController:
         """
         self.cursor.execute(query, (token,))
         return self.cursor.fetchone()
+
+    def get_user_id_from_token(self, token: str, platform: str) -> tuple:
+        """
+        Retrieves a userid from the database by token and platform.
+        Platform must be "google", "apple", or "facebook".
+        """
+        table_mapping = {
+            "google": "google_tokens",
+            "apple": "apple_tokens",
+            "facebook": "facebook_tokens"
+        }
+        table = table_mapping.get(platform)
+        if table is None:
+            raise ValueError("Invalid platform. Must be one of 'google', 'apple', or 'facebook'.")
+
+        query = f"""
+        SELECT user_id FROM {table}
+        WHERE {table}.token = ?;
+        """
+        self.cursor.execute(query, (token,))
+        userIDRow = self.cursor.fetchone()
+
+        if len(userIDRow) != 1:
+            raise ValueError("Internal error: platform token incorrect state")
+
+        return userIDRow[0]
     
     def get_admin_users(self) -> List[tuple]:
         self.cursor.execute("""
