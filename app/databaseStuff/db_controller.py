@@ -186,6 +186,7 @@ class DatabaseController:
         """
         Retrieves a userid from the database by token and platform.
         Platform must be "google", "apple", or "facebook".
+        If no user exists with that token, returns none
         """
         table_mapping = {
             "google": "google_tokens",
@@ -202,6 +203,9 @@ class DatabaseController:
         """
         self.cursor.execute(query, (token,))
         userIDRow = self.cursor.fetchone()
+
+        if userIDRow is None:
+            return userIDRow
 
         if len(userIDRow) != 1:
             raise ValueError("Internal error: platform token incorrect state")
