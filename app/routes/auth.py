@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
-import os, uuid, time, random
+import uuid, time, random
 from models import provider
 from pydantic import BaseModel, EmailStr
 import databaseStuff.db_controller as db_controller
@@ -39,6 +39,7 @@ def createAuthRouter(
 
         internalJWT = jwt.encode({"id": userID}, secretKey, algorithm="HS256")
 
+
         return {"status": "success", "jwt": internalJWT}
 
     class RegisterIn(BaseModel):
@@ -53,7 +54,7 @@ def createAuthRouter(
             if not db.check_unique_username(payload.email):
                 raise HTTPException(status_code=409, detail="Email already exists.")
 
-            user_id = db.create_user(payload.email, payload.password, False)
+            user_id = db.create_user( payload.email, payload.password, False)
 
             return {
                 "ok": True,
@@ -90,7 +91,7 @@ def createAuthRouter(
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
 
 
-            mfa_enabled = True
+            mfa_enabled = False # i will put a logic on this later(enable or dissable MFA per user)
 
             if mfa_enabled:
                 code = f"{random.randint(0, 999999):06d}"
@@ -107,17 +108,11 @@ def createAuthRouter(
                     "challenge_id": challenge_id,
                 }
 
-        
-            token = ...  
-            return {
-                "mfa_required": False,
-                "token": token,
-                "user_id": user_id,
-                "is_admin": bool(is_admin),
-            }
+
+
+            return {"user_id": user_id}
 
         except HTTPException:
-
             raise
         except Exception as e:
             print("LOGIN_ERROR:", repr(e))  
@@ -132,6 +127,7 @@ def createAuthRouter(
     class MFAVerifyIn(BaseModel):
         challenge_id: str
         code: str
+
 
     class MFAVerifyOut(BaseModel):
         token: str
@@ -186,5 +182,3 @@ def createAuthRouter(
         return {"ok": True}
 
     return router
-
-
