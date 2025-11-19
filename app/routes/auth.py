@@ -7,6 +7,7 @@ import databaseStuff.db_controller as db_controller
 import string
 import jwt
 
+
 def createAuthRouter(
     providers: dict[str, provider.providers],
     db: db_controller.DatabaseController,
@@ -31,14 +32,13 @@ def createAuthRouter(
                 random.choices(string.ascii_letters + string.digits, k=20)
             )
             password = "".join(
-
                 random.choices(string.ascii_letters + string.digits, k=20)
             )
             userID = db.create_user(username, password, False)
             db.add_user_id_to_token(token, provider, userID)
 
-        internalJWT = jwt.encode({"id": userID}, secretKey, algorithm="HS256")
 
+        internalJWT = jwt.encode({"id": userID}, secretKey, algorithm="HS256")
 
         return {"status": "success", "jwt": internalJWT}
 
@@ -54,7 +54,7 @@ def createAuthRouter(
             if not db.check_unique_username(payload.email):
                 raise HTTPException(status_code=409, detail="Email already exists.")
 
-            user_id = db.create_user( payload.email, payload.password, False)
+            user_id = db.create_user(payload.email, payload.password, False)
 
             return {
                 "ok": True,
@@ -92,7 +92,7 @@ def createAuthRouter(
 
 
             mfa_enabled = False # i will put a logic on this later(enable or dissable MFA per user)
-
+             # I dissabled it for now
             if mfa_enabled:
                 code = f"{random.randint(0, 999999):06d}"
                 challenge_id = str(uuid.uuid4())
@@ -124,10 +124,10 @@ def createAuthRouter(
         challenge_id: str | None = None
 
 
+
     class MFAVerifyIn(BaseModel):
         challenge_id: str
         code: str
-
 
     class MFAVerifyOut(BaseModel):
         token: str
@@ -137,6 +137,7 @@ def createAuthRouter(
 
     @router.post("/mfa/verify", response_model=MFAVerifyOut)
     async def verify_mfa(payload: MFAVerifyIn):
+
         db.database_connect()
         try:
             row = db.get_mfa_challenge(payload.challenge_id)
@@ -147,6 +148,7 @@ def createAuthRouter(
 
             now = int(time.time())
             if consumed or now > expires_at:
+
                 raise HTTPException(status_code=400, detail="Code expired.")
 
             if payload.code != code:
