@@ -7,13 +7,20 @@ export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
 
   return (
-    <TouchableOpacity style={[styles.card, { backgroundColor: shop.color }]}>
-      {/* image here later*/}
-      <View style={styles.logo} />
-      
+    <TouchableOpacity style={styles.card}>
+      <View className="logo" style={styles.logo} />
+
       <Text style={styles.shopName}>{shop.name}</Text>
-      <TouchableOpacity style={styles.favoriteButton} onPress={() => setIsFavorited(!isFavorited)}>
-        <Feather name="heart" size={24} color={isFavorited ? '#FFFFFF' : '#000000'} />
+
+      <TouchableOpacity
+        style={styles.favoriteButton}
+        onPress={() => setIsFavorited(!isFavorited)}
+      >
+        <Feather
+          name="heart"
+          size={24}
+          color={isFavorited ? '#FFFFFF' : '#000000'}
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -29,12 +36,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#000',
   },
-  // circle logo - later
   logo: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FFF', // White -fix with logos later
+    backgroundColor: '#FFF',
     marginRight: 15,
     borderWidth: 2,
     borderColor: '#000',
