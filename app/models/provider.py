@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+from typing import Union
 from urllib.parse import urlencode
 import requests
-import jwt
 
 
 from models.authProvider import AuthProvider
@@ -69,18 +69,7 @@ class Google(Provider, AuthProvider):
 
         user_info_response = requests.get(user_info_url, headers=headers).json()
 
-        google_user_id = user_info_response.get("sub")
-        email = user_info_response.get("email")
-
-        to_encode = {
-            "sub": email,
-            "id": google_user_id,
-        }
-        secret_key = "your-secret-key"
-
-        internal_access_token = jwt.encode(to_encode, secret_key, algorithm="HS256")
-
-        return internal_access_token
+        return user_info_response.get("sub")
 
 
 class Apple(Provider, AuthProvider):
@@ -89,3 +78,6 @@ class Apple(Provider, AuthProvider):
 
 class Facebook(Provider, AuthProvider):
     pass
+
+
+providers = Union[Apple, Facebook, Google]
