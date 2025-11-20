@@ -95,7 +95,7 @@ class DatabaseController:
             city TEXT,
             state TEXT,
             phone_number INTEGER,
-            logo_url TEXT
+            logo_url TEXT,
             FOREIGN KEY(owner_id) REFERENCES users(user_id)
         );
         """)
@@ -104,8 +104,8 @@ class DatabaseController:
             store_id TEXT,
             item_name TEXT,
             item_price REAL,
-            picture_url TEXT
-            PRIMARY KEY (store_id, item_name)
+            picture_url TEXT,
+            PRIMARY KEY (store_id, item_name),
             FOREIGN KEY(store_id) REFERENCES stores(store_id)
         );              
         """)
@@ -302,6 +302,7 @@ class DatabaseController:
             DELETE FROM menu_items
             WHERE store_id = ? AND item_name = ?
         """, (store_id, item_name))
+        self.connection.commit()
 
     def add_user_store(self, user_id: str, store_id: str) -> None:
         """Creates a link in user_owns: a user owns/has access to a store."""
