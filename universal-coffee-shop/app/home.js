@@ -1,77 +1,87 @@
 // universal-coffee-shop/app/home.js
-import {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 
-
-let DUMMY_DATA = [
-  {name: 'LAB COFFEE'},
-  {name: 'THE COFFEEHOUSE'},
-  {name: 'CRAFTED'},
-  {name: 'LVL UP COFFEE BAR'},
-];
-
-//Searches for a coffeeshop when user enters a coffeeshop name
-async function searchCoffeeShop(coffeeShopName)
-{
-  try{
-       
-    const response = await fetch(`http://localhost:8080/home/getCoffee_Shop/${coffeeShopName}`);
-    const data = await response.json();
-    const arrayData = Object.values(data);
-    console.log(arrayData[0])
-    if(response.ok)
-    {
-      DUMMY_DATA = [];
-      for(let i = 0; i < arrayData[0].length; i++)
-      {
-        DUMMY_DATA.push({name: arrayData[0][i][1]});
-      }
-     }
-
-     console.log(DUMMY_DATA)
-  }
-  catch(error)
-  {
-    console.log("ERROR: "+ error)
-  }
-}
+// BACKEND URL 
+const BASE_URL = 'add your url here - make sure 8080 is public or local to the device youre testing on';
 
 export default function HomeScreen() {
-  
-const [coffeeShopName, setCoffeeShopName] = useState("");
-function fun1(e){ setCoffeeShopName(e);}
+  const router = useRouter();
 
-const router = useRouter();
+  // search box
+  const [searchText, setSearchText] = useState('');
 
-  return (
-    <SafeAreaView style={styles.container}>
+  // data coming from backend
+  const [shops, setShops] = useState([]);
+
+  // maps SQL rows → frontend shop objects
+  function mapRows(rows) {
+    if (!Array.isArray(rows)) return [];
+    return rows.map((row) => ({
+      id: row[0],      // store_id
+      name: row[1],    // coffee_shop_name
+    }));
+  }
+
+  // fetch from backend (all or filtered)
+  async function fetchShops(name) {
+    try {
+      const query = name.trim() === '' ? '%25' : encodeURIComponent(name.trim());
+      const url = `${BASE_URL}/home/getCoffee_Shop/${query}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      const mapped = mapRows(data.Coffeeshop);
+      setShops(mapped);
+    } catch (err) {
+      console.log('FETCH ERROR:', err);
+    }
+  }
+
+  // load all shops once
+  useEffect(() => {
+    fetchShops('');
+  }, []);
+
+  // header section (your same layout)
+  const renderHeader = () => (
+    <>
       <View style={styles.header}>
-        <TextInput value={coffeeShopName} onChangeText={fun1} style={styles.searchBar} placeholder="Search coffee shops..."></TextInput>
-        
-         <TouchableOpacity onPress={() => {searchCoffeeShop(coffeeShopName)}} style={styles.iconButton}>
-            <Feather name="search" size={24} color="black" />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search coffee shops..."
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+
+        <TouchableOpacity onPress={() => fetchShops(searchText)} style={styles.iconButton}>
+          <Feather name="search" size={24} color="black" />
         </TouchableOpacity>
-        
+
         <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
-            <Feather name="plus" size={24} color="black" />
+          <Feather name="plus" size={24} color="black" />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.iconButton}>
-            <Feather name="user" size={24} color="black" />
+          <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
       </View>
+
       <Text style={styles.sectionTitle}>NEARBY</Text>
+    </>
+  );
 
-      <Text>CoffeeShop: {coffeeShopName}</Text>
-
-      
+  return (
+    <SafeAreaView style={styles.container}>
       <FlatList
-        data={DUMMY_DATA}
+        data={shops} // now using backend results
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
+        ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
