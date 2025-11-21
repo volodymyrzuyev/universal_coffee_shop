@@ -19,6 +19,7 @@
 ###### **'pip install python-dotenv'**
 ###### **'pip install requests'**
 ###### **'pip install jwt'**
+###### **' pip install 'pydantic[email]' '**
 
 
 ## **Running a virtual Python Environment (DO THIS FIRST)**
