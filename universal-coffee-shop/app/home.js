@@ -41,6 +41,19 @@ export default function HomeScreen() {
       console.log('FETCH ERROR:', err);
     }
   }
+  async function handleLogout() {
+  try {
+    await fetch(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+    });
+
+    //to do : Remove stored user info 
+
+    router.replace("/login");
+  } catch (err) {
+    console.log("LOGOUT ERROR:", err);
+  }
+}
 
   // load all shops once
   useEffect(() => {
@@ -69,6 +82,11 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+          <Feather name="log-out" size={24} color="black" />
+        </TouchableOpacity>
+
       </View>
 
       <Text style={styles.sectionTitle}>NEARBY</Text>
