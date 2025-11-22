@@ -28,6 +28,12 @@ export default function AuthScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+      
+          <TouchableOpacity  
+          onPress={() => router.push('/AddCoffeeShop')}>
+          <Text >ADD COFFEESHOP DEV ONLY</Text>
+        </TouchableOpacity>
+
     </SafeAreaView>
   );
 }

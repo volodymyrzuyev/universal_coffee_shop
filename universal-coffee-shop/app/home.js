@@ -6,7 +6,7 @@ import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 
 // BACKEND URL 
-const BASE_URL = 'add your url here - make sure 8080 is public or local to the device youre testing on';
+const BASE_URL = 'http://10.0.14.252:8080';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -33,6 +33,7 @@ export default function HomeScreen() {
       const url = `${BASE_URL}/home/getCoffee_Shop/${query}`;
 
       const response = await fetch(url);
+ 
       const data = await response.json();
 
       const mapped = mapRows(data.Coffeeshop);
@@ -43,13 +44,16 @@ export default function HomeScreen() {
   }
 
   // load all shops once
-  useEffect(() => {
-    fetchShops('');
-  }, []);
+   useEffect(() => {
+     fetchShops('');
+   }, []);
 
   // header section (your same layout)
-  const renderHeader = () => (
-    <>
+ 
+
+  return (
+    <SafeAreaView style={styles.container}>
+
       <View style={styles.header}>
         <TextInput
           style={styles.searchBar}
@@ -72,16 +76,12 @@ export default function HomeScreen() {
       </View>
 
       <Text style={styles.sectionTitle}>NEARBY</Text>
-    </>
-  );
 
-  return (
-    <SafeAreaView style={styles.container}>
       <FlatList
         data={shops} // now using backend results
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
-        ListHeaderComponent={renderHeader}
+        
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
