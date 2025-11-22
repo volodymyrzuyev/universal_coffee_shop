@@ -37,7 +37,8 @@ async function handleLogin() {
       Alert.alert("Login failed", msg);
       return;
     }
-
+    // Store user_id in secure storage afetrter successful login
+    await SecureStore.setItemAsync("user_id", String(data.user_id));
 
     if (data.mfa_required) {
       router.push({
