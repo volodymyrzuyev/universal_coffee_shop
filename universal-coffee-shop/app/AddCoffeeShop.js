@@ -47,7 +47,7 @@ function fun7(e){setShopURL(e);}
  const submitForm = async () => {
    
      try {
-        const response = await fetch('http://10.0.14.252:8080/recieveForm/', {
+        const response = await fetch('http://0.0.0.0:8080/recieveForm/', {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'  

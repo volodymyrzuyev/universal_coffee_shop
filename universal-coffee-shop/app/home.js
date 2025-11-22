@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 
 // BACKEND URL 
-const BASE_URL = 'http://10.0.14.252:8080';
+const BASE_URL = 'http://192.168.1.175:8080';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -17,6 +17,7 @@ export default function HomeScreen() {
 
   // data coming from backend
   const [shops, setShops] = useState([]);
+
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];

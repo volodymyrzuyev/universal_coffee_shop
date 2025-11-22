@@ -5,6 +5,9 @@ import { useState } from 'react';
 export default function page()
 {
 
+    //This useEffect should render the data of the coffeeshop
+    //that the user clicked on. 
+
     async function idk()
     {
         const nameofastore = await fetch(`/getCoffee_Shop/${coffeeShopName}`)
@@ -13,8 +16,7 @@ export default function page()
         setCoffeeShopName(newData);
     }
 
-     const [coffeeShopName, setCoffeeShopName] = useState("");
-     const [OwnerName, setOwnerName] = useState("");
+     
         
     return(
         <>

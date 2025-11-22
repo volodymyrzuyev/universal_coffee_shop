@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
+
   const shopName = shop.name;
   
 
