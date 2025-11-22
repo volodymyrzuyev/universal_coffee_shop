@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpa
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
+import * as SecureStore from "expo-secure-store";
 
 // BACKEND URL 
 const BASE_URL = 'add your url here - make sure 8080 is public or local to the device youre testing on';
@@ -16,7 +17,6 @@ export default function HomeScreen() {
 
   // data coming from backend
   const [shops, setShops] = useState([]);
-
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];
@@ -43,12 +43,12 @@ export default function HomeScreen() {
   }
   async function handleLogout() {
   try {
-    await fetch(`${BASE_URL}/auth/logout`, {
-      method: "POST",
-    });
+    //we are not using the backend logout endpoint for now, just clear local storage
+    await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
 
-    //to do : Remove stored user info 
+//so now the user_id is deleted from secure storage, we can redirect to login.
 
+    
     router.replace("/login");
   } catch (err) {
     console.log("LOGOUT ERROR:", err);
