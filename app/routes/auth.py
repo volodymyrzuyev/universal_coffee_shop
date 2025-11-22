@@ -174,9 +174,6 @@ def createAuthRouter(
 
 
 
-    @router.post("/logout")
-    async def logout():
 
-        return {"ok": True}
 
     return router

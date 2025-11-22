@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpa
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
+import * as SecureStore from "expo-secure-store";
 
 // BACKEND URL 
 const BASE_URL = 'http://10.0.14.252:8080';
@@ -16,7 +17,6 @@ export default function HomeScreen() {
 
   // data coming from backend
   const [shops, setShops] = useState([]);
-
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];
@@ -42,6 +42,19 @@ export default function HomeScreen() {
       console.log('FETCH ERROR:', err);
     }
   }
+  async function handleLogout() {
+  try {
+    //we are not using the backend logout endpoint for now, just clear local storage
+    await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
+
+//so now the user_id is deleted from secure storage, we can redirect to login.
+
+    
+    router.replace("/login");
+  } catch (err) {
+    console.log("LOGOUT ERROR:", err);
+  }
+}
 
   // load all shops once
    useEffect(() => {
@@ -73,6 +86,11 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+          <Feather name="log-out" size={24} color="black" />
+        </TouchableOpacity>
+
       </View>
 
       <Text style={styles.sectionTitle}>NEARBY</Text>
