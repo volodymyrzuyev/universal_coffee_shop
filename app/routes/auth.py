@@ -65,8 +65,8 @@ def createAuthRouter(
                     "role": "USER"
                 }
             }
-        finally:
-            db.database_close()
+        except:
+            print("Error: Registration Operation Failed.")
 
 
     class LoginIn(BaseModel):
@@ -79,7 +79,6 @@ def createAuthRouter(
 
 
         try:
-            db.database_connect()
             row = db.get_user_by_email(payload.email)
             if row is None:
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
@@ -117,8 +116,6 @@ def createAuthRouter(
         except Exception as e:
             print("LOGIN_ERROR:", repr(e))  
             raise HTTPException(status_code=500, detail="Login failed.")
-        finally:
-            db.database_close()
     class MFAStartOut(BaseModel):
         mfa_required: bool
         challenge_id: str | None = None
@@ -138,7 +135,6 @@ def createAuthRouter(
     @router.post("/mfa/verify", response_model=MFAVerifyOut)
     async def verify_mfa(payload: MFAVerifyIn):
 
-        db.database_connect()
         try:
             row = db.get_mfa_challenge(payload.challenge_id)
             if row is None:
@@ -173,8 +169,8 @@ def createAuthRouter(
                 user_id=user_id,
                 is_admin=bool(is_admin),
             )
-        finally:
-            db.database_close()
+        except:
+            print("Error: MFA verification failed.")
 
 
 
