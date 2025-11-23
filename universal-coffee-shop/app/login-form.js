@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet} from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
-
-
-const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://0.0.0.0:8080";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.175:8080";
 
 export default function LoginForm() {
 
@@ -21,7 +20,6 @@ async function handleLogin() {
     Alert.alert("Missing info", "Please enter both email and password.");
     return;
   } else
-  
   {
 
   }
@@ -77,6 +75,7 @@ async function handleLogin() {
       <View style={styles.form}>
         <TextInput
           placeholder="Email"
+          placeholderTextColor={"grey"}
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
@@ -86,6 +85,7 @@ async function handleLogin() {
         />
         <TextInput
           placeholder="Password"
+          placeholderTextColor={"grey"}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -99,6 +99,10 @@ async function handleLogin() {
         >
           {busy ? <ActivityIndicator /> : <Text style={styles.buttonText}>Log In</Text>}
         </TouchableOpacity>
+
+         <TouchableOpacity onPress={() => router.push("/signup")}>
+                  <Text style={styles.switchText}>Don't have an account? Sign Up</Text>
+          </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -111,7 +115,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: "center",
   },
-
+  switchText: {
+    textAlign: "center",
+    color: "#000",
+    fontSize: 14,
+    fontFamily: "Anton-Regular",
+  },
   header: {
     flex: 2,
     justifyContent: "center",

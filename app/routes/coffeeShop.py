@@ -9,11 +9,18 @@ coffeeShopRouter = APIRouter(
     prefix='/home',
     tags=["Gets specific coffeeshop"])
 
+#Store object that is created to call the methods in the database
+newStore = Store()
 
+#@coffeeShopRouter.get("/getCoffeeShop/{coffeeShopName}")
+#async def getCoffeeShop(coffeeShopName: str):
+ #   return {"Coffeeshop":newStore.get_all_stores_by_name(coffeeShopName)}
 
+#endpoint that returns all coffeeshops in the database by name only
+@coffeeShopRouter.get("/getAllCoffeeShopsByName")
+async def getAllCoffeeShopsByName():
+    return {"Coffeeshops": newStore.get_all_stores_by_name()}
+    
 
-@coffeeShopRouter.get("/getCoffee_Shop/{coffeeShopName}")
-async def getCoffeeShop(coffeeShopName: str):
-    newStore = Store()
-    return {"Coffeeshop":newStore.get_store_by_name(coffeeShopName)}
+    
 

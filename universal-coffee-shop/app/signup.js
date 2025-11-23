@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://127.0.0.1:8080";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.175:8080";
 
 export default function Signup() {
   const router = useRouter();
@@ -28,16 +29,23 @@ export default function Signup() {
         body: JSON.stringify({ name, email, password }),
       });
 
+      //This contains the data send from the endpoint '/auth/register'
       const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        const msg = data?.detail || "Sign-up failed.";
-        Alert.alert("Error", msg);
+      
+      //this hits if the user tried to create an account with an email
+      //that already exists and blocks them from doing so
+      if (data.uniqueEmail == false) {
+         Alert.alert("An account with this email already exist");
         return;
       }
+      //This executes if the user enters information with a brand new
+      // unique email
+      else if(data.uniqueEmail == true){
+        Alert.alert("Success", "Account created! Please log in.");
+        router.replace("/login-form");
+      }
 
-      Alert.alert("Success", "Account created! Please log in.");
-      router.replace("/login-form");
+    //this hits if theres a network error   
     } catch (err) {
       Alert.alert("Network error", String(err?.message || err));
     } finally {
@@ -53,12 +61,14 @@ export default function Signup() {
       <View style={styles.form}>
         <TextInput
           placeholder="Full Name"
+          placeholderTextColor={"grey"}
           value={name}
           onChangeText={setName}
           style={styles.input}
         />
         <TextInput
           placeholder="Email"
+          placeholderTextColor={"grey"}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -68,6 +78,7 @@ export default function Signup() {
         />
         <TextInput
           placeholder="Password"
+          placeholderTextColor={"grey"}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -104,7 +115,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flex: 2,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -127,7 +138,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 20,
+    paddingTop: 1,
     width: "100%",
     gap: 12,
   },
@@ -148,7 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 8,
-    marginBottom: 25,
+    marginBottom: 15,
   },
 
   buttonText: {
@@ -167,7 +178,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 12,
     color: "#000",
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: "Anton-Regular",
   },
 });

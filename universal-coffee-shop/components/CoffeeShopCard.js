@@ -13,8 +13,13 @@ export default function CoffeeShopCard({ shop }) {
 
   async function handleRedirect()
   {
-    router.replace(`CoffeeShopPage/${shopName}/page`); 
-  }
+    router.navigate({
+      pathname:'/CoffeeShopPage/[id]/page',
+      params: {id:shopName}
+    })
+
+
+   }
 
   return (
     <TouchableOpacity style={styles.card}  onPress={handleRedirect}>
