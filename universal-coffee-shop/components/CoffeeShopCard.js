@@ -2,12 +2,22 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
+  const router = useRouter();
+
+  const shopName = shop.name;
+  
+
+  async function handleRedirect()
+  {
+    router.replace(`CoffeeShopPage/${shopName}/page`); 
+  }
 
   return (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity style={styles.card}  onPress={handleRedirect}>
       <View className="logo" style={styles.logo} />
 
       <Text style={styles.shopName}>{shop.name}</Text>

@@ -37,8 +37,7 @@ class User(ABC, StoredObject):
         return db.get_user_from_id(id)
 
     def get_by_email(self, email: str) -> tuple:
-        # ToDo: call the get_by_email function in db_controller once it exists.
-        pass
+        return db.get_user_by_email(email)
 
     def get_all(self) -> List[tuple]:
         return db.get_all_users()
@@ -62,7 +61,7 @@ class StandardUser(User):
 class AdminUser(User):
 
     def get_all(self):
-        return db.get_standard_users()
+        return db.get_admin_users()
 
     def add(self, user_name: str, password: str) -> str:
         return db.create_user(user_name, password, True)

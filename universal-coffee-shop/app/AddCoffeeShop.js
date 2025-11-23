@@ -1,11 +1,13 @@
  
 import {useState} from 'react';
 import {View,Text,TextInput,StyleSheet,ScrollView,TouchableOpacity} from 'react-native';
-
+import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function AddCoffeeShop()
 {
+
+const router = useRouter();
 
 const [coffeeShopName, setCoffeeShopName] = useState("");
 const [OwnerID, setID] = useState("");
@@ -13,6 +15,7 @@ const [streetAddress, setStreetAddress] = useState("");
 const [city, setCity] = useState("");
 const [state, setState] = useState("");
 const [PhoneNum, setPhoneNumber] = useState("");
+const [shopURL, setShopURL] = useState("");
 
 const [responseMessage, setResponseMessage] = useState("");
 
@@ -29,23 +32,23 @@ function fun5(e){setState(e);}
 
 function fun6(e){setPhoneNumber(e);}
 
+function fun7(e){setShopURL(e);}
+
  const form_content = {
      'coffeeShopName': coffeeShopName, 
     'OwnerID': OwnerID, 
     'streetAddress': streetAddress, 
     'city': city, 
     'state': state, 
-    'PhoneNum': PhoneNum, 
+    'PhoneNum': PhoneNum,
+    'shopURL': shopURL 
 };
 
  const submitForm = async () => {
    
      try {
-        const response = await fetch('http://10.0.14.252:8080/recieveForm/', {
-            method: 'POST',
-            /*no-cors means that the method has to be GET, POST, or HEAD
-            Just using it to get more familiar with fetch api*/
-            mode: 'no-cors',
+        const response = await fetch('http://0.0.0.0:8080/recieveForm/', {
+             method: 'POST',
              headers: {
                 'Content-Type': 'application/json'  
             },
@@ -55,6 +58,7 @@ function fun6(e){setPhoneNumber(e);}
         if (response.ok) {
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
+            
             alert("Form submitted sucessfully");
             const data = await response.json();
             setResponseMessage(data.storeName);
@@ -63,6 +67,7 @@ function fun6(e){setPhoneNumber(e);}
             /*This hits if the server address is correct, but the response from the
             server gave an error like a 404 status code. One reason for an error 
             could be an incorrect endpoint name*/
+          
             alert("There was an error when submitting the form, please try again. Make sure the phone number includes only numbers and '-'")        
         }
     } catch (error) {
@@ -76,74 +81,35 @@ function fun6(e){setPhoneNumber(e);}
 
         <ScrollView style={styles.form}>
 
-            <Text style={styles.text}>Please enter the details for your new Coffee shop</Text>
+            <Text style={styles.header}>Please enter the details for your new Coffee shop</Text>
 
-            <Text style={styles.text}>Coffeeshop name:</Text>
+            <Text style={styles.label}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
              
-            <Text style={styles.text}>Owner name:</Text>
+            <Text style={styles.label}>Owner name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='John Doe' style={styles.input} value={OwnerID} onChangeText={fun2}></TextInput>
 
-            <Text style={styles.text}>Street address:</Text>
+            <Text style={styles.label}>Street address:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='123 Fake Street' style={styles.input} value={streetAddress} onChangeText={fun3}></TextInput>
 
-            <Text style={styles.text}>City:</Text>
+            <Text style={styles.label}>City:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='Springfield' style={styles.input} value={city} onChangeText={fun4}></TextInput>
 
-            <Text style={styles.text}>State:</Text>
+            <Text style={styles.label}>State:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='Illinois' style={styles.input} value={state} onChangeText={fun5}></TextInput>
 
-            <Text style={styles.text}>Phone #:</Text>
+            <Text style={styles.label}>Phone #:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='224-123-4567' style={styles.input} value={PhoneNum} onChangeText={fun6}></TextInput>
-            
-            <Text style={styles.text}>Hours:</Text>
-
-            <Text style={{color:"black"}}>Monday</Text>
-            <View style={styles.hoursView}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
-
-            <Text style={{color:"black"}}>Tuesday</Text>
-            <View style={styles.hoursView}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
              
-            <Text style={{color:"black"}}>Wednesday</Text>
-            <View style={styles.hoursView}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
-             
-            <Text style={{color:"black"}}>Thursday</Text>
-            <View style={styles.hoursView}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
-             
-            <Text style={{color:"black"}}>Friday</Text>
-            <View style={styles.hoursView}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
-             
-            <Text style={{color:"black"}}>Saturday</Text>
-            <View style={styles.hoursView}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
-             
-            <Text style={{color:"black"}}>Sunday</Text>
-            <View  style={[styles.hoursView, {marginBottom:25}]}>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='8:00am' style={styles.hours}></TextInput>
-                <TextInput placeholderTextColor={'#747474ff'} placeholder='9:30pm' style={styles.hours}></TextInput>
-            </View>
+            <Text style={styles.label}>Shop URL (Website):</Text>
+            <TextInput placeholderTextColor={'#747474ff'} placeholder='https://www.starbucks.com/' style={styles.input} value={shopURL} onChangeText={fun7}></TextInput>
         </ScrollView>
 
-        <TouchableOpacity onPress={submitForm}><Text style={styles.text}>Submit Form</Text></TouchableOpacity>
+        <TouchableOpacity onPress={submitForm}><Text style={styles.submit}>Submit Form</Text></TouchableOpacity>
 
-        <Text>a thing probably: {responseMessage}</Text>
+        <TouchableOpacity onPress={() => router.push("/home")}>
+                  <Text style={styles.backText}>Back</Text>
+                </TouchableOpacity>
          
      </SafeAreaView>
         </>);
@@ -151,34 +117,51 @@ function fun6(e){setPhoneNumber(e);}
 
 const styles = StyleSheet.create({
   container: 
-  { 
-    
-    alignSelf:'center',
-    width:'75%'
+  {  
+    width:'100%'
   },
   form: 
   {
-    borderColor:'black',
-    borderWidth:'2px'
+    
   },
-  text: 
+  label: 
   {
-    borderStyle:'solid',
     backgroundColor:'lightblue',
     textAlign:'center',
-    padding:'6px',
-    borderTopWidth:'2px',
-    borderBottomWidth:'2px',
+    paddingRight:'20px', 
+    fontSize: 18,  
   },  
   input: 
   {
     textAlign:'center',
-    padding:'6px',
+    paddingLeft:'20px',
+    borderWidth: 2,
+    borderColor: "black",
+    fontSize: 15,
+    
   },
-  hours: {},
-  hoursView: {}
-
+  header:
+  {
+    textAlign:'center',
+    borderWidth: 2,
+    borderColor: "black",
+    fontSize: 24,
+  },
+  submit:
+  {
+    fontSize: 20,
+    color: "#000",
+    fontFamily: "Anton-Regular",
+    textAlign: "center",
+    lineHeight: 50,
+  },
+  backText: {
+    textAlign: "center",
+    marginTop: 12,
+    color: "#000",
+    fontSize: 12,
+    fontFamily: "Anton-Regular",
+  },
 });
  
-
 export default AddCoffeeShop;

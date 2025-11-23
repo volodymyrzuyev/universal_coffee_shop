@@ -4,9 +4,10 @@ import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpa
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
+import * as SecureStore from "expo-secure-store";
 
 // BACKEND URL 
-const BASE_URL = 'add your url here - make sure 8080 is public or local to the device youre testing on';
+const BASE_URL = 'http://192.168.1.175:8080';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function HomeScreen() {
       const url = `${BASE_URL}/home/getCoffee_Shop/${query}`;
 
       const response = await fetch(url);
+ 
       const data = await response.json();
 
       const mapped = mapRows(data.Coffeeshop);
@@ -41,15 +43,31 @@ export default function HomeScreen() {
       console.log('FETCH ERROR:', err);
     }
   }
+  async function handleLogout() {
+  try {
+    //we are not using the backend logout endpoint for now, just clear local storage
+    await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
+
+//so now the user_id is deleted from secure storage, we can redirect to login.
+
+    
+    router.replace("/login");
+  } catch (err) {
+    console.log("LOGOUT ERROR:", err);
+  }
+}
 
   // load all shops once
-  useEffect(() => {
-    fetchShops('');
-  }, []);
+   useEffect(() => {
+     fetchShops('');
+   }, []);
 
   // header section (your same layout)
-  const renderHeader = () => (
-    <>
+ 
+
+  return (
+    <SafeAreaView style={styles.container}>
+
       <View style={styles.header}>
         <TextInput
           style={styles.searchBar}
@@ -69,19 +87,20 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+          <Feather name="log-out" size={24} color="black" />
+        </TouchableOpacity>
+
       </View>
 
       <Text style={styles.sectionTitle}>NEARBY</Text>
-    </>
-  );
 
-  return (
-    <SafeAreaView style={styles.container}>
       <FlatList
         data={shops} // now using backend results
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
-        ListHeaderComponent={renderHeader}
+        
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />

@@ -95,7 +95,7 @@ class DatabaseController:
             city TEXT,
             state TEXT,
             phone_number INTEGER,
-            logo_url TEXT,
+            shopURL TEXT,
             FOREIGN KEY(owner_id) REFERENCES users(user_id)
         );
         """)
@@ -376,7 +376,7 @@ class DatabaseController:
 
         return self.cursor.fetchall()
 
-    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) -> str:
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, shopURL: str) -> str:
         """
         Creates a coffee shop with a generated unique store_id and returns it.
         Also links the owner to the store in user_owns.
@@ -390,10 +390,10 @@ class DatabaseController:
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute(
             """
-            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url)
+            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, shopURL)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url),
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, shopURL),
         )
         self.connection.commit()
 

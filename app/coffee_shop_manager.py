@@ -8,6 +8,11 @@ from models import provider
 import os
 
 
+#added this in order to stop recieving the CORS error
+#I believe this will allow the backend to trust the frontend origin (http://localhost:8081)
+from fastapi.middleware.cors import CORSMiddleware
+
+
 def initAuthRoute(db: db_controller.DatabaseController) -> APIRouter:
     platform_providers: dict[str, provider.providers] = {}
 
@@ -34,6 +39,20 @@ class CoffeeShopManager:
         app.include_router(form.FormRouter)
         app.include_router(user.UserRouter)
         app.include_router(coffeeShop.coffeeShopRouter)
+
+        #fastAPI website says that using * is a bad thing since it won;t
+        #allow communication that uses credentials like cookies and 
+        #authorization headers, but that shouldn't be an issue since all
+        #were doing is sending data to the database
+        origins = ['*']
+
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
         self.app = app
 

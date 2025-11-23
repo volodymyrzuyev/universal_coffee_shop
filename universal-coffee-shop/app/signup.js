@@ -85,6 +85,11 @@ export default function Signup() {
         <TouchableOpacity onPress={() => router.push("/login-form")}>
           <Text style={styles.switchText}>Already have an account? Log in</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/login")}>
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+        
       </View>
     </SafeAreaView>
   );
@@ -154,9 +159,15 @@ const styles = StyleSheet.create({
 
   switchText: {
     textAlign: "center",
-    marginTop: 12,
     color: "#000",
     fontSize: 14,
+    fontFamily: "Anton-Regular",
+  },
+  backText: {
+    textAlign: "center",
+    marginTop: 12,
+    color: "#000",
+    fontSize: 12,
     fontFamily: "Anton-Regular",
   },
 });
