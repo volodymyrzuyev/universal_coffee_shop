@@ -8,14 +8,14 @@ export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
 
-  const shopName = shop.name;
-  
 
+  const shopId = shop.id
+   
   async function handleRedirect()
   {
     router.navigate({
-      pathname:'/CoffeeShopPage/[id]/page',
-      params: {id:shopName}
+      pathname:'/CoffeeShopPage/[shop_id]/page',
+      params: {shop_id: shopId}
     })
 
 

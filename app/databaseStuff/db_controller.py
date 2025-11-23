@@ -316,8 +316,9 @@ class DatabaseController:
         )
         self.connection.commit()
 
-    def get_store_by_id(self, store_id: str) -> tuple:
-        """Fetch a single store record by ID."""
+    def get_coffeeshop_by_id(self, store_id: str) -> tuple:
+        print("id " + store_id)
+        """Fetch a single coffeeshop record by ID."""
         self.cursor.execute(
             """
             SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
@@ -327,12 +328,12 @@ class DatabaseController:
         )
         return self.cursor.fetchone()
     
-    #this returns all coffeeshops in the database containing only their name and id
-    def get_all_stores_by_name(self) -> List[tuple]:
-        """Fetch all store records by name."""
+    #this returns all information from all coffeeshops
+    def get_all_coffeeshops(self) -> List[tuple]:
+        """Fetch all store records with every attribute."""
         self.cursor.execute(
             """
-            SELECT store_id, coffee_shop_name
+            SELECT *
             FROM stores;
             """
         )
