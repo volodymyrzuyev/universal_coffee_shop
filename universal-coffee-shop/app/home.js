@@ -18,6 +18,9 @@ export default function HomeScreen() {
   // data coming from backend
   const [shops, setShops] = useState([]);
 
+  // holds whether the current user is an admin
+  const [isAdmin, setIsAdmin] = useState(false);
+
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];
@@ -43,12 +46,23 @@ export default function HomeScreen() {
       console.log('FETCH ERROR:', err);
     }
   }
+
+  //Restore admin status from SecureStore
+  useEffect(() => {
+  async function loadRole() {
+    const flag = await SecureStore.getItemAsync("is_admin");
+    setIsAdmin(flag === "1");
+  }
+  loadRole();
+}, []);
+
   async function handleLogout() {
   try {
     //we are not using the backend logout endpoint for now, just clear local storage
     await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
+    await SecureStore.deleteItemAsync("is_admin");// Remove is_admin from secure storage
 
-//so now the user_id is deleted from secure storage, we can redirect to login.
+//so now the user_id and the role are both deleted from secure storage, we can redirect to login.
 
     
     router.replace("/login");
@@ -80,9 +94,11 @@ export default function HomeScreen() {
           <Feather name="search" size={24} color="black" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
-          <Feather name="plus" size={24} color="black" />
-        </TouchableOpacity>
+        {isAdmin && (
+          <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
+            <Feather name="plus" size={24} color="black" />
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
