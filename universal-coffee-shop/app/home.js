@@ -54,6 +54,33 @@ export default function HomeScreen() {
     }
   }
 
+  //called when a shop is fetched by name in the search bar
+  async function fetchShops(name)
+  {
+    try {
+
+      //returns the page to normal if the user clicks the search bar with nothing inside
+       if(name == '')
+       {
+         fetchAllShops();
+         return;
+       }
+      //fetch api that gets and returns to 'response' object all information from all coffeeshops
+      const url = `${BASE_URL}/home/get_coffeeshop_by_name/${name}`;
+      const response = await fetch(url);
+ 
+      //this holds the un-jsoned object containg information about all coffeeshops
+      const data = await response.json();
+
+      //data.Coffeeshops contains the array of coffeeshops
+      const mapped = mapRows(data.Coffeeshops);
+      setShops(mapped);
+       
+    } catch (err) {
+      console.log('FETCH ERROR:', err);
+    }
+  }
+
   async function handleLogout() {
   try {
     //we are not using the backend logout endpoint for now, just clear local storage

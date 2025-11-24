@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {Text, TouchableOpacity} from 'react-native';
+import {Text, TouchableOpacity,ScrollView,View,StyleSheet} from 'react-native';
 import { useLocalSearchParams} from 'expo-router';
 import { useRouter } from "expo-router";
 
@@ -68,20 +68,35 @@ export default function page()
 
     return(
           <>
-            <Text>Hello and welcome to {coffeeShopName}</Text>
-            <Text>The owner of our establishment is {OwnerID}</Text>
-            <Text>You can find us at this address {streetAddress} in {city} {state}</Text>
-            <Text>If you want to call us, reach us at {PhoneNum}</Text>
+          <ScrollView style={styles.perimeter}> 
+            <Text style={styles.shopName}>Hello and welcome to {coffeeShopName}</Text>
+            <Text style={styles.text}>The owner of our establishment is {OwnerID}</Text>
+            <Text style={styles.text}>You can find us at this address {streetAddress} in {city} {state}</Text>
+            <Text style={styles.text}>If you want to call us, reach us at {PhoneNum}</Text>
 
 
             <TouchableOpacity onPress={() => router.push("/home")}>
-                      <Text>BACK</Text>
+                      <Text style={styles.text}>BACK</Text>
             </TouchableOpacity>
+
+            </ScrollView>
           </>
 
      )
-
-
-
-
 }
+
+
+ const styles = StyleSheet.create({
+       perimeter: {
+        textAlign:'center',
+       },
+       text:
+       {
+        textAlign:'center'
+       },
+       shopName:
+       {
+        textAlign:'center',
+        fontWeight:'bold'
+       }
+    });

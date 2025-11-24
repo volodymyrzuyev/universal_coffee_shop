@@ -317,7 +317,6 @@ class DatabaseController:
         self.connection.commit()
 
     def get_coffeeshop_by_id(self, store_id: str) -> tuple:
-        print("id " + store_id)
         """Fetch a single coffeeshop record by ID."""
         self.cursor.execute(
             """
@@ -327,6 +326,17 @@ class DatabaseController:
             (store_id,),
         )
         return self.cursor.fetchone()
+    
+    def get_coffeeshop_by_name(self, store_name: str) -> tuple:
+        """Fetch a single coffeeshop record by ID."""
+        self.cursor.execute(
+            """
+            SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
+            FROM stores WHERE coffee_shop_name = ?;
+            """,
+            (store_name,),
+        )
+        return self.cursor.fetchall()
     
     def get_all_stores(self) -> List[tuple]:
         """

@@ -22,5 +22,10 @@ async def get_all_stores():
 async def get_coffeeshop_by_id(shop_id):
      return {"Coffeeshop":newStore.get_coffeeshop_by_id(shop_id)}
 
+#endpoint that returns all coffeeshops that are named 'shop_name'
+@coffeeShopRouter.get("/get_coffeeshop_by_name/{shop_name}")
+async def get_coffeeshops_by_name(shop_name):
+     return {"Coffeeshops":newStore.get_coffeeshop_by_name(shop_name)}
+
     
 
