@@ -42,8 +42,11 @@ async function handleLogin() {
       Alert.alert("Login failed", msg);
       return;
     }
-    // Store user_id in secure storage afetrter successful login
+    // Store user_id and role in secure storage afetrter successful login
     await SecureStore.setItemAsync("user_id", String(data.user_id));
+    await SecureStore.setItemAsync("is_admin", String(data.is_admin));
+
+
 
     if (data.mfa_required) {
       router.push({

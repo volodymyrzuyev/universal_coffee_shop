@@ -109,7 +109,7 @@ def createAuthRouter(
 
 
 
-            return {"user_id": user_id}
+            return {"user_id": user_id, "is_admin": is_admin}
 
         except HTTPException:
             raise
