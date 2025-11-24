@@ -94,8 +94,8 @@ class DatabaseController:
             street_address TEXT,
             city TEXT,
             state TEXT,
-            phone_number INTEGER,
-            shopURL TEXT,
+            phone_number TEXT,
+            picture_url TEXT,
             FOREIGN KEY(owner_id) REFERENCES users(user_id)
         );
         """)
@@ -135,6 +135,38 @@ class DatabaseController:
         );
         """)
 
+        self.cursor.execute("""
+        CREATE TABLE sms_subscribers(
+            store_id TEXT,
+            user_id TEXT,
+            PRIMARY KEY(user_id, store_id),
+            FOREIGN KEY(user_id) REFERENCES users(user_id),
+            FOREIGN KEY(store_id) REFERENCES stores(store_id)
+        );
+        """)
+        self.connection.commit()
+
+        self.cursor.execute("""
+        CREATE TABLE email_subscribers(
+            store_id TEXT,
+            user_id TEXT,
+            PRIMARY KEY(user_id, store_id),
+            FOREIGN KEY(user_id) REFERENCES users(user_id),
+            FOREIGN KEY(store_id) REFERENCES stores(store_id)
+        );
+        """)
+        self.connection.commit()
+
+        self.cursor.execute("""
+        CREATE TABLE contact_info(
+            user_id TEXT,
+            email TEXT,
+            phone_number TEXT,
+            PRIMARY KEY(user_id),
+            FOREIGN KEY(user_id) REFERENCES users(user_id)
+        );
+        """)
+        self.connection.commit()
 
         self.database_close()
 
@@ -376,11 +408,13 @@ class DatabaseController:
 
         return self.cursor.fetchall()
 
-    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, shopURL: str) -> str:
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: str, picture_url: str) -> str:
         """
         Creates a coffee shop with a generated unique store_id and returns it.
         Also links the owner to the store in user_owns.
         """
+        phone_number = str(phone_number)
+        
         while True:
             store_id = uuid.uuid4().hex
             self.cursor.execute("SELECT 1 FROM stores WHERE store_id = ?;", (store_id,))
@@ -390,10 +424,10 @@ class DatabaseController:
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute(
             """
-            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, shopURL)
+            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, shopURL),
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url),
         )
         self.connection.commit()
 
@@ -441,3 +475,116 @@ class DatabaseController:
         WHERE challenge_id = ?;
         """, (challenge_id,))
         self.connection.commit()
+
+    def add_sms_subscriber(self, store_id: str, user_id: str) -> None:
+        """
+        Adds a subscriber to the sms_subscribers table.
+        """
+        self.cursor.execute("""
+        INSERT INTO sms_subscribers (store_id, user_id)
+        VALUES (?, ?);
+        """, (store_id, user_id))
+        self.connection.commit()
+
+    def remove_sms_subscriber(self, store_id: str, user_id: str) -> None:
+        """
+        Removes a subscriber from the sms_subscribers table.
+        """
+        self.cursor.execute("""
+        DELETE FROM sms_subscribers
+        WHERE store_id = ? AND user_id = ?;
+        """, (store_id, user_id))
+        self.connection.commit()
+
+    def get_all_sms_subscribers(self, store_id: str) -> List[tuple]:
+        """
+        Returns a list of all sms subscribers for a store.
+        Each entry is a tuple of (store_id, user_id).
+        """
+        self.cursor.execute("""
+        SELECT store_id, user_id
+        FROM sms_subscribers
+        WHERE store_id = ?;
+        """, (store_id,))
+        return self.cursor.fetchall()
+    
+    def check_sms_subscriber(self, store_id: str, user_id: str) -> bool:
+        """
+        Checks if a user is subscribed to sms for a store.
+        Returns True if subscribed, False otherwise.
+        """
+        self.cursor.execute("""
+        SELECT 1
+        FROM sms_subscribers
+        WHERE store_id = ? AND user_id = ?;
+        """, (store_id, user_id))
+        return self.cursor.fetchone() is not None
+    
+    def add_email_subscriber(self, store_id: str, user_id: str) -> None:
+        """
+        Adds a subscriber to the email_subscribers table.
+        """
+        self.cursor.execute("""
+        INSERT INTO email_subscribers (store_id, user_id)
+        VALUES (?, ?);
+        """, (store_id, user_id))
+        self.connection.commit()
+
+    def remove_email_subscriber(self, store_id: str, user_id: str) -> None:
+        """
+        Removes a subscriber from the email_subscribers table.
+        """
+        self.cursor.execute("""
+        DELETE FROM email_subscribers
+        WHERE store_id = ? AND user_id = ?;
+        """, (store_id, user_id))
+        self.connection.commit()
+
+    def get_all_email_subscribers(self, store_id: str) -> List[tuple]:
+        """
+        Returns a list of all email subscribers for a store.
+        Each entry is a tuple of (store_id, user_id).
+        """
+        self.cursor.execute("""
+        SELECT store_id, user_id
+        FROM email_subscribers
+        WHERE store_id = ?;
+        """, (store_id,))
+        return self.cursor.fetchall()
+    
+    def check_email_subscriber(self, store_id: str, user_id: str) -> bool:
+        """
+        Checks if a user is subscribed to email for a store.
+        Returns True if subscribed, False otherwise.
+        """
+        self.cursor.execute("""
+        SELECT 1
+        FROM email_subscribers
+        WHERE store_id = ? AND user_id = ?;
+        """, (store_id, user_id))
+        return self.cursor.fetchone() is not None
+    
+    def set_contact_info(self, user_id: str, email: str, phone_number: str) -> None:
+        """
+        Sets or updates the contact info for a user.
+        """
+        self.cursor.execute("""
+        INSERT INTO contact_info (user_id, email, phone_number)
+        VALUES (?, ?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET
+            email = excluded.email,
+            phone_number = excluded.phone_number;
+        """, (user_id, email, phone_number))
+        self.connection.commit()
+
+    def get_contact_info(self, user_id: str) -> tuple | None:
+        """
+        Retrieves the contact info for a user.
+        Returns (user_id, email, phone_number) or None if not found.
+        """
+        self.cursor.execute("""
+        SELECT user_id, email, phone_number
+        FROM contact_info
+        WHERE user_id = ?;
+        """, (user_id,))
+        return self.cursor.fetchone()
