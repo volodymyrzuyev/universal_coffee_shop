@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store";
 
 
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://0.0.0.0:8080";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.164:8080";
 
 export default function LoginForm() {
 
