@@ -12,14 +12,10 @@ coffeeShopRouter = APIRouter(
 #Store object that is created to call the methods in the database
 newStore = Store()
 
-#@coffeeShopRouter.get("/getCoffeeShop/{coffeeShopName}")
-#async def getCoffeeShop(coffeeShopName: str):
- #   return {"Coffeeshop":newStore.get_all_stores_by_name(coffeeShopName)}
-
 #endpoint that returns all information from all coffeeshops
 @coffeeShopRouter.get("/get_all_coffeeshops")
-async def get_all_coffeeshops():
-    return {"Coffeeshops": newStore.get_all_coffeeshops()}
+async def get_all_stores():
+    return {"Coffeeshops": newStore.get_all()}
 
 #endpoint that returns all information from a singular coffeeshop by its id
 @coffeeShopRouter.get("/get_coffeeshop_by_id/{shop_id}")

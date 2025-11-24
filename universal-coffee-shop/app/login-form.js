@@ -70,7 +70,7 @@ async function handleLogin() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}><Text style={styles.title}>Log In</Text></View>
+      <View style={styles.header}><Text style={styles.title}>LOG IN</Text></View>
 
       <View style={styles.form}>
         <TextInput
@@ -97,12 +97,16 @@ async function handleLogin() {
           style={[styles.button, busy && { opacity: 0.7 }]}
           disabled={busy}
         >
-          {busy ? <ActivityIndicator /> : <Text style={styles.buttonText}>Log In</Text>}
+          {busy ? <ActivityIndicator /> : <Text style={styles.buttonText}>LOG IN</Text>}
         </TouchableOpacity>
 
          <TouchableOpacity onPress={() => router.push("/signup")}>
-                  <Text style={styles.switchText}>Don't have an account? Sign Up</Text>
+                  <Text style={styles.switchText}>DON'T HAVE AN ACCOUNT? SIGN UP</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/login")}>
+          <Text style={styles.backText}>BACK</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -172,6 +176,13 @@ const styles = StyleSheet.create({
   },
 
   secondaryButtonText: {
+    color: "#000",
+    fontSize: 14,
+    fontFamily: "Anton-Regular",
+  },
+  backText: {
+    textAlign: "center",
+    marginTop: 12,
     color: "#000",
     fontSize: 14,
     fontFamily: "Anton-Regular",

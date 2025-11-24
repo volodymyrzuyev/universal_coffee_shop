@@ -328,17 +328,17 @@ class DatabaseController:
         )
         return self.cursor.fetchone()
     
-    #this returns all information from all coffeeshops
-    def get_all_coffeeshops(self) -> List[tuple]:
-        """Fetch all store records with every attribute."""
+    def get_all_stores(self) -> List[tuple]:
+        """
+            Returns all existing stores.
+        """
         self.cursor.execute(
             """
-            SELECT *
-            FROM stores;
+            SELECT * FROM stores;
             """
         )
-        return self.cursor.fetchall()
 
+        return self.cursor.fetchall()
     
     def get_user_by_email(self, email: str) -> tuple | None:
         """
@@ -363,20 +363,10 @@ class DatabaseController:
             (user_id,),
         )
         return self.cursor.fetchall()
-    
-    def get_all_stores(self) -> List[tuple]:
-        """
-            Returns all existing stores.
-        """
-        self.cursor.execute(
-            """
-            SELECT * FROM stores;
-            """
-        )
 
         return self.cursor.fetchall()
 
-    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logoURL: str) -> str:
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) -> str:
         """
         Creates a coffee shop with a generated unique store_id and returns it.
         Also links the owner to the store in user_owns.

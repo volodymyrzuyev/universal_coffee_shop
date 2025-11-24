@@ -1,6 +1,8 @@
 import {useEffect, useState} from 'react'
-import {Text} from 'react-native';
+import {Text, TouchableOpacity} from 'react-native';
 import { useLocalSearchParams} from 'expo-router';
+import { useRouter } from "expo-router";
+
   
 
 export default function page()
@@ -13,6 +15,8 @@ export default function page()
   const [state, setState] = useState("");
   const [PhoneNum, setPhoneNumber] = useState("");
 
+  const router = useRouter();
+  
    // BACKEND URL 
    const BASE_URL = 'http://192.168.1.175:8080';   
 
@@ -69,6 +73,10 @@ export default function page()
             <Text>You can find us at this address {streetAddress} in {city} {state}</Text>
             <Text>If you want to call us, reach us at {PhoneNum}</Text>
 
+
+            <TouchableOpacity onPress={() => router.push("/home")}>
+                      <Text>BACK</Text>
+            </TouchableOpacity>
           </>
 
      )

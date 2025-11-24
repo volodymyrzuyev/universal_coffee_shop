@@ -56,7 +56,7 @@ export default function Signup() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}><Text style={styles.title}>Create Account</Text></View>
+      <View style={styles.header}><Text style={styles.title}>CREATE ACCOUNT</Text></View>
 
       <View style={styles.form}>
         <TextInput
@@ -90,15 +90,15 @@ export default function Signup() {
           style={[styles.button, busy && { opacity: 0.7 }]}
           disabled={busy}
         >
-          {busy ? <ActivityIndicator /> : <Text style={styles.buttonText}>Sign Up</Text>}
+          {busy ? <ActivityIndicator /> : <Text style={styles.buttonText}>SIGN UP</Text>}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/login-form")}>
-          <Text style={styles.switchText}>Already have an account? Log in</Text>
+          <Text style={styles.switchText}>ALREADY HAVE AN ACCOUNT? LOG IN</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/login")}>
-          <Text style={styles.backText}>Back</Text>
+          <Text style={styles.backText}>BACK</Text>
         </TouchableOpacity>
         
       </View>

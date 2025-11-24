@@ -17,7 +17,7 @@ class CoffeeShop(BaseModel):
     city: str
     state: str
     phone_number: str
-    logoURL: str
+    logo_url: str
 
 
 
@@ -33,6 +33,6 @@ async def getForm(CS: CoffeeShop):
             CS.city,
             CS.state,
             int(CS.phone_number.replace("-", "")),
-            CS.logoURL)
+            CS.logo_url)
 
     return {"storeName":CS.coffee_shop_name}
