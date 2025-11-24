@@ -100,7 +100,7 @@ async function handleLogin() {
           {busy ? <ActivityIndicator /> : <Text style={styles.buttonText}>Log In</Text>}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push("/signup")}>
-          <Text style={styles.switchText}>Don't have an account? Sign up</Text>
+          <Text style={styles.secondaryButtonText}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
