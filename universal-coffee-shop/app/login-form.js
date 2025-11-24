@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    flex: 2,
+    
     justifyContent: "center",
     alignItems: "center",
   },
