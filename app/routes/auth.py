@@ -44,20 +44,19 @@ def createAuthRouter(
 
     class RegisterIn(BaseModel):
         name: str
-
         email: EmailStr
         password: str
 
     @router.post("/register")
     async def register_user(payload: RegisterIn):
         try:
-            if not db.check_unique_username(payload.email):
-                raise HTTPException(status_code=409, detail="Email already exists.")
+            if not db.check_unique_email(payload.email):
+                raise HTTPException(status_code=409, detail="An account with this email already exists.")
 
             user_id = db.create_user(payload.email, payload.password, False)
 
             return {
-                "ok": True,
+                "uniqueEmail": True,
                 "user": {
                     "id": user_id,
                     "name": payload.name,
@@ -66,7 +65,13 @@ def createAuthRouter(
                 }
             }
         except:
+            #this will hit if the email already exists and returns 
+            #ok as false to the user
             print("Error: Registration Operation Failed.")
+            return {
+                "uniqueEmail": False,
+            }
+            
 
 
     class LoginIn(BaseModel):
