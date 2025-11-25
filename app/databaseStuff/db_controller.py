@@ -48,7 +48,7 @@ class DatabaseController:
         self.cursor.execute("""
         CREATE TABLE users(
             user_id TEXT PRIMARY KEY UNIQUE,
-            user_name TEXT UNIQUE,
+            email TEXT UNIQUE,
             password TEXT,
             is_admin INTEGER
         );
@@ -95,7 +95,7 @@ class DatabaseController:
             city TEXT,
             state TEXT,
             phone_number INTEGER,
-            shopURL TEXT,
+            logoURL TEXT,
             FOREIGN KEY(owner_id) REFERENCES users(user_id)
         );
         """)
@@ -138,7 +138,7 @@ class DatabaseController:
 
         self.database_close()
 
-    def create_user(self, user_name: str, password: str, is_admin: bool) -> str:
+    def create_user(self, email: str, password: str, is_admin: bool) -> str:
         """
         Creates a new user in the database.
         returns their ID
@@ -151,9 +151,9 @@ class DatabaseController:
 
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute("""
-        INSERT INTO users (user_id, user_name, password, is_admin)
+        INSERT INTO users (user_id, email, password, is_admin)
         VALUES (?, ?, ?, ?);
-        """, (user_id, user_name, password, int(is_admin)))
+        """, (user_id, email, password, int(is_admin)))
         self.connection.commit()
 
         return user_id
@@ -273,13 +273,13 @@ class DatabaseController:
             return False
         return result[0] == password
     
-    def check_unique_username(self, user_name: str) -> bool:
+    def check_unique_email(self, email: str) -> bool:
         """
-        Checks if a username is unique.
+        Checks if a email is unique.
         """
         self.cursor.execute("""
-        SELECT * FROM users WHERE user_name = ?;
-        """, (user_name,))
+        SELECT * FROM users WHERE email = ?;
+        """, (email,))
         result = self.cursor.fetchone()
         return result is None
 
@@ -316,8 +316,8 @@ class DatabaseController:
         )
         self.connection.commit()
 
-    def get_store_by_id(self, store_id: str) -> tuple:
-        """Fetch a single store record by ID."""
+    def get_coffeeshop_by_id(self, store_id: str) -> tuple:
+        """Fetch a single coffeeshop record by ID."""
         self.cursor.execute(
             """
             SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
@@ -327,26 +327,36 @@ class DatabaseController:
         )
         return self.cursor.fetchone()
     
-    def get_store_by_name(self, coffee_shop_name: str) -> tuple:
-        """Fetch all store records by name."""
+    def get_coffeeshop_by_name(self, store_name: str) -> tuple:
+        """Fetch a single coffeeshop record by ID."""
         self.cursor.execute(
             """
-            SELECT *
-            FROM stores WHERE coffee_shop_name LIKE ?;
+            SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
+            FROM stores WHERE coffee_shop_name = ?;
             """,
-            (coffee_shop_name,),
+            (store_name,),
         )
         return self.cursor.fetchall()
     
-
-        
-    def get_user_by_email(self, email: str) -> tuple | None:
+    def get_all_stores(self) -> List[tuple]:
         """
-        Returns (user_id, user_name, password, is_admin) for this email, or None.
-        Email is stored in users.user_name. Requires database_connect() first.
+            Returns all existing stores.
         """
         self.cursor.execute(
-            "SELECT user_id, user_name, password, is_admin FROM users WHERE user_name = ?;",
+            """
+            SELECT * FROM stores;
+            """
+        )
+
+        return self.cursor.fetchall()
+    
+    def get_user_by_email(self, email: str) -> tuple | None:
+        """
+        Returns (user_id, email, password, is_admin) for this email, or None.
+        Email is stored in users.email. Requires database_connect() first.
+        """
+        self.cursor.execute(
+            "SELECT user_id, email, password, is_admin FROM users WHERE email = ?;",
             (email.lower().strip(),),
         )
         return self.cursor.fetchone()
@@ -363,20 +373,10 @@ class DatabaseController:
             (user_id,),
         )
         return self.cursor.fetchall()
-    
-    def get_all_stores(self) -> List[tuple]:
-        """
-            Returns all existing stores.
-        """
-        self.cursor.execute(
-            """
-            SELECT * FROM stores;
-            """
-        )
 
         return self.cursor.fetchall()
 
-    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, shopURL: str) -> str:
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) -> str:
         """
         Creates a coffee shop with a generated unique store_id and returns it.
         Also links the owner to the store in user_owns.
@@ -390,10 +390,10 @@ class DatabaseController:
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute(
             """
-            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, shopURL)
+            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logoURL)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, shopURL),
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logoURL),
         )
         self.connection.commit()
 

@@ -19,6 +19,14 @@ class Store(StoredObject):
     
     def get_all(self) -> List[tuple]:
         return db.get_all_stores()
+    
+    #this returns all information about a coffeeshop based on its ID 
+    def get_coffeeshop_by_id(self,shop_id):
+         return db.get_coffeeshop_by_id(shop_id)
+    
+    #this returns all information about a coffeeshop based on its name
+    def get_coffeeshop_by_name(self, shop_name):
+        return db.get_coffeeshop_by_name(shop_name)
 
     def add(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) ->str:
         """
@@ -32,7 +40,7 @@ class Store(StoredObject):
     def remove_menu_item(self, store_id:str, item_name:str) ->None:
         db.remove_menu_item(store_id, item_name)
 
-class User(ABC, StoredObject):
+class User(StoredObject):
     def get_by_id(self, id) -> tuple:
         return db.get_user_from_id(id)
 
