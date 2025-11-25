@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
   },
   header: {
-    flex: 2,
+    
     justifyContent: "center",
     alignItems: "center",
   },
