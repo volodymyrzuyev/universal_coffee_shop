@@ -6,6 +6,10 @@ import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 
+  
+
+ 
+
 // BACKEND URL 
 const BASE_URL = 'http://192.168.1.175:8080';
 
@@ -17,6 +21,9 @@ export default function HomeScreen() {
 
   // data coming from backend
   const [shops, setShops] = useState([]);
+
+  //this sets the coffeeshop selection by the user (modify coffeeshop or add coffeeshop)
+  const [coffeeshopSelection, setcoffeeshopSelection] = useState("");
 
    // load all shops once on component mount (when the page loads)
    useEffect(() => {
@@ -108,11 +115,13 @@ export default function HomeScreen() {
           <Feather name="search" size={24} color="black" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
           <Feather name="plus" size={24} color="black" />
         </TouchableOpacity>
+        
+         
 
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.push(`profile/[${username}]/page`)} style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
 
@@ -168,4 +177,27 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontFamily: 'Anton-Regular',
   },
+  dropdown: {
+      margin: 16,
+      height: 50,
+      borderBottomColor: 'gray',
+      borderBottomWidth: 0.5,
+    },
+    icon: {
+      marginRight: 5,
+    },
+    placeholderStyle: {
+      fontSize: 16,
+    },
+    selectedTextStyle: {
+      fontSize: 16,
+    },
+    iconStyle: {
+      width: 20,
+      height: 20,
+    },
+    inputSearchStyle: {
+      height: 40,
+      fontSize: 16,
+    },
 });

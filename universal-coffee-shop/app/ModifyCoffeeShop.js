@@ -1,7 +1,7 @@
  
 import {useState} from 'react';
 import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'react-native';
-import { useRouter } from "expo-router";
+import {useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function AddCoffeeShop()
@@ -44,6 +44,9 @@ function fun7(e){setLogoURL(e);}
     'logoURL': logoURL 
 };
 
+//this contains the shop selected on the modify_or_add.js page
+const {selectedShop} = useLocalSearchParams();  
+
  const submitForm = async () => {
   //This 'if' statement forces the user to fill out every section of the form
     if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
@@ -52,7 +55,8 @@ function fun7(e){setLogoURL(e);}
         const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
              method: 'POST',
              headers: {
-                'Content-Type': 'application/json'              
+                'Content-Type': 'application/json'  
+                
             },
              body: JSON.stringify(form_content)
         });
@@ -87,7 +91,7 @@ function fun7(e){setLogoURL(e);}
 
         <ScrollView style={styles.form}>
 
-            <Text style={styles.header}>Please enter the details for your new Coffee shop</Text>
+            <Text style={styles.header}>Modify your coffeeshop ({selectedShop})</Text>
 
             <Text style={styles.label}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
