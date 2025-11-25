@@ -112,9 +112,6 @@ async function handleLogin() {
           <TouchableOpacity onPress={() => router.push("/login")}>
           <Text style={styles.backText}>BACK</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push("/signup")}>
-          <Text style={styles.secondaryButtonText}>Don't have an account? Sign up</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
