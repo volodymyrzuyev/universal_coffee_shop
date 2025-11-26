@@ -3,6 +3,7 @@ import {useState} from 'react';
 import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'react-native';
 import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as SecureStore from "expo-secure-store";
 
 function AddCoffeeShop()
 {
@@ -34,19 +35,21 @@ function fun6(e){setPhoneNumber(e);}
 
 function fun7(e){setLogoURL(e);}
 
- const form_content = {
-    'coffee_shop_name': coffeeShopName, 
-    'owner_id': OwnerID, 
-    'street_address': streetAddress, 
-    'city': city, 
-    'state': state, 
-    'phone_number': PhoneNum,
-    'logoURL': logoURL 
-};
-
  const submitForm = async () => {
   //This 'if' statement forces the user to fill out every section of the form
-    if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
+     if(coffeeShopName!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
+     const OwnerID = await SecureStore.getItemAsync("user_id");
+
+     const form_content = {
+        'coffee_shop_name': coffeeShopName, 
+        'owner_id': OwnerID, 
+        'street_address': streetAddress, 
+        'city': city, 
+        'state': state, 
+        'phone_number': PhoneNum,
+        'logo_url': logoURL 
+    }; 
+
      try {
         
         const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
@@ -92,9 +95,6 @@ function fun7(e){setLogoURL(e);}
             <Text style={styles.label}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
              
-            <Text style={styles.label}>Owner name:</Text>
-            <TextInput placeholderTextColor={'#747474ff'} placeholder='John Doe' style={styles.input} value={OwnerID} onChangeText={fun2}></TextInput>
-
             <Text style={styles.label}>Street address:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='123 Fake Street' style={styles.input} value={streetAddress} onChangeText={fun3}></TextInput>
 
@@ -124,18 +124,21 @@ function fun7(e){setLogoURL(e);}
 const styles = StyleSheet.create({
   container: 
   {  
-    width:'100%'
-  },
-  form: 
-  {
-    
+    // width:'100%',
+    alignItems:'center',
+    justifyContent:'center',
+    padding:7,
   },
   label: 
   {
     backgroundColor:'lightblue',
     textAlign:'center',
     paddingRight:'20px', 
-    fontSize: 18,  
+    fontSize: 18,
+    borderRightColor:'black',
+    borderTopWidth:0,
+    borderBottomWidth:0,
+    borderWidth:2  
   },  
   input: 
   {
@@ -144,6 +147,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "black",
     fontSize: 15,
+    padding:5,
     
   },
   header:
@@ -152,6 +156,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "black",
     fontSize: 24,
+    padding:10,
+    fontWeight:'bold',
+    color: "#000",
+    fontFamily: "Anton-Regular",
   },
   submit:
   {
@@ -160,12 +168,17 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     textAlign: "center",
     lineHeight: 50,
+    borderRadius:6,
+    borderWidth:5,
+    width:'90%',
+    margin:10,
+    padding:5,
   },
   backText: {
     textAlign: "center",
     marginTop: 12,
     color: "#000",
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: "Anton-Regular",
   },
 });

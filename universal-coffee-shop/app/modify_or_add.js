@@ -59,7 +59,10 @@ export default function modify_or_add(){
 const styles = StyleSheet.create({
   header:{
     fontSize:20,
-    fontWeight:'bold'
+    fontWeight:'bold',
+    padding:10,
+    color: "#000",
+    fontFamily: "Anton-Regular",
   },
   box:{
     flex:1,
@@ -71,13 +74,21 @@ const styles = StyleSheet.create({
   {
     borderRadius:6,
     borderWidth:5,
-    padding:10
+    padding:10,
   },
   modifyCoffeeshop:
   {
     borderRadius:6,
     borderWidth:5,
-    padding:0
+    padding:0,
+  },
+  backText:
+  {
+    fontWeight:'bold',
+    padding:10,
+    color: "#000",
+    fontSize: 18,
+    fontFamily: "Anton-Regular",
   }
    
 });

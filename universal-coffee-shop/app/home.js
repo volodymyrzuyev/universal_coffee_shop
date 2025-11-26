@@ -1,10 +1,12 @@
 // universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
   
 
@@ -64,6 +66,8 @@ export default function HomeScreen() {
   //called when a shop is fetched by name in the search bar
   async function fetchShops(name)
   {
+
+ 
     try {
 
       //returns the page to normal if the user clicks the search bar with nothing inside
@@ -73,7 +77,7 @@ export default function HomeScreen() {
          return;
        }
       //fetch api that gets and returns to 'response' object all information from all coffeeshops
-      const url = `${BASE_URL}/home/get_coffeeshop_by_name/${name}`;
+      const url = `${BASE_URL}/home/get_coffeeshop_by_name/${name.toString().toLowerCase()}`;
       const response = await fetch(url);
  
       //this holds the un-jsoned object containg information about all coffeeshops

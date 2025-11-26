@@ -128,18 +128,24 @@ const {selectedShop} = useLocalSearchParams();
 const styles = StyleSheet.create({
   container: 
   {  
-    width:'100%'
+    // width:'100%',
+    alignItems:'center',
+    justifyContent:'center',
+    padding:7,
   },
-  form: 
-  {
-    
+  form:{
+    width:'100%',
   },
   label: 
   {
     backgroundColor:'lightblue',
     textAlign:'center',
     paddingRight:'20px', 
-    fontSize: 18,  
+    fontSize: 18,
+    borderRightColor:'black',
+    borderTopWidth:0,
+    borderBottomWidth:0,
+    borderWidth:2  
   },  
   input: 
   {
@@ -148,6 +154,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "black",
     fontSize: 15,
+    padding:5,
     
   },
   header:
@@ -156,6 +163,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "black",
     fontSize: 24,
+    padding:10,
+    fontWeight:'bold',
+    color: "#000",
+    fontFamily: "Anton-Regular",
   },
   submit:
   {
@@ -164,12 +175,17 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     textAlign: "center",
     lineHeight: 50,
+    borderRadius:6,
+    borderWidth:5,
+    width:'90%',
+    margin:10,
+    padding:5,
   },
   backText: {
     textAlign: "center",
     marginTop: 12,
     color: "#000",
-    fontSize: 12,
+    fontSize: 18,
     fontFamily: "Anton-Regular",
   },
 });
