@@ -20,6 +20,8 @@
 ###### **pip install requests**
 ###### **pip install jwt**
 ###### **pip install 'pydantic[email]'**
+###### **pip install resend**
+
 
 
 ## **Running a virtual Python Environment (DO THIS FIRST)**
