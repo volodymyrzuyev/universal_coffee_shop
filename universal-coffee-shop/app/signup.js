@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     textAlign: "center",
     lineHeight: 50,
+    padding:10,
   },
 
   stylizedTitle: {
