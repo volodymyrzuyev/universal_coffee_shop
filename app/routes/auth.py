@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr
 import databaseStuff.db_controller as db_controller
 import string
 import jwt
-
+from .email_MFA import send_mfa_email
 
 def createAuthRouter(
     providers: dict[str, provider.providers],
@@ -95,7 +95,7 @@ def createAuthRouter(
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
 
 
-            mfa_enabled = False # i will put a logic on this later(enable or dissable MFA per user)
+            mfa_enabled = True # i will put a logic on this later(enable or dissable MFA per user)
              # I dissabled it for now
             if mfa_enabled:
                 code = f"{random.randint(0, 999999):06d}"
@@ -104,8 +104,8 @@ def createAuthRouter(
 
                 db.create_mfa_challenge(user_id, code, expires_at, challenge_id)
 
-
-                print(f"[MFA] Code for {payload.email}: {code}")
+                #Send an email containing the code to the user's registered email instead ofthe console
+                send_mfa_email(payload.email, code)
 
                 return {
                     "mfa_required": True,
@@ -114,7 +114,7 @@ def createAuthRouter(
 
 
 
-            return {"user_id": user_id}
+            return {"user_id": user_id, "is_admin": is_admin}
 
         except HTTPException:
             raise
