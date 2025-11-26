@@ -428,7 +428,7 @@ class DatabaseController:
             INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logoURL)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logoURL),
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url),
         )
         self.connection.commit()
 
