@@ -11,7 +11,6 @@ function AddCoffeeShop()
 const router = useRouter();
 
 const [coffeeShopName, setCoffeeShopName] = useState("");
-const [OwnerID, setID] = useState("");
 const [streetAddress, setStreetAddress] = useState("");
 const [city, setCity] = useState("");
 const [state, setState] = useState("");
@@ -22,8 +21,6 @@ const [responseMessage, setResponseMessage] = useState("");
 
 
 function fun1(e){ setCoffeeShopName(e);}
-
-function fun2(e){  setID(e);}
 
 function fun3(e){ setStreetAddress(e);}
 
@@ -37,9 +34,9 @@ function fun7(e){setLogoURL(e);}
 
  const submitForm = async () => {
   //This 'if' statement forces the user to fill out every section of the form
-     if(coffeeShopName!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
+    if(coffeeShopName!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      const OwnerID = await SecureStore.getItemAsync("user_id");
-
+     
      const form_content = {
         'coffee_shop_name': coffeeShopName, 
         'owner_id': OwnerID, 

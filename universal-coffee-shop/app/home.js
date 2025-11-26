@@ -27,6 +27,8 @@ export default function HomeScreen() {
   //this sets the coffeeshop selection by the user (modify coffeeshop or add coffeeshop)
   const [coffeeshopSelection, setcoffeeshopSelection] = useState("");
 
+  // holds whether the current user is an admin
+  const [isAdmin, setIsAdmin] = useState(false);
    // load all shops once on component mount (when the page loads)
    useEffect(() => {
       fetchAllShops();
@@ -92,12 +94,24 @@ export default function HomeScreen() {
     }
   }
 
+  //Restore admin status from SecureStore
+  useEffect(() => {
+  async function loadRole() {
+    const flag = await SecureStore.getItemAsync("is_admin");
+    setIsAdmin(flag === "1");
+  }
+  loadRole();
+}, []);
+
   async function handleLogout() {
   try {
     //we are not using the backend logout endpoint for now, just clear local storage
     await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
+    await SecureStore.deleteItemAsync("is_admin");// Remove is_admin from secure storage
 
-//so now the user_id is deleted from secure storage, we can redirect to login.
+//so now the user_id and the role are both deleted from secure storage, we can redirect to login.
+
+    
     router.replace("/login");
   } catch (err) {
     console.log("LOGOUT ERROR:", err);
@@ -119,11 +133,11 @@ export default function HomeScreen() {
           <Feather name="search" size={24} color="black" />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
-          <Feather name="plus" size={24} color="black" />
-        </TouchableOpacity>
-        
-         
+        {isAdmin && (
+          <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
+            <Feather name="plus" size={24} color="black" />
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity onPress={() => router.push(`profile/[${username}]/page`)} style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />

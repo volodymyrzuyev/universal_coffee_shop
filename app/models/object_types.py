@@ -57,6 +57,9 @@ class User(StoredObject):
     def add(self, user_id: str, user_name: str, password: str) -> None:
         pass
 
+    def set_contact_info(self, user_id: str, email: str, phone_number: str) -> None:
+        db.set_contact_info(user_id, email, phone_number)
+
 
 class StandardUser(User):
 
