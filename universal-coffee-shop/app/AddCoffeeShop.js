@@ -1,6 +1,6 @@
  
 import {useState} from 'react';
-import {View,Text,TextInput,StyleSheet,ScrollView,TouchableOpacity} from 'react-native';
+import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'react-native';
 import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,7 +15,7 @@ const [streetAddress, setStreetAddress] = useState("");
 const [city, setCity] = useState("");
 const [state, setState] = useState("");
 const [PhoneNum, setPhoneNumber] = useState("");
-const [shopURL, setShopURL] = useState("");
+const [logoURL, setLogoURL] = useState("");
 
 const [responseMessage, setResponseMessage] = useState("");
 
@@ -32,22 +32,24 @@ function fun5(e){setState(e);}
 
 function fun6(e){setPhoneNumber(e);}
 
-function fun7(e){setShopURL(e);}
+function fun7(e){setLogoURL(e);}
 
  const form_content = {
-     'coffeeShopName': coffeeShopName, 
-    'OwnerID': OwnerID, 
-    'streetAddress': streetAddress, 
+    'coffee_shop_name': coffeeShopName, 
+    'owner_id': OwnerID, 
+    'street_address': streetAddress, 
     'city': city, 
     'state': state, 
-    'PhoneNum': PhoneNum,
-    'shopURL': shopURL 
+    'phone_number': PhoneNum,
+    'logoURL': logoURL 
 };
 
  const submitForm = async () => {
-   
+  //This 'if' statement forces the user to fill out every section of the form
+    if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      try {
-        const response = await fetch('http://0.0.0.0:8080/recieveForm/', {
+        
+        const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'  
@@ -73,7 +75,11 @@ function fun7(e){setShopURL(e);}
     } catch (error) {
         //This hits if the server address is incorrect (couldn't reach the server)
         setResponseMessage(`Network Error: ${error.message}`); 
-    } 
+    }
+  }
+  else {
+    Alert.alert("Please fill out all fields of the form")
+  }
   };
 
     return (<>
@@ -102,7 +108,7 @@ function fun7(e){setShopURL(e);}
             <TextInput placeholderTextColor={'#747474ff'} placeholder='224-123-4567' style={styles.input} value={PhoneNum} onChangeText={fun6}></TextInput>
              
             <Text style={styles.label}>Shop URL (Website):</Text>
-            <TextInput placeholderTextColor={'#747474ff'} placeholder='https://www.starbucks.com/' style={styles.input} value={shopURL} onChangeText={fun7}></TextInput>
+            <TextInput placeholderTextColor={'#747474ff'} placeholder='https://www.starbucks.com/' style={styles.input} value={logoURL} onChangeText={fun7}></TextInput>
         </ScrollView>
 
         <TouchableOpacity onPress={submitForm}><Text style={styles.submit}>Submit Form</Text></TouchableOpacity>

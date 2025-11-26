@@ -8,13 +8,18 @@ export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
 
-  const shopName = shop.name;
-  
 
+  const shopId = shop.id
+   
   async function handleRedirect()
   {
-    router.replace(`CoffeeShopPage/${shopName}/page`); 
-  }
+    router.navigate({
+      pathname:'/CoffeeShopPage/[shop_id]/page',
+      params: {shop_id: shopId}
+    })
+
+
+   }
 
   return (
     <TouchableOpacity style={styles.card}  onPress={handleRedirect}>

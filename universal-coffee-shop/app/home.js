@@ -12,58 +12,86 @@ const BASE_URL = 'http://192.168.1.175:8080';
 export default function HomeScreen() {
   const router = useRouter();
 
-  // search box
+  // search box, contains the coffeeshop to be searched for
   const [searchText, setSearchText] = useState('');
 
   // data coming from backend
   const [shops, setShops] = useState([]);
 
+   // load all shops once on component mount (when the page loads)
+   useEffect(() => {
+      fetchAllShops();
+   }, []);
+
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
-    if (!Array.isArray(rows)) return [];
+     if (!Array.isArray(rows)) return [];
     return rows.map((row) => ({
       id: row[0],      // store_id
       name: row[1],    // coffee_shop_name
     }));
   }
 
-  // fetch from backend (all or filtered)
-  async function fetchShops(name) {
+  
+  /* fetches **all** shops from the backend and maps to an object which is 
+     then set to the shops variable using setShops*/
+  async function fetchAllShops() {
     try {
-      const query = name.trim() === '' ? '%25' : encodeURIComponent(name.trim());
-      const url = `${BASE_URL}/home/getCoffee_Shop/${query}`;
-
+      
+      //fetch api that gets and returns to 'response' object all information from all coffeeshops
+      const url = `${BASE_URL}/home/get_all_coffeeshops`;
       const response = await fetch(url);
  
+      //this holds the un-jsoned object containg information about all coffeeshops
       const data = await response.json();
 
-      const mapped = mapRows(data.Coffeeshop);
+      //data.Coffeeshops contains the array of coffeeshops
+      const mapped = mapRows(data.Coffeeshops);
       setShops(mapped);
+       
     } catch (err) {
       console.log('FETCH ERROR:', err);
     }
   }
+
+  //called when a shop is fetched by name in the search bar
+  async function fetchShops(name)
+  {
+    try {
+
+      //returns the page to normal if the user clicks the search bar with nothing inside
+       if(name == '')
+       {
+         fetchAllShops();
+         return;
+       }
+      //fetch api that gets and returns to 'response' object all information from all coffeeshops
+      const url = `${BASE_URL}/home/get_coffeeshop_by_name/${name}`;
+      const response = await fetch(url);
+ 
+      //this holds the un-jsoned object containg information about all coffeeshops
+      const data = await response.json();
+
+      //data.Coffeeshops contains the array of coffeeshops
+      const mapped = mapRows(data.Coffeeshops);
+      setShops(mapped);
+       
+    } catch (err) {
+      console.log('FETCH ERROR:', err);
+    }
+  }
+
   async function handleLogout() {
   try {
     //we are not using the backend logout endpoint for now, just clear local storage
     await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
 
 //so now the user_id is deleted from secure storage, we can redirect to login.
-
-    
     router.replace("/login");
   } catch (err) {
     console.log("LOGOUT ERROR:", err);
   }
 }
-
-  // load all shops once
-   useEffect(() => {
-     fetchShops('');
-   }, []);
-
-  // header section (your same layout)
- 
 
   return (
     <SafeAreaView style={styles.container}>
