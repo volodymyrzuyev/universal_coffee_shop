@@ -134,7 +134,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         {isAdmin && (
-          <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
+          <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
           </TouchableOpacity>
         )}
