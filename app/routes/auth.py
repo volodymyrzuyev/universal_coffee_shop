@@ -88,14 +88,14 @@ def createAuthRouter(
             if row is None:
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
             
-            user_id, user_name, stored_pw, is_admin = row
+            user_id, email, stored_pw, is_admin = row
 
 
             if str(stored_pw) != payload.password:
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
 
 
-            mfa_enabled = True # i will put a logic on this later(enable or dissable MFA per user)
+            mfa_enabled = False # i will put a logic on this later(enable or dissable MFA per user)
              # I dissabled it for now
             if mfa_enabled:
                 code = f"{random.randint(0, 999999):06d}"
@@ -111,10 +111,8 @@ def createAuthRouter(
                     "mfa_required": True,
                     "challenge_id": challenge_id,
                 }
-
-
-
-            return {"user_id": user_id, "is_admin": is_admin}
+            
+            return {"user_id": user_id, "email" : email , "password": stored_pw, "is_admin": is_admin}
 
         except HTTPException:
             raise

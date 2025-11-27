@@ -6,7 +6,7 @@ import * as SecureStore from "expo-secure-store";
 
 
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.164:8080";
+const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.175:8080";
 
 export default function LoginForm() {
 
@@ -44,6 +44,8 @@ async function handleLogin() {
     }
     // Store user_id and role in secure storage afetrter successful login
     await SecureStore.setItemAsync("user_id", String(data.user_id));
+    await SecureStore.setItemAsync("email", String(data.email));
+    await SecureStore.setItemAsync("password", String(data.password))
     await SecureStore.setItemAsync("is_admin", String(data.is_admin));
 
 

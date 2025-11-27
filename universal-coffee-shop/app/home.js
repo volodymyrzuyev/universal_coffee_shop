@@ -139,7 +139,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity onPress={() => router.push(`profile/[${username}]/page`)} style={styles.iconButton}>
+        <TouchableOpacity onPress={() => router.push(`profile/[${SecureStore.getItem("user_id")}]/page`)} style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
 
