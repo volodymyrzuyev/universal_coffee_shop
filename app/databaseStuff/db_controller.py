@@ -50,7 +50,8 @@ class DatabaseController:
             user_id TEXT PRIMARY KEY UNIQUE,
             email TEXT UNIQUE,
             password TEXT,
-            is_admin INTEGER
+            is_admin INTEGER,
+            mfa_enabled INTEGER DEFAULT 0
         );
         """)
         self.connection.commit()
@@ -95,7 +96,6 @@ class DatabaseController:
             city TEXT,
             state TEXT,
             phone_number INTEGER,
-            phone_number TEXT,
             picture_url TEXT,
             FOREIGN KEY(owner_id) REFERENCES users(user_id)
         );
@@ -171,7 +171,7 @@ class DatabaseController:
 
         self.database_close()
 
-    def create_user(self, email: str, password: str, is_admin: bool) -> str:
+    def create_user(self, email: str, password: str, is_admin: bool, mfa_enabled: bool = False) -> str:
         """
         Creates a new user in the database.
         returns their ID
@@ -184,9 +184,9 @@ class DatabaseController:
 
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute("""
-        INSERT INTO users (user_id, email, password, is_admin)
-        VALUES (?, ?, ?, ?);
-        """, (user_id, email, password, int(is_admin)))
+        INSERT INTO users (user_id, email, password, is_admin, mfa_enabled)
+        VALUES (?, ?, ?, ?, ?);
+        """, (user_id, email, password, int(is_admin), int(mfa_enabled)))
         self.connection.commit()
 
         return user_id
@@ -389,7 +389,7 @@ class DatabaseController:
         Email is stored in users.email. Requires database_connect() first.
         """
         self.cursor.execute(
-            "SELECT user_id, email, password, is_admin FROM users WHERE email = ?;",
+            "SELECT user_id, email, password, is_admin, mfa_enabled FROM users WHERE email = ?;",
             (email.lower().strip(),),
         )
         return self.cursor.fetchone()
