@@ -1,7 +1,8 @@
 import {useEffect, useState} from 'react'
-import {Text, TouchableOpacity,ScrollView,View,StyleSheet} from 'react-native';
+import {Text, TouchableOpacity,ScrollView,StyleSheet} from 'react-native';
 import { useLocalSearchParams} from 'expo-router';
 import { useRouter } from "expo-router";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
   
 
@@ -68,6 +69,7 @@ export default function page()
 
     return(
           <>
+          <SafeAreaView> 
           <ScrollView style={styles.perimeter}> 
             <Text style={styles.shopName}>Hello and welcome to {coffeeShopName}</Text>
             <Text style={styles.text}>The owner of our establishment is {OwnerID}</Text>
@@ -80,6 +82,7 @@ export default function page()
             </TouchableOpacity>
 
             </ScrollView>
+            </SafeAreaView>
           </>
 
      )

@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     lineHeight: 70,
     textTransform: "uppercase",
+    padding:10,
   },
   stylizedTitle: {
     fontSize: 72,
