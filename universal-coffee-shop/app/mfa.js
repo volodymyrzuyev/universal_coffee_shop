@@ -53,7 +53,10 @@ export default function MFAScreen() {
 // Store user_id and is_admin after successful MFA. SecureStore errors are ignored on web.
     try {
       await SecureStore.setItemAsync("user_id", String(data.user_id));
-      await SecureStore.setItemAsync("is_admin", String(data.is_admin));
+      await SecureStore.setItemAsync(
+      "is_admin",
+      data.is_admin ? "1" : "0"
+      );
         } catch (err) {
       console.log("SecureStore error (ignored on web):", err);
 
