@@ -134,7 +134,6 @@ const styles = StyleSheet.create({
     flex: 0.2,
     justifyContent: "center",
     alignItems: "center",
-    
   },
 
   title: {
@@ -143,7 +142,6 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     textAlign: "center",
     lineHeight: 50,
-    padding:10,
   },
 
   stylizedTitle: {
