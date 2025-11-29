@@ -11,10 +11,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import Constants from 'expo-constants';
 
-const API_BASE =
-  process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") ||
-  "http://192.168.1.164:8080";
+const config = Constants.expoConfig;
+
+const API_BASE = config.backendUrl;
 
 export default function MFAScreen() {
   const { challenge_id, email } = useLocalSearchParams();

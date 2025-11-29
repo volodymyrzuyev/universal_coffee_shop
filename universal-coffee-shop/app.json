@@ -1,5 +1,6 @@
 {
   "expo": {
+    "backendUrl": "http://localhost:8000",
     "name": "universal-coffee-shop",
     "slug": "universal-coffee-shop",
     "version": "1.0.0",

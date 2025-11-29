@@ -3,8 +3,10 @@ import {Text, TouchableOpacity,ScrollView,StyleSheet} from 'react-native';
 import { useLocalSearchParams} from 'expo-router';
 import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
-  
+const config = Constants.expoConfig;
+
 
 export default function page()
 {
@@ -19,7 +21,7 @@ export default function page()
   const router = useRouter();
   
    // BACKEND URL 
-   const BASE_URL = 'http://192.168.1.175:8080';   
+   const BASE_URL = config.backendUrl;
 
     //runs on component mount to get the information based on the coffeeshops id
     useEffect(() => {
