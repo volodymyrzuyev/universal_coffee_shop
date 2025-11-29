@@ -5,6 +5,7 @@ from routes import form
 from routes import user
 from routes import coffeeShop
 from models import provider
+from models import middleware
 import os
 
 
@@ -53,6 +54,9 @@ class CoffeeShopManager:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+        middleware.secretKey = "super secret"
+        app.add_middleware(middleware.Persistance)
 
         self.app = app
 
