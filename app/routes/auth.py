@@ -53,7 +53,7 @@ def createAuthRouter(
             if not db.check_unique_email(payload.email):
                 raise HTTPException(status_code=409, detail="An account with this email already exists.")
 
-            user_id = db.create_user(payload.email, payload.password, False)
+            user_id = db.create_user(payload.name, payload.email, payload.password, False)
 
             return {
                 "uniqueEmail": True,
@@ -88,7 +88,7 @@ def createAuthRouter(
             if row is None:
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
             
-            user_id, email, stored_pw, is_admin = row
+            user_id,name, email, stored_pw, is_admin = row
 
 
             if str(stored_pw) != payload.password:
@@ -112,7 +112,7 @@ def createAuthRouter(
                     "challenge_id": challenge_id,
                 }
             
-            return {"user_id": user_id, "email" : email , "password": stored_pw, "is_admin": is_admin}
+            return {"user_id": user_id,"name":name, "email" : email , "password": stored_pw, "is_admin": is_admin}
 
         except HTTPException:
             raise

@@ -14,7 +14,7 @@ import * as SecureStore from "expo-secure-store";
 
 const API_BASE =
   process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") ||
-  "http://192.168.1.164:8080";
+  "http://172.20.10.8:8080";
 
 export default function MFAScreen() {
   const { challenge_id, email } = useLocalSearchParams();

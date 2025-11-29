@@ -1,6 +1,6 @@
 // universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
  
 
 // BACKEND URL 
-const BASE_URL = 'http://192.168.1.175:8080';
+const BASE_URL = 'http://172.20.10.8:8080';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -67,9 +67,8 @@ export default function HomeScreen() {
 
   //called when a shop is fetched by name in the search bar
   async function fetchShops(name)
-  {
-
- 
+  { 
+    console.log(name);
     try {
 
       //returns the page to normal if the user clicks the search bar with nothing inside
@@ -84,6 +83,12 @@ export default function HomeScreen() {
  
       //this holds the un-jsoned object containg information about all coffeeshops
       const data = await response.json();
+
+      if(data.Coffeeshops.length == 0)
+      {
+        Alert.alert("No coffeeshops with that name exist");
+        return;
+      }
 
       //data.Coffeeshops contains the array of coffeeshops
       const mapped = mapRows(data.Coffeeshops);
@@ -125,6 +130,7 @@ export default function HomeScreen() {
         <TextInput
           style={styles.searchBar}
           placeholder="Search coffee shops..."
+          placeholderTextColor={'#676767ff'}
           value={searchText}
           onChangeText={setSearchText}
         />
@@ -134,7 +140,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         {isAdmin && (
-          <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
+          <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
           </TouchableOpacity>
         )}
@@ -194,6 +200,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 15,
     fontFamily: 'Anton-Regular',
+    paddingLeft:9,
   },
   dropdown: {
       margin: 16,

@@ -40,6 +40,9 @@ class Store(StoredObject):
     def remove_menu_item(self, store_id:str, item_name:str) ->None:
         db.remove_menu_item(store_id, item_name)
 
+    def get_shops_admin_owns(self, admin_id) -> List[tuple]:
+        return db.get_stores_for_user(admin_id)
+
 class User(StoredObject):
     def get_by_id(self, id) -> tuple:
         return db.get_user_from_id(id)

@@ -1,8 +1,13 @@
 import {Text, TouchableOpacity,View,StyleSheet} from 'react-native';
 import { useRouter } from 'expo-router';
 import {useState,useEffect} from 'react';
+import * as SecureStore from "expo-secure-store";
 
 import {SelectList} from 'react-native-dropdown-select-list'
+
+
+const BASE_URL = 'http://172.20.10.8:8080';
+
 
 export default function modify_or_add(){
   const router = useRouter();
@@ -11,22 +16,55 @@ export default function modify_or_add(){
   const [selected, setSelected] = useState("");
 
   //data for list options
-  const data = [
-    {key:'ShopA', value:'Select a shop'},
-  ]
+  const shopsList = []
+
+  /*this useEffect will be called on render to get the shops that the
+  logged in admin owns, so that way the admin cannot modify shops they 
+  don't own*/
+  useEffect(() => {
+    getShopsAdminOwns();
+  },[])
+
+  /* This function gets the coffeeshops that the currently logged in 
+  admin owns and is called in a useEffect */
+  async function getShopsAdminOwns(){
+    try {
+      const admin_id = await SecureStore.getItemAsync("user_id");
+      //fetch api that gets and returns to 'response' object all information from all coffeeshops
+      const url = `${BASE_URL}/home/get_shops_admin_owns/${admin_id}`;
+      const response = await fetch(url);
+ 
+      //this holds the un-jsoned object containg information about all coffeeshops
+      const data = await response.json();
+
+      console.log( data.Admin_Coffeeshops[0]);
+
+        for (let array of data.Admin_Coffeeshops)
+        {
+          console.log(array[0] + " " + array[1]);
+
+          shopsList.push({key : array[0], value: array[1]});
+        }
+      
+       
+    } catch (err) {
+      console.log('FETCH ERROR:', err);
+    }
+  }
 
   //this will redirect to the ModifyCoffeeShop page when the admin selects the coffeeshop they want to modify
-     useEffect(() => {
+  useEffect(() => {
 
-      /*because selected initially loads with "", useEffect is automatically called
-      so we prevent this by checking to make sure selected isn't empty (is true)*/
-      if(selected)
-      {
-        router.navigate({
-        pathname:'/ModifyCoffeeShop',
-        params: {selectedShop: selected}
-      })
-      }
+  /*because selected initially loads with "", useEffect is automatically called
+  so we prevent this by checking to make sure selected isn't empty (is true)*/
+  console.log(selected);
+  if(selected)
+    {
+      router.navigate({
+      pathname:'/ModifyCoffeeShop',
+      params: {selectedShop: selected}
+    })
+    }
         
    }, [selected]);
    
@@ -42,7 +80,7 @@ export default function modify_or_add(){
             </TouchableOpacity>
 
             <View style={styles.modifyCoffeeshop}>
-                 <SelectList boxStyles={{borderWidth:0}} placeholder='Modify A Coffeeshop' data={data} setSelected={setSelected} />
+                 <SelectList boxStyles={{borderWidth:0}} placeholder='Modify A Coffeeshop' data={shopsList} setSelected={setSelected} />
             </View>
 
             <TouchableOpacity onPress={() => router.push("/home")}>
@@ -80,7 +118,9 @@ const styles = StyleSheet.create({
   {
     borderRadius:6,
     borderWidth:5,
-    padding:0,
+    padding:10,
+    width:'50%',
+    
   },
   backText:
   {

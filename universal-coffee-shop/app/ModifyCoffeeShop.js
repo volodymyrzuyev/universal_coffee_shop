@@ -1,8 +1,10 @@
  
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'react-native';
 import {useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const BASE_URL = 'http://172.20.10.8:8080';
 
 function AddCoffeeShop()
 {
@@ -22,7 +24,7 @@ const [responseMessage, setResponseMessage] = useState("");
 
 function fun1(e){ setCoffeeShopName(e);}
 
-function fun2(e){  setID(e);}
+function fun2(e){setID(e);}
 
 function fun3(e){ setStreetAddress(e);}
 
@@ -41,8 +43,51 @@ function fun7(e){setLogoURL(e);}
     'city': city, 
     'state': state, 
     'phone_number': PhoneNum,
-    'logoURL': logoURL 
+    'picture_url': logoURL 
 };
+
+//called on page load to set the text for the coffeeshops to already be
+//there so the user doesn't have to manually retype everything
+  useEffect(() => {
+      console.log(selectedShop);
+        setShopInfo(selectedShop);
+     }, []);
+
+ //grabs data for the coffeeshop that the user clicked on and updates
+    //the page accordingly
+    async function setShopInfo(shop_id)
+    {
+    try {
+      //fetch api that gets and returns to 'response' object, information about a single coffeeshop
+      const url = `${BASE_URL}/home/get_coffeeshop_by_id/${shop_id}`;
+      const response = await fetch(url);
+      
+      //if the coffeeshop doesn't exist we need to make sure the user knows
+      if(!response.ok)
+      {
+         Alert.alert("that coffeeshop is poopoo (doesn't exist)")
+         return;
+      }
+
+      //this holds the un-jsoned object containing information about the single coffeeshop the user clicked on
+      const data = await response.json();
+
+      //using array destructuring on the six elements we need for the coffeeshop
+      const [, coffee_shop_name, owner_id, street_address, city, state, phone_num, picture_url] = data.Coffeeshop;
+      
+      //setting the state variables to the ones destructured above
+      setCoffeeShopName(coffee_shop_name);
+      setID(owner_id);
+      setStreetAddress(street_address);
+      setCity(city);
+      setState(state);
+      setPhoneNumber(phone_num);
+      setLogoURL(picture_url)
+       
+    } catch (err) {
+      console.log('FETCH ERROR:', err);
+    }
+  }
 
 //this contains the shop selected on the modify_or_add.js page
 const {selectedShop} = useLocalSearchParams();  
@@ -52,11 +97,10 @@ const {selectedShop} = useLocalSearchParams();
     if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      try {
         
-        const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
+        const response = await fetch('http://172.20.10.8:8080/recieveForm/', {
              method: 'POST',
              headers: {
-                'Content-Type': 'application/json'  
-                
+                'Content-Type': 'application/json'    
             },
              body: JSON.stringify(form_content)
         });
@@ -65,7 +109,7 @@ const {selectedShop} = useLocalSearchParams();
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
             
-            alert("Form submitted sucessfully");
+            Alert.alert("Form submitted sucessfully");
             const data = await response.json();
             setResponseMessage(data.storeName);
             
@@ -74,7 +118,7 @@ const {selectedShop} = useLocalSearchParams();
             server gave an error like a 404 status code. One reason for an error 
             could be an incorrect endpoint name*/
           
-            alert("There was an error when submitting the form, please try again. Make sure the phone number includes only numbers and '-'")        
+            Alert.alert("There was an error when submitting the form, please try again. Make sure the phone number includes only numbers and '-'")        
         }
     } catch (error) {
         //This hits if the server address is incorrect (couldn't reach the server)
@@ -96,9 +140,6 @@ const {selectedShop} = useLocalSearchParams();
             <Text style={styles.label}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
              
-            <Text style={styles.label}>Owner name:</Text>
-            <TextInput placeholderTextColor={'#747474ff'} placeholder='John Doe' style={styles.input} value={OwnerID} onChangeText={fun2}></TextInput>
-
             <Text style={styles.label}>Street address:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='123 Fake Street' style={styles.input} value={streetAddress} onChangeText={fun3}></TextInput>
 
