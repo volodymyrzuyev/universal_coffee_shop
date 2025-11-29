@@ -114,7 +114,8 @@ def createAuthRouter(
 
 
 
-            return {"user_id": user_id, "is_admin": is_admin}
+            intJwt = jwt.encode({"id": user_id}, secretKey, algorithm="HS256")
+            return {"user_id": intJwt, "is_admin": is_admin}
 
         except HTTPException:
             raise
