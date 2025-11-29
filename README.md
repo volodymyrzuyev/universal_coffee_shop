@@ -18,7 +18,7 @@
 ###### **pip install fastapi**
 ###### **pip install python-dotenv**
 ###### **pip install requests**
-###### **pip install jwt**
+###### **pip install PyJWT**
 ###### **pip install 'pydantic[email]'**
 ###### **pip install resend**
 
