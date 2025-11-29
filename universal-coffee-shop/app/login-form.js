@@ -47,6 +47,9 @@ async function handleLogin() {
     }
     // Store user_id and role in secure storage afetrter successful login
     await SecureStore.setItemAsync("user_id", String(data.user_id));
+    await SecureStore.setItemAsync("name", String(data.name));
+    await SecureStore.setItemAsync("email", String(data.email));
+    await SecureStore.setItemAsync("password", String(data.password))
     await SecureStore.setItemAsync("is_admin", String(data.is_admin));
 
 
@@ -145,6 +148,7 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     textAlign: "center",
     lineHeight: 50,
+    padding:10,
   },
 
   stylizedTitle: {

@@ -23,6 +23,10 @@ export default function Signup() {
     if (!name || !email || !password) {
       Alert.alert("Missing info", "Please fill in all fields.");
       return;
+    } else if (password.length < 8)
+    {
+      Alert.alert("Passwords must have at least 8 characters.")
+      return;
     }
 
     try {
@@ -32,6 +36,11 @@ export default function Signup() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
+
+      if(!res.ok)
+        {
+          Alert.alert("That email format is not accepted.")
+        }
 
       //This contains the data send from the endpoint '/auth/register'
       const data = await res.json().catch(() => ({}));

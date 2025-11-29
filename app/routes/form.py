@@ -17,7 +17,7 @@ class CoffeeShop(BaseModel):
     city: str
     state: str
     phone_number: str
-    logo_url: str
+    picture_url: str
 
 
 
@@ -25,7 +25,6 @@ class CoffeeShop(BaseModel):
 async def getForm(CS: CoffeeShop):
     #create an instance of a Store object to call the database method
     newStore = Store()
-
     newStore.add(
             CS.coffee_shop_name,
             CS.owner_id,
@@ -33,6 +32,6 @@ async def getForm(CS: CoffeeShop):
             CS.city,
             CS.state,
             int(CS.phone_number.replace("-", "")),
-            CS.logo_url)
+            CS.picture_url)
 
     return {"storeName":CS.coffee_shop_name}

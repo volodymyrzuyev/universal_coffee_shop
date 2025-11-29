@@ -1,7 +1,7 @@
 // universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
@@ -9,10 +9,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 
 const config = Constants.expoConfig;
-
-  
-
- 
 
 // BACKEND URL 
 const BASE_URL = config.backendUrl;
@@ -48,7 +44,7 @@ export default function HomeScreen() {
   
   /* fetches **all** shops from the backend and maps to an object which is 
      then set to the shops variable using setShops*/
-  async function fetchAllShops() {
+     async function fetchAllShops() {
     try {
       
       //fetch api that gets and returns to 'response' object all information from all coffeeshops
@@ -75,9 +71,8 @@ export default function HomeScreen() {
 
   //called when a shop is fetched by name in the search bar
   async function fetchShops(name)
-  {
-
- 
+  { 
+    console.log(name);
     try {
 
       //returns the page to normal if the user clicks the search bar with nothing inside
@@ -92,6 +87,12 @@ export default function HomeScreen() {
  
       //this holds the un-jsoned object containg information about all coffeeshops
       const data = await response.json();
+
+      if(data.Coffeeshops.length == 0)
+      {
+        Alert.alert("No coffeeshops with that name exist");
+        return;
+      }
 
       //data.Coffeeshops contains the array of coffeeshops
       const mapped = mapRows(data.Coffeeshops);
@@ -133,6 +134,7 @@ export default function HomeScreen() {
         <TextInput
           style={styles.searchBar}
           placeholder="Search coffee shops..."
+          placeholderTextColor={'#676767ff'}
           value={searchText}
           onChangeText={setSearchText}
         />
@@ -142,12 +144,18 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         {isAdmin && (
-          <TouchableOpacity onPress={() => router.replace('/AddCoffeeShop')} style={styles.iconButton}>
+          <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
           </TouchableOpacity>
         )}
 
-        <TouchableOpacity onPress={() => router.push(`profile/[${username}]/page`)} style={styles.iconButton}>
+        {!isAdmin && (
+          <TouchableOpacity onPress={() => router.replace('/review')} style={styles.iconButton}>
+            <MaterialIcons name="rate-review" size={24} color="black" />
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity onPress={() => router.push(`profile/[${SecureStore.getItem("user_id")}]/page`)} style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
         </TouchableOpacity>
 
@@ -202,6 +210,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 15,
     fontFamily: 'Anton-Regular',
+    paddingLeft:9,
   },
   dropdown: {
       margin: 16,

@@ -48,6 +48,7 @@ class DatabaseController:
         self.cursor.execute("""
         CREATE TABLE users(
             user_id TEXT PRIMARY KEY UNIQUE,
+            name TEXT,
             email TEXT UNIQUE,
             password TEXT,
             is_admin INTEGER,
@@ -364,9 +365,9 @@ class DatabaseController:
         self.cursor.execute(
             """
             SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
-            FROM stores WHERE LOWER(coffee_shop_name) = ?;
+            FROM stores WHERE LOWER(coffee_shop_name) LIKE ?;
             """,
-            (store_name,),
+            (store_name + "%",),
         )
         return self.cursor.fetchall()
     
@@ -384,7 +385,7 @@ class DatabaseController:
     
     def get_user_by_email(self, email: str) -> tuple | None:
         """
-        Returns (user_id, email, password, is_admin) for this email, or None.
+        Returns (user_id, name, email, password, is_admin) for this email, or None.
         Email is stored in users.email. Requires database_connect() first.
         """
         self.cursor.execute(
@@ -392,6 +393,19 @@ class DatabaseController:
             (email.lower().strip(),),
         )
         return self.cursor.fetchone()
+    
+    def update_user_email(self, email:str, user_id:str):
+        """
+        Updates the email for a user. This comes from the page.js page of the profile
+        """
+        self.cursor.execute(
+            """UPDATE users
+               SET email = ?
+               WHERE user_id = ?;
+               """,
+               (email, user_id),
+        )
+        self.connection.commit()
 
     def get_stores_for_user(self, user_id: str) -> List[tuple]:
         """Return all stores linked to a user via user_owns."""
@@ -406,7 +420,7 @@ class DatabaseController:
         )
         return self.cursor.fetchall()
 
-    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) -> str:
+    def create_coffee_shop(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, picture_url: str) -> str:
         """
         Creates a coffee shop with a generated unique store_id and returns it.
         Also links the owner to the store in user_owns.
@@ -421,10 +435,10 @@ class DatabaseController:
 
         self.cursor.execute(
             """
-            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url)
+            INSERT INTO stores (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             """,
-            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url),
+            (store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url),
         )
         self.connection.commit()
 

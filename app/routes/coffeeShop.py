@@ -27,5 +27,10 @@ async def get_coffeeshop_by_id(shop_id):
 async def get_coffeeshops_by_name(shop_name):
      return {"Coffeeshops":newStore.get_coffeeshop_by_name(shop_name)}
 
+@coffeeShopRouter.get("/get_shops_admin_owns/{admin_id}")
+async def get_shops_admin_owns(admin_id):
+     print(admin_id)
+     return {"Admin_Coffeeshops": newStore.get_shops_admin_owns(admin_id)}
+
     
 
