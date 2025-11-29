@@ -4,6 +4,9 @@ import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'reac
 import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as SecureStore from "expo-secure-store";
+import Constants from 'expo-constants';
+
+const config = Constants.expoConfig;
 
 function AddCoffeeShop()
 {
@@ -49,7 +52,7 @@ function fun7(e){setLogoURL(e);}
 
      try {
         
-        const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
+        const response = await fetch(`${config.backendUrl}/recieveForm/`, {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'              

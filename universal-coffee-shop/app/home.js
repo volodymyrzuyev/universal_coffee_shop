@@ -6,10 +6,12 @@ import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
+const config = Constants.expoConfig;
 
 // BACKEND URL 
-const BASE_URL = 'http://192.168.1.175:8080';
+const BASE_URL = config.backendUrl;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -47,7 +49,13 @@ export default function HomeScreen() {
       
       //fetch api that gets and returns to 'response' object all information from all coffeeshops
       const url = `${BASE_URL}/home/get_all_coffeeshops`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+          },
+      });
  
       //this holds the un-jsoned object containg information about all coffeeshops
       const data = await response.json();
