@@ -53,7 +53,13 @@ export default function HomeScreen() {
       
       //fetch api that gets and returns to 'response' object all information from all coffeeshops
       const url = `${BASE_URL}/home/get_all_coffeeshops`;
-      const response = await fetch(url);
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+          },
+      });
  
       //this holds the un-jsoned object containg information about all coffeeshops
       const data = await response.json();
