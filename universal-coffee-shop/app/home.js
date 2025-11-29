@@ -6,14 +6,16 @@ import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
+const config = Constants.expoConfig;
 
   
 
  
 
 // BACKEND URL 
-const BASE_URL = 'http://192.168.1.175:8080';
+const BASE_URL = config.backendUrl;
 
 export default function HomeScreen() {
   const router = useRouter();

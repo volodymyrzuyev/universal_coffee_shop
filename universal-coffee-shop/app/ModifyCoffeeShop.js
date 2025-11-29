@@ -3,6 +3,9 @@ import {useState} from 'react';
 import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'react-native';
 import {useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
+
+const config = Constants.expoConfig;
 
 function AddCoffeeShop()
 {
@@ -52,7 +55,7 @@ const {selectedShop} = useLocalSearchParams();
     if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      try {
         
-        const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
+        const response = await fetch(`${config.backendUrl}/recieveForm/`, {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'  

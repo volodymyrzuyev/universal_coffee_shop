@@ -3,7 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Styl
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.175:8080";
+import Constants from 'expo-constants';
+
+const config = Constants.expoConfig;
+
+const API_BASE = config.backendUrl;
 
 export default function Signup() {
   const router = useRouter();
