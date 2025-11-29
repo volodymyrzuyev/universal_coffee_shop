@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import resend
 
-load_dotenv(".env") # load environment variables from .env file
+load_dotenv("backend.env") # load environment variables from .env file
 resend.api_key = os.getenv("RESEND_API_KEY")   #set the Resend API key 
 
 #send an email to the user with a code that they can use to log in
