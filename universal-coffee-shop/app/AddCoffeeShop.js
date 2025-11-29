@@ -49,7 +49,7 @@ function fun7(e){setLogoURL(e);}
 
      try {
         
-        const response = await fetch('http://172.20.10.8:8080/recieveForm/', {
+        const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'              

@@ -82,7 +82,7 @@ export default function UserProfilePage()
       }
 
       try {  
-        const response = await fetch('http://172.20.10.8:8080/updateEmail/', {
+        const response = await fetch('http://192.168.1.175:8080/updateEmail/', {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'              

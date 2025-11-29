@@ -4,7 +4,7 @@ import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'reac
 import {useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const BASE_URL = 'http://172.20.10.8:8080';
+const BASE_URL = 'http://192.168.1.175:8080';
 
 function AddCoffeeShop()
 {
@@ -97,7 +97,7 @@ const {selectedShop} = useLocalSearchParams();
     if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      try {
         
-        const response = await fetch('http://172.20.10.8:8080/recieveForm/', {
+        const response = await fetch('http://192.168.1.175:8080/recieveForm/', {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json'    

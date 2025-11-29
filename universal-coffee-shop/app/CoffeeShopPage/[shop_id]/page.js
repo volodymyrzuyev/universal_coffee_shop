@@ -19,7 +19,7 @@ export default function page()
   const router = useRouter();
   
    // BACKEND URL 
-   const BASE_URL = 'http://172.20.10.8:8080';   
+   const BASE_URL = 'http://192.168.1.175:8080';   
 
     //runs on component mount to get the information based on the coffeeshops id
     useEffect(() => {

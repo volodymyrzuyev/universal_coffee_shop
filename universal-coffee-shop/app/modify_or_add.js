@@ -6,7 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import {SelectList} from 'react-native-dropdown-select-list'
 
 
-const BASE_URL = 'http://172.20.10.8:8080';
+const BASE_URL = 'http://192.168.1.175:8080';
 
 
 export default function modify_or_add(){

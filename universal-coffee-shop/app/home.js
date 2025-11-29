@@ -1,19 +1,15 @@
 // universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-  
-
- 
-
 // BACKEND URL 
-const BASE_URL = 'http://172.20.10.8:8080';
+const BASE_URL = 'http://192.168.1.175:8080';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -46,7 +42,7 @@ export default function HomeScreen() {
   
   /* fetches **all** shops from the backend and maps to an object which is 
      then set to the shops variable using setShops*/
-  async function fetchAllShops() {
+     async function fetchAllShops() {
     try {
       
       //fetch api that gets and returns to 'response' object all information from all coffeeshops
@@ -142,6 +138,12 @@ export default function HomeScreen() {
         {isAdmin && (
           <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
+          </TouchableOpacity>
+        )}
+
+        {!isAdmin && (
+          <TouchableOpacity onPress={() => router.replace('/review')} style={styles.iconButton}>
+            <MaterialIcons name="rate-review" size={24} color="black" />
           </TouchableOpacity>
         )}
 
