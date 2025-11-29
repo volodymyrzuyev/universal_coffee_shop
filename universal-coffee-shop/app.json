@@ -1,6 +1,6 @@
 {
   "expo": {
-    "backendUrl": "http://10.0.2.212:8000",
+    "backendUrl": "http://192.168.1.175:8000",
     "name": "universal-coffee-shop",
     "slug": "universal-coffee-shop",
     "version": "1.0.0",
