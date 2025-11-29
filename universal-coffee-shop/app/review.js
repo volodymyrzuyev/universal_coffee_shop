@@ -2,18 +2,11 @@ import { View, Text, TouchableOpacity, StyleSheet,TextInput} from "react-native"
 import {SelectList} from 'react-native-dropdown-select-list'
 import {useState, useEffect} from 'react';
 import { useRouter } from "expo-router";
-
-//importing the reusable fetchAllShops function
-import fetchAllShops from '../Reuseable_Function/fetchAllShops'
-
+ 
 export default function review()
 {
     const router = useRouter();
-
-    useEffect(() => {
-        setShops(fetchAllShops());
-        console.log(fetchAllShops());
-  },[])
+ 
 
     const [listOfShops, setShops] = useState([]);
 
