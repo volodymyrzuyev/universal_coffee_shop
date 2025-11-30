@@ -2,7 +2,7 @@
 #user fills out. 
 
 from models.object_types import Store
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
 from databaseStuff.config import db
 
@@ -12,7 +12,6 @@ FormRouter = APIRouter(tags=["Coffeeshop Form Submission"])
 
 class CoffeeShop(BaseModel):
     coffee_shop_name: str
-    owner_id: str
     street_address: str
     city: str
     state: str
@@ -22,12 +21,12 @@ class CoffeeShop(BaseModel):
 
 
 @FormRouter.post("/recieveForm/")
-async def getForm(CS: CoffeeShop):
+async def getForm(CS: CoffeeShop, request: Request):
     #create an instance of a Store object to call the database method
     newStore = Store()
     newStore.add(
             CS.coffee_shop_name,
-            CS.owner_id,
+            request.state.user_id,
             CS.street_address,
             CS.city,
             CS.state,

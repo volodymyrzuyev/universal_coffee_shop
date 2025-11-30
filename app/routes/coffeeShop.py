@@ -46,10 +46,9 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
             print(e)
             pass
 
-    @coffeeShopRouter.get("/get_shops_admin_owns/{admin_id}")
-    async def get_shops_admin_owns(admin_id):
-         print(admin_id)
-         return {"Admin_Coffeeshops": newStore.get_shops_admin_owns(admin_id)}
+    @coffeeShopRouter.get("/get_shops_admin_owns/")
+    async def get_shops_admin_owns(request: Request):
+         return {"Admin_Coffeeshops": newStore.get_shops_admin_owns(request.state.user_id)}
 
     
     #endpoint that returns all information from a singular coffeeshop by its id

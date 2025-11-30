@@ -5,8 +5,12 @@ import * as SecureStore from "expo-secure-store";
 
 import {SelectList} from 'react-native-dropdown-select-list'
 
+import Constants from 'expo-constants';
 
-const BASE_URL = 'http://192.168.1.175:8080';
+const config = Constants.expoConfig;
+
+// BACKEND URL 
+const BASE_URL = config.backendUrl;
 
 
 export default function modify_or_add(){
@@ -29,10 +33,16 @@ export default function modify_or_add(){
   admin owns and is called in a useEffect */
   async function getShopsAdminOwns(){
     try {
-      const admin_id = await SecureStore.getItemAsync("user_id");
       //fetch api that gets and returns to 'response' object all information from all coffeeshops
-      const url = `${BASE_URL}/home/get_shops_admin_owns/${admin_id}`;
-      const response = await fetch(url);
+      const url = `${BASE_URL}/home/get_shops_admin_owns/`;
+      const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+                },
+            });
+
  
       //this holds the un-jsoned object containg information about all coffeeshops
       const data = await response.json();

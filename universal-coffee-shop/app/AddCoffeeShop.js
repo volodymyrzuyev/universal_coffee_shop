@@ -38,11 +38,9 @@ function fun7(e){setLogoURL(e);}
  const submitForm = async () => {
   //This 'if' statement forces the user to fill out every section of the form
     if(coffeeShopName!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
-     const OwnerID = await SecureStore.getItemAsync("user_id");
      
      const form_content = {
         'coffee_shop_name': coffeeShopName, 
-        'owner_id': OwnerID, 
         'street_address': streetAddress, 
         'city': city, 
         'state': state, 
