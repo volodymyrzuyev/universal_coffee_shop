@@ -6,6 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import * as SecureStore from "expo-secure-store";
 
+import Constants from 'expo-constants';
+
+const config = Constants.expoConfig;
+
+// BACKEND URL 
+const BASE_URL = config.backendUrl;
 
 /*This represents the profile page of a user, a user will visit this page
 if they want to edit their information like email or password*/
@@ -38,10 +44,20 @@ export default function UserProfilePage()
     show it to the UI*/
     async function getProfileInfo()
     {
-     setuserId(await SecureStore.getItemAsync("user_id"));
-     setName(await SecureStore.getItemAsync("name"));
-     setCurrentEmail(await SecureStore.getItemAsync("email"));
-     setPassword(await SecureStore.getItemAsync("password"));
+      const url = `${BASE_URL}/me/`;
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+          },
+      });
+     const data = await response.json()
+
+     setuserId(data.user[0]);
+     setName(data.user[1]);
+     setCurrentEmail(data.user[2]);
+     setPassword(data.user[3]);
     }
 
     /*gets the time of day and sets the hello message in the profile
@@ -82,10 +98,11 @@ export default function UserProfilePage()
       }
 
       try {  
-        const response = await fetch('http://192.168.1.175:8080/updateEmail/', {
+        const response = await fetch(`${BASE_URL}//updateEmail/`, {
              method: 'POST',
              headers: {
-                'Content-Type': 'application/json'              
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
             },
              body: JSON.stringify({"email":updatedEmail, "user_id":userId}),
         });

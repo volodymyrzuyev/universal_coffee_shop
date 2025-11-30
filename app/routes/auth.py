@@ -53,8 +53,9 @@ def createAuthRouter(
             email = payload.email.lower().strip()
             if not db.check_unique_email(payload.email):
                 raise HTTPException(status_code=409, detail="An account with this email already exists.")
+            print(payload)
 
-            user_id = db.create_user(payload.email, payload.password, False,mfa_enabled=False)    
+            user_id = db.create_user(payload.name, payload.email, payload.password, False,mfa_enabled=False)    
 
             return {
                 "uniqueEmail": True,

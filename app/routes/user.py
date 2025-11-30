@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
 from databaseStuff.config import db
 
@@ -28,6 +28,13 @@ async def updateEmail(userUpdatingEmail: UpdateEmailUser):
    print("ru here")
    db.update_user_email(userUpdatingEmail.email, userUpdatingEmail.user_id)
    return {"status": "success"}
+
+@UserRouter.get("/me/")
+async def getUserData(request: Request):
+    data = db.get_user_from_id(request.state.user_id)
+    print(data)
+    return {"user":data }
+
    
     
     

@@ -191,7 +191,7 @@ class DatabaseController:
         self.cursor.execute("SELECT * from reviews WHERE store_id = ?;", (store_id,))
         return self.cursor.fetchall()
 
-    def create_user(self, email: str, password: str, is_admin: bool, mfa_enabled: bool = False) -> str:
+    def create_user(self, name:str, email: str, password: str, is_admin: bool, mfa_enabled: bool = False) -> str:
         """
         Creates a new user in the database.
         returns their ID
@@ -204,9 +204,9 @@ class DatabaseController:
 
         self.cursor.execute("BEGIN TRANSACTION;")
         self.cursor.execute("""
-        INSERT INTO users (user_id, email, password, is_admin, mfa_enabled)
-        VALUES (?, ?, ?, ?, ?);
-        """, (user_id, email, password, int(is_admin), int(mfa_enabled)))
+        INSERT INTO users (user_id, name, email, password, is_admin, mfa_enabled)
+        VALUES (?, ?, ?, ?, ?, ?);
+        """, (user_id, name, email, password, int(is_admin), int(mfa_enabled)))
         self.connection.commit()
 
         return user_id
