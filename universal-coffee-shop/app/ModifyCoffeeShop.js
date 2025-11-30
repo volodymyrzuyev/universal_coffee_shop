@@ -7,7 +7,7 @@ import Constants from 'expo-constants';
 
 const config = Constants.expoConfig;
 
-const BASE_URL = 'http://192.168.1.175:8080';
+const BASE_URL = config.backendUrl;
 
 function AddCoffeeShop()
 {
@@ -63,8 +63,14 @@ function fun7(e){setLogoURL(e);}
     try {
       //fetch api that gets and returns to 'response' object, information about a single coffeeshop
       const url = `${BASE_URL}/home/get_coffeeshop_by_id/${shop_id}`;
-      const response = await fetch(url);
-      
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+          },
+      });
+
       //if the coffeeshop doesn't exist we need to make sure the user knows
       if(!response.ok)
       {
@@ -103,7 +109,8 @@ const {selectedShop} = useLocalSearchParams();
         const response = await fetch(`${config.backendUrl}/recieveForm/`, {
              method: 'POST',
              headers: {
-                'Content-Type': 'application/json'    
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
             },
              body: JSON.stringify(form_content)
         });
