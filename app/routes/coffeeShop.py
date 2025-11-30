@@ -1,9 +1,19 @@
-from fastapi import APIRouter
+from typing_extensions import type_repr
+from fastapi import APIRouter, Request
 
 
 #importing Store so it can be used to call the db methods instead of directly calling them through db
 from databaseStuff import db_controller
 from models.object_types import Store
+from pydantic import BaseModel
+
+'''
+{
+    "text": "this was amazin"
+    "shop_id": "fasdfs"
+}
+
+'''
 
 
 def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
@@ -19,12 +29,22 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
         return {"Coffeeshops": newStore.get_all()}
 
     #endpoint that returns all information from all coffeeshops
-    @coffeeShopRouter.get("/shop/{store_id}/")
+    @coffeeShopRouter.get("/shop/reviews/{store_id}/")
     async def get_all_reviews(store_id):
         data = db.get_store_reviews(store_id)
-        print(data)
-
         return {"reviews": data}
+
+    class review(BaseModel):
+        text: str
+
+    @coffeeShopRouter.post("/shop/reviews/{store_id}/")
+    async def post_review(store_id, RW: review, request: Request):
+        try:
+            db.create_review(request.state.user_id, store_id, RW.text)
+        except Exception as e: 
+            print("I failed")
+            print(e)
+            pass
 
     @coffeeShopRouter.get("/get_shops_admin_owns/{admin_id}")
     async def get_shops_admin_owns(admin_id):
