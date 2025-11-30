@@ -168,9 +168,28 @@ class DatabaseController:
             FOREIGN KEY(user_id) REFERENCES users(user_id)
         );
         """)
+        self.cursor.execute("""
+        CREATE TABLE reviews(
+            user_id TEXT,
+            store_id TEXT,
+            data TEXT,
+            PRIMARY KEY (user_id, store_id)
+        );
+        """)
         self.connection.commit()
 
         self.database_close()
+
+    def create_review(self, user_id: str, store_id: str, text: str) -> None:
+        self.cursor.execute("""
+            INSERT INTO reviews (user_id, store_id, data)
+            VALUES (?, ?, ?)
+        """, (user_id, store_id, text))
+        self.connection.commit()
+
+    def get_store_reviews(self, store_id: str) -> list:
+        self.cursor.execute("SELECT * from reviews WHERE store_id = ?;", (store_id,))
+        return self.cursor.fetchall()
 
     def create_user(self, email: str, password: str, is_admin: bool, mfa_enabled: bool = False) -> str:
         """

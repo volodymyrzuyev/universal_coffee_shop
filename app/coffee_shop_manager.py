@@ -39,7 +39,7 @@ class CoffeeShopManager:
         app.include_router(initAuthRoute(self.db))
         app.include_router(form.FormRouter)
         app.include_router(user.UserRouter)
-        app.include_router(coffeeShop.coffeeShopRouter)
+        app.include_router(coffeeShop.initStoreRouter(self.db))
 
         #fastAPI website says that using * is a bad thing since it won;t
         #allow communication that uses credentials like cookies and 
