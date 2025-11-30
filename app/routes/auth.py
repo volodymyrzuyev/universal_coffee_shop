@@ -82,8 +82,6 @@ def createAuthRouter(
 
     @router.post("/login")
     async def login_user(payload: LoginIn):
-
-
         try:
             row = db.get_user_by_email(payload.email)
             if row is None:

@@ -4,6 +4,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import * as SecureStore from "expo-secure-store";
+
 
 const config = Constants.expoConfig;
 
@@ -81,6 +83,9 @@ export default function page() {
                     <Text style={styles.text}>You can find us at this address {streetAddress} in {city} {state}</Text>
                     <Text style={styles.text}>If you want to call us, reach us at {PhoneNum}</Text>
 
+                    <TouchableOpacity onPress={() => router.push("/home")}>
+                        <Text style={styles.text}>Write a review of this shop</Text>
+                    </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => router.push("/home")}>
                         <Text style={styles.text}>BACK</Text>

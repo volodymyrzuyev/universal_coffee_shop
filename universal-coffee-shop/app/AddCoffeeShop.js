@@ -55,7 +55,8 @@ function fun7(e){setLogoURL(e);}
         const response = await fetch(`${config.backendUrl}/recieveForm/`, {
              method: 'POST',
              headers: {
-                'Content-Type': 'application/json'              
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,              
             },
              body: JSON.stringify(form_content)
         });
