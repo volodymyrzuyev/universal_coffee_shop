@@ -1,18 +1,10 @@
-// universal-coffee-shop/components/CoffeeShopCard.js
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-
-//global background color
-
 const BACKGROUND_COLOR = 'red';
 
-/*Something I was messing around with which changes the background color 
-everytime the component rerenders, but it only works if we change code 
-and now when the user goes back to the page. But still its cool so its 
-here. Change it if you want though*/
 function getRandomColor()
 {
   let letters = '0123456789ABCDEF';
@@ -25,7 +17,6 @@ function getRandomColor()
   return color;
 }
  
-
 export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
@@ -44,7 +35,15 @@ export default function CoffeeShopCard({ shop }) {
     <TouchableOpacity style={styles.card}  onPress={handleRedirect}>
       <View className="logo" style={styles.logo} />
 
-      <Text style={styles.shopName}>{shop.name}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.shopName}>{shop.name}</Text>
+
+        {shop.distance != null && (
+          <Text style={{ fontSize: 14, fontFamily: "Anton-Regular" }}>
+            {shop.distance.toFixed(1)} km away
+          </Text>
+        )}
+      </View>
 
       <TouchableOpacity
         style={styles.favoriteButton}
@@ -58,7 +57,6 @@ export default function CoffeeShopCard({ shop }) {
       </TouchableOpacity>
     </TouchableOpacity>
   );
-
 }
 
 const styles = StyleSheet.create({

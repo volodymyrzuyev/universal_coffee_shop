@@ -1,4 +1,3 @@
-// universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -22,6 +21,9 @@ export default function HomeScreen() {
   // data coming from backend
   const [shops, setShops] = useState([]);
 
+  //user location
+  const [userLocation, setUserLocation] = useState(null);
+
   //this sets the coffeeshop selection by the user (modify coffeeshop or add coffeeshop)
   const [coffeeshopSelection, setcoffeeshopSelection] = useState("");
 
@@ -29,8 +31,39 @@ export default function HomeScreen() {
   const [isAdmin, setIsAdmin] = useState(false);
    // load all shops once on component mount (when the page loads)
    useEffect(() => {
+      getUserLocation();
       fetchAllShops();
    }, []);
+
+  // gets user coordinates
+  async function getUserLocation() {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude
+        });
+      },
+      (err) => console.log(err),
+      { enableHighAccuracy: true }
+    );
+  }
+
+  //haversine formula
+  function computeDistance(lat1, lon1, lat2, lon2) {
+    function toRad(x) { return (x * Math.PI) / 180; }
+
+    const R = 6371; // km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
 
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
@@ -38,6 +71,8 @@ export default function HomeScreen() {
     return rows.map((row) => ({
       id: row[0],      // store_id
       name: row[1],    // coffee_shop_name
+      lat: row[4],     // city latitude from DB
+      lon: row[5],     // state longitude from DB
     }));
   }
 
@@ -61,7 +96,30 @@ export default function HomeScreen() {
       const data = await response.json();
 
       //data.Coffeeshops contains the array of coffeeshops
-      const mapped = mapRows(data.Coffeeshops);
+      let mapped = mapRows(data.Coffeeshops);
+
+      if (userLocation) {
+        mapped = mapped.map(shop => {
+          if (shop.lat && shop.lon) {
+            shop.distance = computeDistance(
+              userLocation.lat,
+              userLocation.lon,
+              shop.lat,
+              shop.lon
+            );
+          } else {
+            shop.distance = null;
+          }
+          return shop;
+        });
+
+        mapped.sort((a, b) => {
+          if (a.distance == null) return 1;
+          if (b.distance == null) return -1;
+          return a.distance - b.distance;
+        });
+      }
+
       setShops(mapped);
        
     } catch (err) {
@@ -102,7 +160,30 @@ export default function HomeScreen() {
       }
 
       //data.Coffeeshops contains the array of coffeeshops
-      const mapped = mapRows(data.Coffeeshops);
+      let mapped = mapRows(data.Coffeeshops);
+
+      if (userLocation) {
+        mapped = mapped.map(shop => {
+          if (shop.lat && shop.lon) {
+            shop.distance = computeDistance(
+              userLocation.lat,
+              userLocation.lon,
+              shop.lat,
+              shop.lon
+            );
+          } else {
+            shop.distance = null;
+          }
+          return shop;
+        });
+
+        mapped.sort((a, b) => {
+          if (a.distance == null) return 1;
+          if (b.distance == null) return -1;
+          return a.distance - b.distance;
+        });
+      }
+
       setShops(mapped);
        
     } catch (err) {
@@ -121,13 +202,8 @@ export default function HomeScreen() {
 
   async function handleLogout() {
   try {
-    //we are not using the backend logout endpoint for now, just clear local storage
-    await SecureStore.deleteItemAsync("user_id");// Remove user_id from secure storage
-    await SecureStore.deleteItemAsync("is_admin");// Remove is_admin from secure storage
-
-//so now the user_id and the role are both deleted from secure storage, we can redirect to login.
-
-    
+    await SecureStore.deleteItemAsync("user_id");
+    await SecureStore.deleteItemAsync("is_admin");
     router.replace("/login");
   } catch (err) {
     console.log("LOGOUT ERROR:", err);
@@ -175,7 +251,7 @@ export default function HomeScreen() {
       <Text style={styles.sectionTitle}>NEARBY</Text>
 
       <FlatList
-        data={shops} // now using backend results
+        data={shops}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
         
