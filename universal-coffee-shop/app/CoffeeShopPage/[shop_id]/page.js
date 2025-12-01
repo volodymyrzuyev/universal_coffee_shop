@@ -22,10 +22,6 @@ export default function page() {
     // BACKEND URL 
     const BASE_URL = config.backendUrl;
 
-    /*This gets the name of the coffeeshop that was sent from CoffeeShopCard.js
-    'id' is used because it represents the route of the [id] folder */
-    const { shop_id } = useLocalSearchParams();
-
     //runs on component mount to get the information based on the coffeeshops id
     useEffect(() => {
         fetchShopById(shop_id);
@@ -70,26 +66,37 @@ export default function page() {
         }
     }
 
+    /*This gets the name of the coffeeshop that was sent from CoffeeShopCard.js
+    'id' is used because it represents the route of the [id] folder */
+    const { shop_id } = useLocalSearchParams();
+
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.title}>{coffeeShopName}</Text>
+        <>
+            <SafeAreaView style={styles.container}>
+                <ScrollView contentContainerStyle={styles.scroll}>
 
-                <View style={styles.box}>
-                    <Text style={styles.infoText}>The owner of our establishment is {OwnerID}</Text>
-                    <Text style={styles.infoText}>You can find us at this address {streetAddress} in {city} {state}</Text>
-                    <Text style={styles.infoText}>If you want to call us, reach us at {PhoneNum}</Text>
-                </View>
+                    <Text style={styles.header}>
+                        Hello and welcome to {"\n"}{coffeeShopName}
+                    </Text>
 
-                <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
-                    <Text style={styles.buttonLabel}>Write a review of this shop</Text>
-                </TouchableOpacity>
+                    <View style={styles.infoBox}>
+                        <Text style={styles.text}>The owner of our establishment is {OwnerID}</Text>
+                        <Text style={styles.text}>You can find us at {streetAddress}</Text>
+                        <Text style={styles.text}>{city}, {state}</Text>
+                        <Text style={styles.text}>Call us at {PhoneNum}</Text>
+                    </View>
 
-                <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
-                    <Text style={styles.buttonLabel}>BACK</Text>
-                </TouchableOpacity>
-            </ScrollView>
-        </SafeAreaView>
+                    <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
+                        <Text style={styles.buttonText}>Write a review of this shop</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.backBtn} onPress={() => router.push("/home")}>
+                        <Text style={styles.backText}>BACK</Text>
+                    </TouchableOpacity>
+
+                </ScrollView>
+            </SafeAreaView>
+        </>
     )
 }
 
@@ -98,46 +105,57 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#FFFFFF",
     },
-    content: {
+    scroll: {
         alignItems: "center",
-        padding: 30,
+        padding: 20,
         gap: 25,
     },
-    title: {
-        fontSize: 48,
-        color: "#000",
-        fontFamily: "Anton-Regular",
+    header: {
+        fontSize: 40,
         textAlign: "center",
-        lineHeight: 50,
-        marginBottom: 10,
-        textTransform: "uppercase",
+        fontFamily: "Anton-Regular",
+        color: "#000",
+        lineHeight: 45,
+        marginTop: 10,
     },
-    box: {
-        width: "100%",
+    infoBox: {
+        width: "95%",
         borderWidth: 2,
         borderRadius: 15,
-        padding: 20,
-        backgroundColor: "#FFFFFF",
+        paddingVertical: 20,
+        backgroundColor: "#fff",
         alignItems: "center",
-        gap: 15,
+        gap: 10,
     },
-    infoText: {
+    text: {
         fontSize: 18,
+        textAlign: "center",
         color: "#000",
         fontFamily: "Anton-Regular",
-        textAlign: "center",
+    },
+    shopName: {
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     button: {
-        width: "100%",
-        height: 50,
-        borderRadius: 25,
+        width: "90%",
         backgroundColor: "#000",
-        justifyContent: "center",
+        paddingVertical: 14,
+        borderRadius: 25,
         alignItems: "center",
     },
-    buttonLabel: {
+    buttonText: {
         color: "#FFF",
-        fontSize: 16,
+        fontSize: 18,
         fontFamily: "Anton-Regular",
     },
+    backBtn: {
+        paddingTop: 5,
+    },
+    backText: {
+        color: "#000",
+        fontSize: 18,
+        fontFamily: "Anton-Regular",
+    },
+    perimeter: { textAlign: 'center' },
 });

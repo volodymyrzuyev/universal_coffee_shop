@@ -3,7 +3,6 @@ import {useEffect,useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
 import * as SecureStore from "expo-secure-store";
 
 import Constants from 'expo-constants';
@@ -128,108 +127,123 @@ export default function UserProfilePage()
 
     return (
         <>
-
-            <SafeAreaView style={styles.box}>
+            <SafeAreaView style={styles.container}>
 
                 <Text style={styles.header}>{timeMessage} {name}</Text>
-                <Text style={styles.belowHeader}>Update your profile by entering new information into the text box and hitting the update button</Text>
+                <Text style={styles.belowHeader}>
+                    Update your profile by entering new information into the text box 
+                    and hitting the update button
+                </Text>
 
                 <View style={styles.infoBox}> 
                     <Text style={styles.text}>EMAIL (current)</Text>
-                    <TextInput style={styles.option} placeholder={currentEmail} placeholderTextColor={'#454545ff'} onChangeText={setUpdatedEmail}></TextInput>
-                    <TouchableOpacity onPress={updateEmail}><Text style={styles.updateText}>UPDATE EMAIL</Text></TouchableOpacity>
+                    <TextInput 
+                        style={styles.option} 
+                        placeholder={currentEmail} 
+                        placeholderTextColor={'#454545ff'} 
+                        onChangeText={setUpdatedEmail}
+                    />
+                    <TouchableOpacity style={styles.button} onPress={updateEmail}>
+                        <Text style={styles.buttonText}>UPDATE EMAIL</Text>
+                    </TouchableOpacity>
                 </View>
 
-                 <View style={styles.infoBox}>
+                <View style={styles.infoBox}>
                     <Text style={styles.text}>PASSWORD (current)</Text>
-                    <TextInput style={styles.option} placeholder={password} placeholderTextColor={'#454545ff'} onChangeText={setUpdatedPassword}></TextInput>
-                    <TouchableOpacity><Text style={styles.updateText}>UPDATE PASSWORD</Text></TouchableOpacity>
+                    <TextInput 
+                        style={styles.option} 
+                        placeholder={password} 
+                        placeholderTextColor={'#454545ff'} 
+                        onChangeText={setUpdatedPassword}
+                    />
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>UPDATE PASSWORD</Text>
+                    </TouchableOpacity>
                 </View>
 
-              <View style={styles.modifyCoffeeshop}>
-              </View>
+                <View style={styles.modifyCoffeeshop}>
+                </View>
 
-              <TouchableOpacity onPress={() => router.push("/home")}>
-                      <Text style={styles.backText}>BACK</Text>
-              </TouchableOpacity>
- 
-            </SafeAreaView>      
+                <TouchableOpacity onPress={() => router.push("/home")}>
+                    <Text style={styles.backText}>BACK</Text>
+                </TouchableOpacity>
+
+            </SafeAreaView>
         </>
     )
 }
 
 const styles = StyleSheet.create({
+  container:{
+    flex:1,
+    backgroundColor:"#FFFFFF",
+    alignItems:'center',
+    padding:20,
+    gap:20,
+  },
   header:{
-    fontSize:20,
-    fontWeight:'bold',
-    padding:10,
+    fontSize:48,
+    paddingTop:10,
     color: "#000",
     fontFamily: "Anton-Regular",
-  },
-  belowHeader:
-  {
     textAlign:'center',
-    padding:2,
+    lineHeight:50,
   },
-   box:{
-     flex:1,
-     alignItems:'center',
-     justifyContent:'center',
-     gap:10,
-   },
-   infoBox:
-   {
-    borderRadius:5,
+  belowHeader:{
+    textAlign:'center',
+    paddingHorizontal:20,
+    fontSize:14,
+    color:"#000",
+  },
+  box:{
+    flex:1,
+    alignItems:'center',
+    justifyContent:'center',
+    gap:10,
+  },
+  infoBox:{
+    borderRadius:15,
     borderWidth:2,
     width:'98%',
+    padding:20,
+    alignItems:'center',
+    backgroundColor:"#FFFFFF",
+    gap:10,
+  },
+  option:{
+    borderRadius:25,
+    borderWidth:2,
     padding:10,
-    paddingLeft:0,
-    paddingRight:0,
-    alignItems:'center'
-   },
-   option:
-  {
-     borderRadius:6,
-     borderWidth:5,
-     padding:10,
-     width:'90%',
-     textAlign:'center'
-   },
-//   modifyCoffeeshop:
-//   {
-//     borderRadius:6,
-//     borderWidth:5,
-//     padding:0,
-//   },
-  backText:
-  {
+    width:'90%',
+    textAlign:'center',
+    fontSize:16,
+  },
+  modifyCoffeeshop:{},
+  backText:{
     fontWeight:'bold',
     padding:10,
     color: "#000",
     fontSize: 18,
     fontFamily: "Anton-Regular",
   },
-  text:
-  {
+  text:{
     fontSize: 20,
     color: "#000",
     fontFamily: "Anton-Regular",
-    alignSelf: "left",
-    lineHeight: 50,
-    paddingLeft:20,
-  },
-  updateText:
-  {
-    fontSize: 20,
-    color: "#000",
-    fontFamily: "Anton-Regular",
-    textAlign: "center",
     lineHeight: 30,
-    borderColor:'black',
-    borderWidth:3,
-    marginTop:10,
-    paddingHorizontal:10,
-    
+  },
+  button:{
+    width:'90%',
+    height:50,
+    backgroundColor:'#000',
+    borderRadius:25,
+    justifyContent:'center',
+    alignItems:'center',
+    marginTop:5,
+  },
+  buttonText:{
+    color:'#FFF',
+    fontSize:16,
+    fontFamily:'Anton-Regular',
   }
-   
 });
