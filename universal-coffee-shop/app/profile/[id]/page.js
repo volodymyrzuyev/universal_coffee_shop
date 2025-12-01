@@ -125,6 +125,19 @@ export default function UserProfilePage()
         setResponseMessage(`Network Error: ${error.message}`); 
     }
   }
+      async function toggleMfa() {
+      const userId = await SecureStore.getItemAsync("user_id");
+
+      const res = await fetch(`${BASE_URL}/auth/mfa/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId }),
+      });
+
+      const data = await res.json();
+      Alert.alert("MFA Updated", `New value: ${data.mfa_enabled}`);
+}
+
 
     return (
         <>
@@ -144,6 +157,12 @@ export default function UserProfilePage()
                     <Text style={styles.text}>PASSWORD (current)</Text>
                     <TextInput style={styles.option} placeholder={password} placeholderTextColor={'#454545ff'} onChangeText={setUpdatedPassword}></TextInput>
                     <TouchableOpacity><Text style={styles.updateText}>UPDATE PASSWORD</Text></TouchableOpacity>
+                </View>
+                <View style={styles.infoBox}>
+                    <Text style={styles.text}>MULTI-FACTOR AUTHENTICATION</Text>
+                    <TouchableOpacity onPress={toggleMfa}>
+                        <Text style={styles.updateText}>TOGGLE MFA</Text>
+                    </TouchableOpacity>
                 </View>
 
               <View style={styles.modifyCoffeeshop}>
