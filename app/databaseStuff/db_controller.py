@@ -618,3 +618,9 @@ class DatabaseController:
         WHERE user_id = ?;
         """, (user_id,))
         return self.cursor.fetchone()
+    def update_mfa_enabled(self, user_id: str, enabled: int):
+        self.cursor.execute(
+            "UPDATE users SET mfa_enabled = ? WHERE user_id = ?;",
+            (enabled, user_id)
+        )
+        self.connection.commit()
