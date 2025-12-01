@@ -372,7 +372,7 @@ class DatabaseController:
         """Fetch a single coffeeshop record by ID."""
         self.cursor.execute(
             """
-            SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number
+            SELECT store_id, coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url
             FROM stores WHERE store_id = ?;
             """,
             (store_id,),

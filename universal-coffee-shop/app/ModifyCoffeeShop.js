@@ -4,6 +4,8 @@ import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'reac
 import {useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import * as SecureStore from "expo-secure-store";
+
 
 const config = Constants.expoConfig;
 
@@ -52,7 +54,8 @@ function fun7(e){setLogoURL(e);}
 //called on page load to set the text for the coffeeshops to already be
 //there so the user doesn't have to manually retype everything
   useEffect(() => {
-      console.log(selectedShop);
+      console.log("SELECTED SHOP " +selectedShop);
+      console.log("PHONE NUMBER: "+ PhoneNum) 
         setShopInfo(selectedShop);
      }, []);
 
@@ -80,19 +83,20 @@ function fun7(e){setLogoURL(e);}
 
       //this holds the un-jsoned object containing information about the single coffeeshop the user clicked on
       const data = await response.json();
-
+      console.log("THE FORMAT: " + data.Coffeeshop)
       //using array destructuring on the six elements we need for the coffeeshop
-      const [, coffee_shop_name, owner_id, street_address, city, state, phone_num, picture_url] = data.Coffeeshop;
-      
+      const [, coffee_shop_name, owner_id, street_address, city, state, 
+        phone_num, picture_url] = data.Coffeeshop;
+       
       //setting the state variables to the ones destructured above
       setCoffeeShopName(coffee_shop_name);
       setID(owner_id);
       setStreetAddress(street_address);
       setCity(city);
       setState(state);
-      setPhoneNumber(phone_num);
+      setPhoneNumber(phone_num.toString());
       setLogoURL(picture_url)
-       
+
     } catch (err) {
       console.log('FETCH ERROR:', err);
     }
@@ -145,7 +149,7 @@ const {selectedShop} = useLocalSearchParams();
 
         <ScrollView style={styles.form}>
 
-            <Text style={styles.header}>Modify your coffeeshop ({selectedShop})</Text>
+            <Text style={styles.header}>Modify your coffeeshop {"\n"} <Text style={styles.headerID}>ID: ({selectedShop})</Text>  </Text>
 
             <Text style={styles.label}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
@@ -218,6 +222,10 @@ const styles = StyleSheet.create({
     fontWeight:'bold',
     color: "#000",
     fontFamily: "Anton-Regular",
+  },
+  headerID:
+  {
+    fontSize: 12,
   },
   submit:
   {
