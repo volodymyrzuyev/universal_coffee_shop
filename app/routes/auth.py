@@ -133,7 +133,6 @@ def createAuthRouter(
         code: str
 
     class MFAVerifyOut(BaseModel):
-        token: str
         user_id: str
         is_admin: bool
 
@@ -160,7 +159,7 @@ def createAuthRouter(
             db.consume_mfa_challenge(challenge_id)
 
 
-            token = str(uuid.uuid4())
+            intJwt = jwt.encode({"id": user_id}, secretKey, algorithm="HS256")
 
 
             user_row = db.get_user_from_id(user_id) 
@@ -171,13 +170,36 @@ def createAuthRouter(
             _, _, _, _, is_admin,_ = user_row
 
             return MFAVerifyOut(
-                token=token,
-                user_id=user_id,
+                user_id=intJwt,
                 is_admin=bool(is_admin),
             )
         except:
             print("Error: MFA verification failed.")
+    class ToggleIn(BaseModel):
+        user_id: str  
 
+    @router.post("/mfa/toggle")
+    async def toggle_mfa(payload: ToggleIn):
+        token = payload.user_id
+        try:
+            #since now we ar storing the user id in the JWT itself, we can just decode it here.
+            decoded = jwt.decode(token, secretKey, algorithms=["HS256"])
+            user_id = decoded.get("id")
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+
+        row = db.get_user_from_id(user_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # row: [user_id, name, email, password, is_admin, mfa_enabled]
+        current = row[5]
+        new_value = 0 if current == 1 else 1
+        db.update_mfa_enabled(user_id, new_value)
+
+        return {"mfa_enabled": new_value}
 
 
 
