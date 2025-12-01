@@ -279,7 +279,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-
+        
       <View style={styles.header}>
         <TextInput
           style={styles.searchBar}

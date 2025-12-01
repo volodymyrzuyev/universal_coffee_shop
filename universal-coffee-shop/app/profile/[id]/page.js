@@ -1,4 +1,4 @@
-import {Text, StyleSheet, TouchableOpacity, View, TextInput, Alert} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity, View, TextInput, Alert,ScrollView} from 'react-native';
 import {useEffect,useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -134,49 +134,59 @@ export default function UserProfilePage()
       });
 
       const data = await res.json();
-      Alert.alert("MFA Updated", `New value: ${data.mfa_enabled}`);
+
+      if(data.mfa_enabled)
+      {
+        Alert.alert("MFA Updated", `MFA is now on (status:${data.mfa_enabled})`);
+      }
+      else 
+      {
+        Alert.alert("MFA Updated", `MFA is now off (status:${data.mfa_enabled})`);
+      }
+       
 }
 
 
     return (
         <>
             <SafeAreaView style={styles.container}>
-
-                <Text style={styles.header}>{timeMessage} {name}</Text>
-                <Text style={styles.belowHeader}>
+             <ScrollView> 
+              <Text style={styles.header}>{timeMessage} {name}</Text>
+              <Text style={styles.belowHeader}>
                     Update your profile by entering new information into the text box 
                     and hitting the update button
-                </Text>
+              </Text>
 
-                <View style={styles.infoBox}> 
-                    <Text style={styles.text}>EMAIL (current)</Text>
-                    <TextInput 
-                        style={styles.option} 
-                        placeholder={currentEmail} 
-                        placeholderTextColor={'#454545ff'} 
-                        onChangeText={setUpdatedEmail}
-                    />
-                    <TouchableOpacity style={styles.button} onPress={updateEmail}>
-                        <Text style={styles.buttonText}>UPDATE EMAIL</Text>
+              <View style={styles.infoBox}> 
+                <Text style={styles.text}>EMAIL (current)</Text>
+                  <TextInput 
+                    style={styles.option} 
+                    placeholder={currentEmail} 
+                    placeholderTextColor={'#454545ff'} 
+                    onChangeText={setUpdatedEmail}
+                  />
+                  <TouchableOpacity style={styles.button} onPress={updateEmail}>
+                    <Text style={styles.buttonText}>UPDATE EMAIL</Text>
                     </TouchableOpacity>
-                </View>
+              </View>
 
                 <View style={styles.infoBox}>
-                    <Text style={styles.text}>PASSWORD (current)</Text>
-                    <TextInput 
-                        style={styles.option} 
-                        placeholder={password} 
-                        placeholderTextColor={'#454545ff'} 
-                        onChangeText={setUpdatedPassword}
+                  <Text style={styles.text}>PASSWORD (current)</Text>
+                  <TextInput 
+                    style={styles.option} 
+                    placeholder={password} 
+                    placeholderTextColor={'#454545ff'} 
+                    onChangeText={setUpdatedPassword}
                     />
                     <TouchableOpacity style={styles.button}>
                         <Text style={styles.buttonText}>UPDATE PASSWORD</Text>
                     </TouchableOpacity>
                 </View>
+
                 <View style={styles.infoBox}>
                     <Text style={styles.text}>MULTI-FACTOR AUTHENTICATION</Text>
-                    <TouchableOpacity onPress={toggleMfa}>
-                        <Text style={styles.updateText}>TOGGLE MFA</Text>
+                    <TouchableOpacity style={styles.button} onPress={toggleMfa}>
+                        <Text style={styles.buttonText}>TOGGLE MFA</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -186,7 +196,7 @@ export default function UserProfilePage()
                 <TouchableOpacity onPress={() => router.push("/home")}>
                     <Text style={styles.backText}>BACK</Text>
                 </TouchableOpacity>
-
+             </ScrollView>
             </SafeAreaView>
         </>
     )
@@ -237,13 +247,13 @@ const styles = StyleSheet.create({
     textAlign:'center',
     fontSize:16,
   },
-  modifyCoffeeshop:{},
   backText:{
     fontWeight:'bold',
     padding:10,
     color: "#000",
     fontSize: 18,
     fontFamily: "Anton-Regular",
+    alignSelf:'center',
   },
   text:{
     fontSize: 20,
