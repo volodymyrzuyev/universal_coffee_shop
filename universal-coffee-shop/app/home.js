@@ -1,3 +1,4 @@
+// universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -6,6 +7,7 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import * as Location from 'expo-location';   // <----- ADDED
 
 const config = Constants.expoConfig;
 
@@ -21,194 +23,229 @@ export default function HomeScreen() {
   // data coming from backend
   const [shops, setShops] = useState([]);
 
-  //user location
-  const [userLocation, setUserLocation] = useState(null);
-
   //this sets the coffeeshop selection by the user (modify coffeeshop or add coffeeshop)
   const [coffeeshopSelection, setcoffeeshopSelection] = useState("");
 
   // holds whether the current user is an admin
   const [isAdmin, setIsAdmin] = useState(false);
-   // load all shops once on component mount (when the page loads)
-   useEffect(() => {
-      getUserLocation();
-      fetchAllShops();
-   }, []);
 
-  // gets user coordinates
-  async function getUserLocation() {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation({
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude
-        });
-      },
-      (err) => console.log(err),
-      { enableHighAccuracy: true }
-    );
+  // store user GPS coords
+  const [userLocation, setUserLocation] = useState(null);   // <----- ADDED
+
+
+  // FIRST LOAD — get location then fetch shops
+  useEffect(() => {
+    initLocationAndShops();
+  }, []);
+
+  async function initLocationAndShops() {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log("Location permission denied");
+        fetchAllShops(null);
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      setUserLocation(loc.coords);
+
+      fetchAllShops(loc.coords);
+
+    } catch (err) {
+      console.log("LOCATION ERROR:", err);
+      fetchAllShops(null);
+    }
   }
 
-  //haversine formula
-  function computeDistance(lat1, lon1, lat2, lon2) {
-    function toRad(x) { return (x * Math.PI) / 180; }
+
+  // maps SQL rows → frontend shop objects
+  function mapRows(rows) {
+    if (!Array.isArray(rows)) return [];
+    return rows.map((row) => ({
+      id: row[0],      // store_id
+      name: row[1],    // coffee_shop_name
+      street: row[3],  // <--- ADDED (to calculate distance)
+      city: row[4],
+      state: row[5],
+    }));
+  }
+
+
+  // HAVERSINE FORMULA
+  function haversine(lat1, lon1, lat2, lon2) {
+    function toRad(x) { return x * Math.PI / 180; }
 
     const R = 6371; // km
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
+
     const a =
       Math.sin(dLat / 2) ** 2 +
       Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) ** 2;
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) ** 2;
 
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // distance in KM
   }
 
-  // maps SQL rows → frontend shop objects
-  function mapRows(rows) {
-     if (!Array.isArray(rows)) return [];
-    return rows.map((row) => ({
-      id: row[0],      // store_id
-      name: row[1],    // coffee_shop_name
-      lat: row[4],     // city latitude from DB
-      lon: row[5],     // state longitude from DB
-    }));
-  }
 
-  
   /* fetches **all** shops from the backend and maps to an object which is 
      then set to the shops variable using setShops*/
-     async function fetchAllShops() {
+  async function fetchAllShops(userCoords = null) {   // <---- MODIFIED (added parameter)
     try {
-      
-      //fetch api that gets and returns to 'response' object all information from all coffeeshops
+
       const url = `${BASE_URL}/home/get_all_coffeeshops`;
       const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
-          },
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+        },
       });
- 
-      //this holds the un-jsoned object containg information about all coffeeshops
+
       const data = await response.json();
+      const mapped = mapRows(data.Coffeeshops);
 
-      //data.Coffeeshops contains the array of coffeeshops
-      let mapped = mapRows(data.Coffeeshops);
-
-      if (userLocation) {
-        mapped = mapped.map(shop => {
-          if (shop.lat && shop.lon) {
-            shop.distance = computeDistance(
-              userLocation.lat,
-              userLocation.lon,
-              shop.lat,
-              shop.lon
-            );
-          } else {
-            shop.distance = null;
-          }
-          return shop;
-        });
-
-        mapped.sort((a, b) => {
-          if (a.distance == null) return 1;
-          if (b.distance == null) return -1;
-          return a.distance - b.distance;
-        });
+      // If no user location → still show shops normally
+      if (!userCoords) {
+        setShops(mapped);
+        return;
       }
 
-      setShops(mapped);
-       
+      // Otherwise calculate distance for each shop
+      const updated = await Promise.all(
+        mapped.map(async (shop) => {
+
+          if (!shop.street || !shop.city || !shop.state) {
+            shop.distance = null;
+            return shop;
+          }
+
+          const address = `${shop.street} ${shop.city} ${shop.state}`;
+          const geoURL = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+
+          try {
+            const resp = await fetch(geoURL);
+            const geo = await resp.json();
+
+            if (geo.length > 0) {
+              const lat = parseFloat(geo[0].lat);
+              const lon = parseFloat(geo[0].lon);
+
+              shop.distance = haversine(
+                userCoords.latitude,
+                userCoords.longitude,
+                lat,
+                lon
+              );
+            } else {
+              shop.distance = null;
+            }
+
+          } catch {
+            shop.distance = null;
+          }
+
+          return shop;
+        })
+      );
+
+      setShops(updated);
+
     } catch (err) {
       console.log('FETCH ERROR:', err);
     }
   }
 
+
   //called when a shop is fetched by name in the search bar
-  async function fetchShops(name)
-  { 
+  async function fetchShops(name) {
     console.log(name);
     try {
 
-      //returns the page to normal if the user clicks the search bar with nothing inside
-       if(name == '')
-       {
-         fetchAllShops();
-         return;
-       }
-      //fetch api that gets and returns to 'response' object all information from all coffeeshops
+      if (name == '') {
+        fetchAllShops(userLocation);
+        return;
+      }
+
       const url = `${BASE_URL}/home/get_coffeeshop_by_name/${name.toString().toLowerCase()}`;
       const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
-          },
-      }
-      );
- 
-      //this holds the un-jsoned object containg information about all coffeeshops
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+        },
+      });
+
       const data = await response.json();
 
-      if(data.Coffeeshops.length == 0)
-      {
+      if (data.Coffeeshops.length == 0) {
         Alert.alert("No coffeeshops with that name exist");
         return;
       }
 
-      //data.Coffeeshops contains the array of coffeeshops
-      let mapped = mapRows(data.Coffeeshops);
+      const mapped = mapRows(data.Coffeeshops);
 
-      if (userLocation) {
-        mapped = mapped.map(shop => {
-          if (shop.lat && shop.lon) {
-            shop.distance = computeDistance(
-              userLocation.lat,
-              userLocation.lon,
-              shop.lat,
-              shop.lon
-            );
-          } else {
-            shop.distance = null;
-          }
-          return shop;
-        });
-
-        mapped.sort((a, b) => {
-          if (a.distance == null) return 1;
-          if (b.distance == null) return -1;
-          return a.distance - b.distance;
-        });
+      // distance for search results too
+      if (!userLocation) {
+        setShops(mapped);
+        return;
       }
 
-      setShops(mapped);
-       
+      const updated = await Promise.all(
+        mapped.map(async (shop) => {
+
+          const address = `${shop.street} ${shop.city} ${shop.state}`;
+          const geoURL = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+
+          try {
+            const resp = await fetch(geoURL);
+            const geo = await resp.json();
+
+            if (geo.length > 0) {
+              const lat = parseFloat(geo[0].lat);
+              const lon = parseFloat(geo[0].lon);
+              shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
+            } else {
+              shop.distance = null;
+            }
+          } catch {
+            shop.distance = null;
+          }
+
+          return shop;
+        })
+      );
+
+      setShops(updated);
+
     } catch (err) {
       console.log('FETCH ERROR:', err);
     }
   }
 
+
   //Restore admin status from SecureStore
   useEffect(() => {
-  async function loadRole() {
-    const flag = await SecureStore.getItemAsync("is_admin");
-    setIsAdmin(flag === "1");
-  }
-  loadRole();
-}, []);
+    async function loadRole() {
+      const flag = await SecureStore.getItemAsync("is_admin");
+      setIsAdmin(flag === "1");
+    }
+    loadRole();
+  }, []);
+
 
   async function handleLogout() {
-  try {
-    await SecureStore.deleteItemAsync("user_id");
-    await SecureStore.deleteItemAsync("is_admin");
-    router.replace("/login");
-  } catch (err) {
-    console.log("LOGOUT ERROR:", err);
+    try {
+      await SecureStore.deleteItemAsync("user_id");
+      await SecureStore.deleteItemAsync("is_admin");
+      router.replace("/login");
+    } catch (err) {
+      console.log("LOGOUT ERROR:", err);
+    }
   }
-}
 
   return (
     <SafeAreaView style={styles.container}>
@@ -254,7 +291,6 @@ export default function HomeScreen() {
         data={shops}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <CoffeeShopCard shop={item} />}
-        
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
@@ -293,29 +329,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 15,
     fontFamily: 'Anton-Regular',
-    paddingLeft:9,
+    paddingLeft: 9,
   },
-  dropdown: {
-      margin: 16,
-      height: 50,
-      borderBottomColor: 'gray',
-      borderBottomWidth: 0.5,
-    },
-    icon: {
-      marginRight: 5,
-    },
-    placeholderStyle: {
-      fontSize: 16,
-    },
-    selectedTextStyle: {
-      fontSize: 16,
-    },
-    iconStyle: {
-      width: 20,
-      height: 20,
-    },
-    inputSearchStyle: {
-      height: 40,
-      fontSize: 16,
-    },
 });
