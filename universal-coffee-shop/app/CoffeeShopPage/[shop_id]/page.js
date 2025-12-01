@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, ScrollView, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import * as SecureStore from "expo-secure-store";
 
-
 const config = Constants.expoConfig;
-
 
 export default function page() {
     //the information about the coffeeshop that is dynamically changed on component mount
@@ -23,6 +21,10 @@ export default function page() {
 
     // BACKEND URL 
     const BASE_URL = config.backendUrl;
+
+    /*This gets the name of the coffeeshop that was sent from CoffeeShopCard.js
+    'id' is used because it represents the route of the [id] folder */
+    const { shop_id } = useLocalSearchParams();
 
     //runs on component mount to get the information based on the coffeeshops id
     useEffect(() => {
@@ -63,53 +65,79 @@ export default function page() {
             setState(state);
             setPhoneNumber(phone_num);
 
-
         } catch (err) {
             console.log('FETCH ERROR:', err);
         }
     }
 
-
-    /*This gets the name of the coffeeshop that was sent from CoffeeShopCard.js
-    'id' is used because it represents the route of the [id] folder */
-    const { shop_id } = useLocalSearchParams();
-
     return (
-        <>
-            <SafeAreaView>
-                <ScrollView style={styles.perimeter}>
-                    <Text style={styles.shopName}>Hello and welcome to {coffeeShopName}</Text>
-                    <Text style={styles.text}>The owner of our establishment is {OwnerID}</Text>
-                    <Text style={styles.text}>You can find us at this address {streetAddress} in {city} {state}</Text>
-                    <Text style={styles.text}>If you want to call us, reach us at {PhoneNum}</Text>
+        <SafeAreaView style={styles.container}>
+            <ScrollView contentContainerStyle={styles.content}>
+                <Text style={styles.title}>{coffeeShopName}</Text>
 
-                    <TouchableOpacity onPress={() => router.push("/home")}>
-                        <Text style={styles.text}>Write a review of this shop</Text>
-                    </TouchableOpacity>
+                <View style={styles.box}>
+                    <Text style={styles.infoText}>The owner of our establishment is {OwnerID}</Text>
+                    <Text style={styles.infoText}>You can find us at this address {streetAddress} in {city} {state}</Text>
+                    <Text style={styles.infoText}>If you want to call us, reach us at {PhoneNum}</Text>
+                </View>
 
-                    <TouchableOpacity onPress={() => router.push("/home")}>
-                        <Text style={styles.text}>BACK</Text>
-                    </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
+                    <Text style={styles.buttonLabel}>Write a review of this shop</Text>
+                </TouchableOpacity>
 
-                </ScrollView>
-            </SafeAreaView>
-        </>
-
+                <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
+                    <Text style={styles.buttonLabel}>BACK</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </SafeAreaView>
     )
 }
 
-
 const styles = StyleSheet.create({
-    perimeter: {
-        textAlign: 'center',
+    container: {
+        flex: 1,
+        backgroundColor: "#FFFFFF",
     },
-    text:
-    {
-        textAlign: 'center'
+    content: {
+        alignItems: "center",
+        padding: 30,
+        gap: 25,
     },
-    shopName:
-    {
-        textAlign: 'center',
-        fontWeight: 'bold'
-    }
+    title: {
+        fontSize: 48,
+        color: "#000",
+        fontFamily: "Anton-Regular",
+        textAlign: "center",
+        lineHeight: 50,
+        marginBottom: 10,
+        textTransform: "uppercase",
+    },
+    box: {
+        width: "100%",
+        borderWidth: 2,
+        borderRadius: 15,
+        padding: 20,
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        gap: 15,
+    },
+    infoText: {
+        fontSize: 18,
+        color: "#000",
+        fontFamily: "Anton-Regular",
+        textAlign: "center",
+    },
+    button: {
+        width: "100%",
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: "#000",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    buttonLabel: {
+        color: "#FFF",
+        fontSize: 16,
+        fontFamily: "Anton-Regular",
+    },
 });
