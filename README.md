@@ -21,6 +21,7 @@
 ###### **pip install PyJWT**
 ###### **pip install 'pydantic[email]'**
 ###### **pip install resend**
+###### **npx expo install expo-location**
 
 
 
