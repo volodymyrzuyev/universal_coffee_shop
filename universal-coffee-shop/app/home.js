@@ -7,12 +7,15 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
-import * as Location from 'expo-location';   // <----- ADDED
+import * as Location from 'expo-location';
 
 const config = Constants.expoConfig;
 
 // BACKEND URL 
 const BASE_URL = config.backendUrl;
+
+// caching lat/lon
+const geoCache = {};
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -30,7 +33,7 @@ export default function HomeScreen() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   // store user GPS coords
-  const [userLocation, setUserLocation] = useState(null);   // <----- ADDED
+  const [userLocation, setUserLocation] = useState(null);
 
 
   // FIRST LOAD — get location then fetch shops
@@ -63,9 +66,9 @@ export default function HomeScreen() {
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];
     return rows.map((row) => ({
-      id: row[0],      // store_id
-      name: row[1],    // coffee_shop_name
-      street: row[3],  // <--- ADDED (to calculate distance)
+      id: row[0],      
+      name: row[1],    
+      street: row[3],  
       city: row[4],
       state: row[5],
     }));
@@ -76,7 +79,7 @@ export default function HomeScreen() {
   function haversine(lat1, lon1, lat2, lon2) {
     function toRad(x) { return x * Math.PI / 180; }
 
-    const R = 6371; // km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
 
@@ -87,13 +90,11 @@ export default function HomeScreen() {
       Math.sin(dLon / 2) ** 2;
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // distance in KM
+    return R * c;
   }
 
 
-  /* fetches **all** shops from the backend and maps to an object which is 
-     then set to the shops variable using setShops*/
-  async function fetchAllShops(userCoords = null) {   // <---- MODIFIED (added parameter)
+  async function fetchAllShops(userCoords = null) {
     try {
 
       const url = `${BASE_URL}/home/get_all_coffeeshops`;
@@ -108,13 +109,11 @@ export default function HomeScreen() {
       const data = await response.json();
       const mapped = mapRows(data.Coffeeshops);
 
-      // If no user location → still show shops normally
       if (!userCoords) {
         setShops(mapped);
         return;
       }
 
-      // Otherwise calculate distance for each shop
       const updated = await Promise.all(
         mapped.map(async (shop) => {
 
@@ -124,6 +123,13 @@ export default function HomeScreen() {
           }
 
           const address = `${shop.street} ${shop.city} ${shop.state}`;
+
+          if (geoCache[shop.id]) {
+            const { lat, lon } = geoCache[shop.id];
+            shop.distance = haversine(userCoords.latitude, userCoords.longitude, lat, lon);
+            return shop;
+          }
+
           const geoURL = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
 
           try {
@@ -133,6 +139,8 @@ export default function HomeScreen() {
             if (geo.length > 0) {
               const lat = parseFloat(geo[0].lat);
               const lon = parseFloat(geo[0].lon);
+
+              geoCache[shop.id] = { lat, lon };
 
               shop.distance = haversine(
                 userCoords.latitude,
@@ -152,6 +160,12 @@ export default function HomeScreen() {
         })
       );
 
+      updated.sort((a, b) => {
+        if (a.distance == null) return 1;
+        if (b.distance == null) return -1;
+        return a.distance - b.distance;
+      });
+
       setShops(updated);
 
     } catch (err) {
@@ -160,7 +174,7 @@ export default function HomeScreen() {
   }
 
 
-  //called when a shop is fetched by name in the search bar
+
   async function fetchShops(name) {
     console.log(name);
     try {
@@ -188,7 +202,6 @@ export default function HomeScreen() {
 
       const mapped = mapRows(data.Coffeeshops);
 
-      // distance for search results too
       if (!userLocation) {
         setShops(mapped);
         return;
@@ -198,6 +211,13 @@ export default function HomeScreen() {
         mapped.map(async (shop) => {
 
           const address = `${shop.street} ${shop.city} ${shop.state}`;
+
+          if (geoCache[shop.id]) {
+            const { lat, lon } = geoCache[shop.id];
+            shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
+            return shop;
+          }
+
           const geoURL = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
 
           try {
@@ -207,6 +227,9 @@ export default function HomeScreen() {
             if (geo.length > 0) {
               const lat = parseFloat(geo[0].lat);
               const lon = parseFloat(geo[0].lon);
+
+              geoCache[shop.id] = { lat, lon };
+
               shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
             } else {
               shop.distance = null;
@@ -219,12 +242,19 @@ export default function HomeScreen() {
         })
       );
 
+      updated.sort((a, b) => {
+        if (a.distance == null) return 1;
+        if (b.distance == null) return -1;
+        return a.distance - b.distance;
+      });
+
       setShops(updated);
 
     } catch (err) {
       console.log('FETCH ERROR:', err);
     }
   }
+
 
 
   //Restore admin status from SecureStore
