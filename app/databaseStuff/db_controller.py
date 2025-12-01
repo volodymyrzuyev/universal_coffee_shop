@@ -465,7 +465,24 @@ class DatabaseController:
 
         return store_id
     
-    
+    def updateCoffeeshop(self,coffee_shop_id:str, coffee_shop_name: str, street_address: str, city: str, state: str, phone_number: int, picture_url: str) -> str:
+        """
+        Upodates a coffee shop and returns the store id for confirmation.
+        Also links the owner to the store in user_owns.
+        """
+        phone_number = str(phone_number)
+
+        self.cursor.execute(
+             """UPDATE stores 
+                SET coffee_shop_name = ?, street_address = ?, city = ?, state = ?, phone_number = ?, picture_url = ? 
+                WHERE store_id = ?;
+                """,
+                (coffee_shop_name,street_address, city, state, phone_number ,picture_url,coffee_shop_id),
+        )
+        self.connection.commit()
+
+        return coffee_shop_id
+
     def __del__(self):
         if not self.is_closed:
             print(f"Error: Closing {self.database_location} database on garbage collection. Please close databases manually before deletion.")

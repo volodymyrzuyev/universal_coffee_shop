@@ -14,6 +14,9 @@ const BASE_URL = config.backendUrl;
 function AddCoffeeShop()
 {
 
+//this contains the shop selected on the modify_or_add.js page
+const {selectedShop} = useLocalSearchParams();  
+
 const router = useRouter();
 
 const [coffeeShopName, setCoffeeShopName] = useState("");
@@ -42,8 +45,8 @@ function fun6(e){setPhoneNumber(e);}
 function fun7(e){setLogoURL(e);}
 
  const form_content = {
+    'coffee_shop_id': selectedShop,
     'coffee_shop_name': coffeeShopName, 
-    'owner_id': OwnerID, 
     'street_address': streetAddress, 
     'city': city, 
     'state': state, 
@@ -53,11 +56,12 @@ function fun7(e){setLogoURL(e);}
 
 //called on page load to set the text for the coffeeshops to already be
 //there so the user doesn't have to manually retype everything
+//it also runs when selectedShop changes which should be right away as
+// the useLocalSearchParams hook grabs the shop id from the URL
   useEffect(() => {
-      console.log("SELECTED SHOP " +selectedShop);
-      console.log("PHONE NUMBER: "+ PhoneNum) 
+      
         setShopInfo(selectedShop);
-     }, []);
+     }, [selectedShop]);
 
  //grabs data for the coffeeshop that the user clicked on and updates
     //the page accordingly
@@ -102,15 +106,15 @@ function fun7(e){setLogoURL(e);}
     }
   }
 
-//this contains the shop selected on the modify_or_add.js page
-const {selectedShop} = useLocalSearchParams();  
+ 
 
  const submitForm = async () => {
+console.log(selectedShop)
   //This 'if' statement forces the user to fill out every section of the form
     if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      try {
         
-        const response = await fetch(`${config.backendUrl}/recieveForm/`, {
+        const response = await fetch(`${BASE_URL}/updateCoffeeshop`, {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json',
@@ -123,7 +127,7 @@ const {selectedShop} = useLocalSearchParams();
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
             
-            Alert.alert("Form submitted sucessfully");
+            Alert.alert(`Shop '${selectedShop}' submitted sucessfully`);
             const data = await response.json();
             setResponseMessage(data.storeName);
             

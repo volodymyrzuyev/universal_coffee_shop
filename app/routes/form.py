@@ -19,6 +19,16 @@ class CoffeeShop(BaseModel):
     picture_url: str
 
 
+class UpdateCoffeeShop(BaseModel):
+    coffee_shop_id: str
+    coffee_shop_name: str
+    street_address: str
+    city: str
+    state: str
+    phone_number: str
+    picture_url: str
+
+
 
 @FormRouter.post("/recieveForm/")
 async def getForm(CS: CoffeeShop, request: Request):
@@ -34,3 +44,20 @@ async def getForm(CS: CoffeeShop, request: Request):
             CS.picture_url)
 
     return {"storeName":CS.coffee_shop_name}
+
+@FormRouter.post("/updateCoffeeshop")
+async def getUpdateForm(UCS: UpdateCoffeeShop):
+    #create an instance of a Store object to call the database method
+
+    print("hello")
+    newStore = Store()
+    newStore.updateCoffeeshop(
+            UCS.coffee_shop_id,
+            UCS.coffee_shop_name,
+            UCS.street_address,
+            UCS.city,
+            UCS.state,
+            int(UCS.phone_number.replace("-", "")),
+            UCS.picture_url)
+
+    return {"storeName":UCS.coffee_shop_name}

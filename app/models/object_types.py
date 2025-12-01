@@ -34,6 +34,9 @@ class Store(StoredObject):
         """
         return db.create_coffee_shop(coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url)
     
+    def updateCoffeeshop(self,coffee_shop_id:str,coffee_shop_name: str, street_address: str, city: str, state: str, phone_number: int, picture_url: str) ->str:
+        return db.updateCoffeeshop(coffee_shop_id, coffee_shop_name, street_address, city, state, phone_number, picture_url)
+    
     def add_menu_item(self, store_id: str, item_name:str, item_price: float, picture_url:str)-> None:
         db.add_menu_item(store_id, item_name, item_price, picture_url)
 
