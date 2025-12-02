@@ -348,16 +348,17 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         {showSortMenu && (
-          <View style={{ position: "absolute", top: 55, right: 10, backgroundColor: "white", padding: 10, borderWidth: 1 }}>
-            <TouchableOpacity onPress={() => { setSortMode("distance"); setShowSortMenu(false); setShops(applySorting([...shops])); }}>
+          <View style={styles.sortMenu}>
+            <TouchableOpacity style={styles.sortItem} onPress={() => { setSortMode("distance"); setShowSortMenu(false); setShops(applySorting([...shops])); }}>
               <Text>Sort by Distance</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => { setSortMode("reviews"); setShowSortMenu(false); setShops(applySorting([...shops])); }}>
+            <TouchableOpacity style={styles.sortItem} onPress={() => { setSortMode("reviews"); setShowSortMenu(false); setShops(applySorting([...shops])); }}>
               <Text>Sort by Reviews</Text>
             </TouchableOpacity>
           </View>
         )}
+
 
         {isAdmin && (
           <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
