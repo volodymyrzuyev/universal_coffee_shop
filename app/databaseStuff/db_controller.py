@@ -367,6 +367,15 @@ class DatabaseController:
         """, (store_id, item_name))
         self.connection.commit()
 
+    def get_menu_items(self, store_id: str):
+        self.cursor.execute(
+            """
+            SELECT * FROM menu_items
+            WHERE store_id = ?
+            """, (store_id,)
+        )
+        return self.cursor.fetchall()
+
     def add_user_store(self, user_id: str, store_id: str) -> None:
         """Creates a link in user_owns: a user owns/has access to a store."""
         self.cursor.execute(

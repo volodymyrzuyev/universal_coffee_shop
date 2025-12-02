@@ -65,6 +65,15 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     @coffeeShopRouter.post("/add_item/{store_id}")
     async def add_item(store_id, it: item):
         db.add_menu_item(store_id, it.item_name, it.item_price, it.picture_url)
+        return
+
+    @coffeeShopRouter.get("/get_items/{store_id}")
+    async def get_items(store_id):
+        try:
+            return db.get_menu_items(store_id)
+        except Exception as e:
+            print(e)
+            pass
 
 
 
