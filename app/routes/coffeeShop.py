@@ -1,4 +1,3 @@
-from typing_extensions import type_repr
 from fastapi import APIRouter, Request
 
 
