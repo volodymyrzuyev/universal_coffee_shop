@@ -49,11 +49,6 @@ export default function CoffeeShopCard({ shop }) {
         style={styles.favoriteButton}
         onPress={() => setIsFavorited(!isFavorited)}
       >
-        <Feather
-          name="heart"
-          size={24}
-          color={isFavorited ? '#FFFFFF' : '#000000'}
-        />
       </TouchableOpacity>
     </TouchableOpacity>
   );

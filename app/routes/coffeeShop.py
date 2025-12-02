@@ -7,9 +7,7 @@ from models.object_types import Store
 from pydantic import BaseModel
 
 
-class review(BaseModel):
-    text: str
-
+ 
 
 def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     coffeeShopRouter = APIRouter(
@@ -31,11 +29,12 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
 
     class review(BaseModel):
         text: str
+        num_stars:int
 
     @coffeeShopRouter.post("/shop/reviews/{store_id}/")
     async def post_review(store_id, RW: review, request: Request):
         try:
-            db.create_review(request.state.user_id, store_id, RW.text)
+            db.create_review(request.state.user_id, store_id, RW.text, RW.num_stars)
         except Exception as e: 
             print("I failed")
             print(e)

@@ -16,6 +16,7 @@ export default function page() {
     const [city, setCity] = useState("");
     const [state, setState] = useState("");
     const [PhoneNum, setPhoneNumber] = useState("");
+    const [shopUrl, setShopURL] = useState("");
 
     const router = useRouter();
 
@@ -51,7 +52,7 @@ export default function page() {
             const data = await response.json();
 
             //using array destructuring on the six elements we need for the coffeeshop
-            const [, coffee_shop_name, owner_id, street_address, city, state, phone_num] = data.Coffeeshop;
+            const [, coffee_shop_name, owner_id, street_address, city, state, phone_num, shop_url] = data.Coffeeshop;
 
             //setting the state variables to the ones destructured above
             setCoffeeShopName(coffee_shop_name);
@@ -60,6 +61,7 @@ export default function page() {
             setCity(city);
             setState(state);
             setPhoneNumber(phone_num);
+            setShopURL(shop_url)
 
         } catch (err) {
             console.log('FETCH ERROR:', err);
@@ -70,6 +72,8 @@ export default function page() {
     'id' is used because it represents the route of the [id] folder */
     const { shop_id } = useLocalSearchParams();
 
+
+    
     return (
         <>
             <SafeAreaView style={styles.container}>
@@ -80,13 +84,12 @@ export default function page() {
                     </Text>
 
                     <View style={styles.infoBox}>
-                        <Text style={styles.text}>The owner of our establishment is {OwnerID}</Text>
-                        <Text style={styles.text}>You can find us at {streetAddress}</Text>
-                        <Text style={styles.text}>{city}, {state}</Text>
+                        <Text style={styles.text}>You can find us at {streetAddress} {city}, {state}</Text>
                         <Text style={styles.text}>Call us at {PhoneNum}</Text>
+                        <Text style={styles.text}>For more information visit us at <Text style={styles.link}>{shopUrl}</Text>  </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
+                    <TouchableOpacity style={styles.button} onPress={() => router.navigate({pathname:'/Review/[shop_id_review]/review', params: {shop_id_review: shop_id, shopName:coffeeShopName}})}>
                         <Text style={styles.buttonText}>Write a review of this shop</Text>
                     </TouchableOpacity>
 
@@ -158,4 +161,10 @@ const styles = StyleSheet.create({
         fontFamily: "Anton-Regular",
     },
     perimeter: { textAlign: 'center' },
+    link:
+    {
+        textDecorationStyle:'solid',
+        textDecorationColor:'#0d4883ff',
+        textDecorationLine:'underline'
+    }
 });

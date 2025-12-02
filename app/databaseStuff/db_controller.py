@@ -173,6 +173,7 @@ class DatabaseController:
             user_id TEXT,
             store_id TEXT,
             data TEXT,
+            num_stars INTEGER,
             PRIMARY KEY (user_id, store_id)
         );
         """)
@@ -180,11 +181,11 @@ class DatabaseController:
 
         self.database_close()
 
-    def create_review(self, user_id: str, store_id: str, text: str) -> None:
+    def create_review(self, user_id: str, store_id: str, text: str,num_stars:int) -> None:
         self.cursor.execute("""
-            INSERT INTO reviews (user_id, store_id, data)
-            VALUES (?, ?, ?)
-        """, (user_id, store_id, text))
+            INSERT INTO reviews (user_id, store_id, data, num_stars)
+            VALUES (?, ?, ?,?)
+        """, (user_id, store_id, text,num_stars))
         self.connection.commit()
 
     def get_store_reviews(self, store_id: str) -> list:
