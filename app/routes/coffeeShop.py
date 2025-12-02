@@ -35,10 +35,11 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     async def post_review(store_id, RW: review, request: Request):
         try:
             db.create_review(request.state.user_id, store_id, RW.text, RW.num_stars)
+            return {"successful": True}
         except Exception as e: 
             print("I failed")
             print(e)
-            pass
+            return {"successful": False}
 
     @coffeeShopRouter.get("/get_shops_admin_owns/")
     async def get_shops_admin_owns(request: Request):

@@ -181,12 +181,15 @@ class DatabaseController:
 
         self.database_close()
 
-    def create_review(self, user_id: str, store_id: str, text: str,num_stars:int) -> None:
-        self.cursor.execute("""
-            INSERT INTO reviews (user_id, store_id, data, num_stars)
-            VALUES (?, ?, ?,?)
-        """, (user_id, store_id, text,num_stars))
-        self.connection.commit()
+    def create_review(self, user_id: str, store_id: str, text: str,num_stars:int) -> bool:
+            self.cursor.execute("""
+                INSERT INTO reviews (user_id, store_id, data, num_stars)
+                VALUES (?, ?, ?,?)
+            """, (user_id, store_id, text,num_stars))
+            self.connection.commit()
+            return True
+        
+
 
     def get_store_reviews(self, store_id: str) -> list:
         self.cursor.execute("SELECT * from reviews WHERE store_id = ?;", (store_id,))

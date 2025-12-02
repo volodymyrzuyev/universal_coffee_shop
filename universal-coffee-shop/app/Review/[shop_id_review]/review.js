@@ -51,10 +51,16 @@ export default function review()
                         },
                         body: JSON.stringify(form_content)
                     });
-        
+
+                  const data = await response.json();
+                    console.log(data.successful)
                   if (!response.ok)
                   {
                     Alert.alert("Couldn't submit the review, try again")
+                  }
+                  else if(data.successful == false)
+                  {
+                    Alert.alert("You may only submit one review per shop")
                   }
                   else {
                     Alert.alert("Success review submitted")
