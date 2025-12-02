@@ -177,6 +177,8 @@ console.log(selectedShop)
         //This hits if the server address is incorrect (couldn't reach the server)
         setResponseMessage(`Network Error: ${error.message}`); 
     }
+    
+    router.push("/modify_or_add")
   }
 
     return (<>

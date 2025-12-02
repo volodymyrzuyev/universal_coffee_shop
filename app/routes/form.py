@@ -66,4 +66,4 @@ async def getUpdateForm(UCS: UpdateCoffeeShop):
 async def deleteCoffeeshop(selectedShop):
 
     newStore = Store()
-    newStore.deleteCoffeeshop(selectedShop)
+    newStore.delete(selectedShop)
