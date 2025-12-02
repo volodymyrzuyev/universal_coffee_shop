@@ -8,6 +8,8 @@ import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location';
+import MapView, { Marker } from 'react-native-maps';
+import * as Linking from 'expo-linking';
 
 const config = Constants.expoConfig;
 
@@ -35,9 +37,13 @@ export default function HomeScreen() {
   // store user GPS coords
   const [userLocation, setUserLocation] = useState(null);
 
-
   //the state variable for the spinning loading wheel
   const [isAnimating, setisAnimating] = useState(true);
+
+  function openDirections(lat, lon) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+    Linking.openURL(url);
+  }
 
   // FIRST LOAD — get location then fetch shops
   useEffect(() => {
@@ -65,7 +71,6 @@ export default function HomeScreen() {
     }
   }
 
-
   // maps SQL rows → frontend shop objects
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];
@@ -77,7 +82,6 @@ export default function HomeScreen() {
       state: row[5],
     }));
   }
-
 
   // HAVERSINE FORMULA
   function haversine(lat1, lon1, lat2, lon2) {
@@ -96,7 +100,6 @@ export default function HomeScreen() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
-
 
   async function fetchAllShops(userCoords = null) {
     try {
@@ -131,6 +134,8 @@ export default function HomeScreen() {
 
           if (geoCache[shop.id]) {
             const { lat, lon } = geoCache[shop.id];
+            shop.lat = lat;
+            shop.lon = lon;
             shop.distance = haversine(userCoords.latitude, userCoords.longitude, lat, lon);
             return shop;
           }
@@ -146,6 +151,8 @@ export default function HomeScreen() {
               const lon = parseFloat(geo[0].lon);
 
               geoCache[shop.id] = { lat, lon };
+              shop.lat = lat;
+              shop.lon = lon;
 
               shop.distance = haversine(
                 userCoords.latitude,
@@ -184,8 +191,6 @@ export default function HomeScreen() {
       console.log('FETCH ERROR:', err);
     }
   }
-
-
 
   async function fetchShops(name) {
     console.log(name);
@@ -226,6 +231,8 @@ export default function HomeScreen() {
 
           if (geoCache[shop.id]) {
             const { lat, lon } = geoCache[shop.id];
+            shop.lat = lat;
+            shop.lon = lon;
             shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
             return shop;
           }
@@ -241,6 +248,8 @@ export default function HomeScreen() {
               const lon = parseFloat(geo[0].lon);
 
               geoCache[shop.id] = { lat, lon };
+              shop.lat = lat;
+              shop.lon = lon;
 
               shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
             } else {
@@ -267,8 +276,6 @@ export default function HomeScreen() {
     }
   }
 
-
-
   //Restore admin status from SecureStore
   useEffect(() => {
     async function loadRole() {
@@ -277,7 +284,6 @@ export default function HomeScreen() {
     }
     loadRole();
   }, []);
-
 
   async function handleLogout() {
     try {
@@ -332,6 +338,7 @@ export default function HomeScreen() {
       <View style={styles.loadingWheelView}> 
        <ActivityIndicator size={'large'} color={"black"} animating={isAnimating} hidesWhenStopped={true}/>
       </View>
+
       <FlatList
         data={shops}
         keyExtractor={(item) => item.id}
@@ -339,6 +346,29 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
+
+      <MapView
+        style={{ width: '100%', height: 300 }}
+        initialRegion={{
+          latitude: userLocation ? userLocation.latitude : 40.5140,
+          longitude: userLocation ? userLocation.longitude : -88.9906,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        }}
+      >
+        {shops.map((shop) => {
+          if (!shop.lat || !shop.lon) return null;
+          return (
+            <Marker
+              key={shop.id}
+              coordinate={{ latitude: shop.lat, longitude: shop.lon }}
+              title={shop.name}
+              onPress={() => openDirections(shop.lat, shop.lon)}
+            />
+          );
+        })}
+      </MapView>
+
     </SafeAreaView>
   );
 }
@@ -380,6 +410,6 @@ const styles = StyleSheet.create({
   {
     flex:1,
     justifyContent:"center",
-    alignItem:'center',
+    alignItems:'center',
   }
 });
