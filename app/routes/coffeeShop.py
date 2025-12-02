@@ -6,13 +6,9 @@ from databaseStuff import db_controller
 from models.object_types import Store
 from pydantic import BaseModel
 
-'''
-{
-    "text": "this was amazin"
-    "shop_id": "fasdfs"
-}
 
-'''
+class review(BaseModel):
+    text: str
 
 
 def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
@@ -59,6 +55,27 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     @coffeeShopRouter.get("/get_coffeeshop_by_name/{shop_name}")
     async def get_coffeeshops_by_name(shop_name):
          return {"Coffeeshops":newStore.get_coffeeshop_by_name(shop_name)}
+
+
+    class item(BaseModel):
+        item_name: str
+        item_price: float
+        picture_url: str
+
+    @coffeeShopRouter.post("/add_item/{store_id}")
+    async def add_item(store_id, it: item):
+        db.add_menu_item(store_id, it.item_name, it.item_price, it.picture_url)
+        return
+
+    @coffeeShopRouter.get("/get_items/{store_id}")
+    async def get_items(store_id):
+        try:
+            return db.get_menu_items(store_id)
+        except Exception as e:
+            print(e)
+            pass
+
+
 
     return coffeeShopRouter
 
