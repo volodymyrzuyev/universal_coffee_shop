@@ -483,6 +483,18 @@ class DatabaseController:
 
         return coffee_shop_id
 
+    def remove_coffee_shop(self, store_id: str) -> None:
+        """
+        Removes a coffee shop from the database.
+        """
+        self.cursor.execute(
+            """
+            DELETE FROM stores WHERE store_id = ?;
+            """,
+            (store_id,),
+        )
+        self.connection.commit()
+
     def __del__(self):
         if not self.is_closed:
             print(f"Error: Closing {self.database_location} database on garbage collection. Please close databases manually before deletion.")
