@@ -22,34 +22,24 @@ const geoCache = {};
 export default function HomeScreen() {
   const router = useRouter();
 
-  // search box, contains the coffeeshop to be searched for
   const [searchText, setSearchText] = useState('');
-
-  // data coming from backend
   const [shops, setShops] = useState([]);
-
-  //this sets the coffeeshop selection by the user (modify coffeeshop or add coffeeshop)
   const [coffeeshopSelection, setcoffeeshopSelection] = useState("");
-
-  // holds whether the current user is an admin
   const [isAdmin, setIsAdmin] = useState(false);
-
-  // store user GPS coords
   const [userLocation, setUserLocation] = useState(null);
-
-  //the state variable for the spinning loading wheel
   const [isAnimating, setisAnimating] = useState(true);
+
+  const [superAdminEmail, setSuperAdminEmail] = useState("");
+
+  // NEW — sort dropdown state
+  const [sortMode, setSortMode] = useState("distance"); 
+  const [showSortMenu, setShowSortMenu] = useState(false);
 
   function openDirections(lat, lon) {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
     Linking.openURL(url);
   }
 
-  /*contains the email of the user and is used to see if the email is
-  the superadmin account*/
-  const [superAdminEmail, setSuperAdminEmail] = useState("");
-
-  // FIRST LOAD — get location then fetch shops
   useEffect(() => {
     setisAnimating(true);
     initLocationAndShops();
@@ -76,34 +66,74 @@ export default function HomeScreen() {
     }
   }
 
-  // maps SQL rows → frontend shop objects
   function mapRows(rows) {
     if (!Array.isArray(rows)) return [];
     return rows.map((row) => ({
-      id: row[0],      
-      name: row[1],    
-      street: row[3],  
+      id: row[0],
+      name: row[1],
+      street: row[3],
       city: row[4],
       state: row[5],
     }));
   }
 
-  // HAVERSINE FORMULA
   function haversine(lat1, lon1, lat2, lon2) {
     function toRad(x) { return x * Math.PI / 180; }
-
     const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
-
     const a =
       Math.sin(dLat / 2) ** 2 +
       Math.cos(toRad(lat1)) *
       Math.cos(toRad(lat2)) *
       Math.sin(dLon / 2) ** 2;
-
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+  }
+
+  // oad review score
+  async function loadReviewScore(shopId) {
+    try {
+      const url = `${BASE_URL}/home/get_reviews_by_shop_id/${shopId}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+        },
+      });
+
+      const data = await response.json();
+
+      // backend returns: Reviews: [ [id, text, userId, shopId] ... ]
+      if (!data.Reviews || data.Reviews.length === 0) return 0;
+      
+      // for now, 1 review per person → count = score
+      return data.Reviews.length;
+
+    } catch {
+      return 0;
+    }
+  }
+
+  //  — apply sorting mode
+  function applySorting(list) {
+    if (sortMode === "distance") {
+      list.sort((a, b) => {
+        if (a.distance == null) return 1;
+        if (b.distance == null) return -1;
+        return a.distance - b.distance;
+      });
+    }
+    else if (sortMode === "reviews") {
+      list.sort((a, b) => {
+        const aa = a.reviewScore || 0;
+        const bb = b.reviewScore || 0;
+        return bb - aa;
+      });
+    }
+
+    return list;
   }
 
   async function fetchAllShops(userCoords = null) {
@@ -119,7 +149,6 @@ export default function HomeScreen() {
       });
 
       const data = await response.json();
-      console.log("back from fetching")
       const mapped = mapRows(data.Coffeeshops);
 
       if (!userCoords) {
@@ -129,9 +158,9 @@ export default function HomeScreen() {
 
       const updated = await Promise.all(
         mapped.map(async (shop) => {
-
           if (!shop.street || !shop.city || !shop.state) {
             shop.distance = null;
+            shop.reviewScore = await loadReviewScore(shop.id);
             return shop;
           }
 
@@ -142,11 +171,11 @@ export default function HomeScreen() {
             shop.lat = lat;
             shop.lon = lon;
             shop.distance = haversine(userCoords.latitude, userCoords.longitude, lat, lon);
+            shop.reviewScore = await loadReviewScore(shop.id);
             return shop;
           }
 
           const geoURL = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-
           try {
             const resp = await fetch(geoURL);
             const geo = await resp.json();
@@ -154,17 +183,10 @@ export default function HomeScreen() {
             if (geo.length > 0) {
               const lat = parseFloat(geo[0].lat);
               const lon = parseFloat(geo[0].lon);
-
               geoCache[shop.id] = { lat, lon };
               shop.lat = lat;
               shop.lon = lon;
-
-              shop.distance = haversine(
-                userCoords.latitude,
-                userCoords.longitude,
-                lat,
-                lon
-              );
+              shop.distance = haversine(userCoords.latitude, userCoords.longitude, lat, lon);
             } else {
               shop.distance = null;
             }
@@ -173,24 +195,15 @@ export default function HomeScreen() {
             shop.distance = null;
           }
 
+          shop.reviewScore = await loadReviewScore(shop.id);
           return shop;
         })
       );
 
-      console.log("back from fetching2")
-
-      updated.sort((a, b) => {
-        if (a.distance == null) return 1;
-        if (b.distance == null) return -1;
-        return a.distance - b.distance;
-      });
-
-      console.log("back from fetching3");
+      const sorted = applySorting(updated);
 
       setisAnimating(false);
-
-      console.log("back from fetching4")
-      setShops(updated);
+      setShops(sorted);
 
     } catch (err) {
       console.log('FETCH ERROR:', err);
@@ -198,7 +211,6 @@ export default function HomeScreen() {
   }
 
   async function fetchShops(name) {
-    console.log(name);
     try {
 
       if (name == '') {
@@ -239,11 +251,11 @@ export default function HomeScreen() {
             shop.lat = lat;
             shop.lon = lon;
             shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
+            shop.reviewScore = await loadReviewScore(shop.id);
             return shop;
           }
 
           const geoURL = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
-
           try {
             const resp = await fetch(geoURL);
             const geo = await resp.json();
@@ -251,37 +263,31 @@ export default function HomeScreen() {
             if (geo.length > 0) {
               const lat = parseFloat(geo[0].lat);
               const lon = parseFloat(geo[0].lon);
-
               geoCache[shop.id] = { lat, lon };
               shop.lat = lat;
               shop.lon = lon;
-
               shop.distance = haversine(userLocation.latitude, userLocation.longitude, lat, lon);
             } else {
               shop.distance = null;
             }
+
           } catch {
             shop.distance = null;
           }
 
+          shop.reviewScore = await loadReviewScore(shop.id);
           return shop;
         })
       );
 
-      updated.sort((a, b) => {
-        if (a.distance == null) return 1;
-        if (b.distance == null) return -1;
-        return a.distance - b.distance;
-      });
-
-      setShops(updated);
+      const sorted = applySorting(updated);
+      setShops(sorted);
 
     } catch (err) {
       console.log('FETCH ERROR:', err);
     }
   }
 
-  //Restore admin status from SecureStore
   useEffect(() => {
     async function loadRole() {
       const flag = await SecureStore.getItemAsync("is_admin");
@@ -300,21 +306,17 @@ export default function HomeScreen() {
     }
   }
 
-
-  /*gets the current users email. This is used to check if the current
-  user is the superadmin*/
   async function getUserEmail()
   {
     try 
     {
-     
        const response = await fetch(`${BASE_URL}/me/`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
-                 },
-             });
+            },
+        });
 
        const data = await response.json();
        setSuperAdminEmail(data.user[2]);
@@ -324,8 +326,6 @@ export default function HomeScreen() {
       console.log(error)
     }
   }
-
-   
 
   return (
     <SafeAreaView style={styles.container}>
@@ -343,6 +343,22 @@ export default function HomeScreen() {
           <Feather name="search" size={24} color="black" />
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => setShowSortMenu(!showSortMenu)} style={styles.iconButton}>
+          <Feather name="filter" size={24} color="black" />
+        </TouchableOpacity>
+
+        {showSortMenu && (
+          <View style={{ position: "absolute", top: 55, right: 10, backgroundColor: "white", padding: 10, borderWidth: 1 }}>
+            <TouchableOpacity onPress={() => { setSortMode("distance"); setShowSortMenu(false); setShops(applySorting([...shops])); }}>
+              <Text>Sort by Distance</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => { setSortMode("reviews"); setShowSortMenu(false); setShops(applySorting([...shops])); }}>
+              <Text>Sort by Reviews</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {isAdmin && (
           <TouchableOpacity onPress={() => router.replace('/modify_or_add')} style={styles.iconButton}>
             <Feather name="plus" size={24} color="black" />
@@ -354,7 +370,6 @@ export default function HomeScreen() {
             <MaterialIcons name="coffee" size={24} color="black" />
           </TouchableOpacity>
         )}
-
 
         <TouchableOpacity onPress={() => router.push(`profile/[${SecureStore.getItem("user_id")}]/page`)} style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
