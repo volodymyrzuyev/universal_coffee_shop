@@ -39,10 +39,15 @@ export default function HomeScreen() {
   //the state variable for the spinning loading wheel
   const [isAnimating, setisAnimating] = useState(true);
 
+  /*contains the email of the user and is used to see if the email is
+  the superadmin account*/
+  const [superAdminEmail, setSuperAdminEmail] = useState("");
+
   // FIRST LOAD — get location then fetch shops
   useEffect(() => {
     setisAnimating(true);
     initLocationAndShops();
+    getUserEmail();
   }, []);
 
   async function initLocationAndShops() {
@@ -289,6 +294,33 @@ export default function HomeScreen() {
     }
   }
 
+
+  /*gets the current users email. This is used to check if the current
+  user is the superadmin*/
+  async function getUserEmail()
+  {
+    try 
+    {
+     
+       const response = await fetch(`${BASE_URL}/me/`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+                 },
+             });
+
+       const data = await response.json();
+       setSuperAdminEmail(data.user[2]);
+    }
+    catch(error)
+    {
+      console.log(error)
+    }
+  }
+
+   
+
   return (
     <SafeAreaView style={styles.container}>
         
@@ -311,11 +343,12 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {!isAdmin && (
-          <TouchableOpacity onPress={() => router.replace('/review')} style={styles.iconButton}>
-            <MaterialIcons name="rate-review" size={24} color="black" />
+        {superAdminEmail == "superadmin@gmail.com" && (
+          <TouchableOpacity onPress={() => router.replace('/super_admin_user_page')} style={styles.iconButton}>
+            <MaterialIcons name="coffee" size={24} color="black" />
           </TouchableOpacity>
         )}
+
 
         <TouchableOpacity onPress={() => router.push(`profile/[${SecureStore.getItem("user_id")}]/page`)} style={styles.iconButton}>
           <Feather name="user" size={24} color="black" />
