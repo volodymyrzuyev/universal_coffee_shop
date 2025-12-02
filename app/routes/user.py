@@ -14,6 +14,10 @@ class Admin(BaseModel):
 class UpdateEmailUser(BaseModel):
    email: str
    user_id : str
+
+class UpdatePasswordUser(BaseModel):
+   password: str
+   user_id: str
    
     
 @UserRouter.post("/createAdmin/")
@@ -28,6 +32,13 @@ async def updateEmail(userUpdatingEmail: UpdateEmailUser):
    print("ru here")
    db.update_user_email(userUpdatingEmail.email, userUpdatingEmail.user_id)
    return {"status": "success"}
+
+@UserRouter.post("/updatePassword/")
+async def updatePassword(userUpdatingPassword: UpdatePasswordUser):
+   print("ru here")
+   db.update_user_password(userUpdatingPassword.password, userUpdatingPassword.user_id)
+   return {"status": "success"}
+
 
 @UserRouter.get("/me/")
 async def getUserData(request: Request):

@@ -97,7 +97,7 @@ export default function UserProfilePage()
       }
 
       try {  
-        const response = await fetch(`${BASE_URL}//updateEmail/`, {
+        const response = await fetch(`${BASE_URL}/updateEmail/`, {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export default function UserProfilePage()
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
             
-            Alert.alert(`Email updated sucessfully to: ${updatedEmail}. Please log out for changes to take effect`);
+            Alert.alert(`Email updated sucessfully to: ${updatedEmail}.`);
             
         } else {
             /*This hits if the server address is correct, but the response from the
@@ -118,6 +118,42 @@ export default function UserProfilePage()
             could be an incorrect endpoint name*/
           
             Alert.alert("There was an error when submitting the email, please try again.")        
+        }
+    } catch (error) {
+        //This hits if the server address is incorrect (couldn't reach the server)
+        setResponseMessage(`Network Error: ${error.message}`); 
+    }
+  }
+
+  async function updatePassword()
+    {
+      if(updatedPassword == "") {
+        Alert.alert("Cannot submit an empty password");
+        return;
+      }
+
+      try {  
+        const response = await fetch(`${BASE_URL}/updatePassword/`, {
+             method: 'POST',
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+            },
+             body: JSON.stringify({"password":updatedPassword, "user_id":userId}),
+        });
+ 
+        if (response.ok) {
+            /*this hits if everything runs correctly and fetch returns
+            with a status code in the range of 200 */
+            
+            Alert.alert(`Password updated sucessfully to: ${updatedPassword}.`);
+            
+        } else {
+            /*This hits if the server address is correct, but the response from the
+            server gave an error like a 404 status code. One reason for an error 
+            could be an incorrect endpoint name*/
+          
+            Alert.alert("There was an error when submitting the password, please try again.")        
         }
     } catch (error) {
         //This hits if the server address is incorrect (couldn't reach the server)
@@ -178,7 +214,7 @@ export default function UserProfilePage()
                     placeholderTextColor={'#454545ff'} 
                     onChangeText={setUpdatedPassword}
                     />
-                    <TouchableOpacity style={styles.button}>
+                    <TouchableOpacity style={styles.button} onPress={updatePassword}>
                         <Text style={styles.buttonText}>UPDATE PASSWORD</Text>
                     </TouchableOpacity>
                 </View>

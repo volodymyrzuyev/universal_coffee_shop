@@ -426,6 +426,21 @@ class DatabaseController:
         )
         self.connection.commit()
 
+    def update_user_password(self, password:str, user_id:str):
+        """
+        Updates the password for a user. This comes from the page.js page of the profile
+        """
+        self.cursor.execute(
+            """UPDATE users
+               SET password = ?
+               WHERE user_id = ?;
+               """,
+               (password, user_id),
+        )
+        self.connection.commit()
+
+     
+
     def get_stores_for_user(self, user_id: str) -> List[tuple]:
         """Return all stores linked to a user via user_owns."""
         self.cursor.execute(
