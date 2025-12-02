@@ -19,12 +19,15 @@ class UpdatePasswordUser(BaseModel):
    password: str
    user_id: str
    
-    
-@UserRouter.post("/createAdmin/")
-async def getForm(admin: Admin):
+@UserRouter.get("/create_admin/{id}")
+async def create_admin(id: str):
+    db.set_admin(id)
 
- db.create_user("userid",admin.username, admin.email, admin.password, True)
- return {"status": "success"}
+@UserRouter.get("/get_users/")
+async def get_users():
+    data = db.get_all_users()
+    return data
+
 
 #updates a user's email
 @UserRouter.post("/updateEmail/")

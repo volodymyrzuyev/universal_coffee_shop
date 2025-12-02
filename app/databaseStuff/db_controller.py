@@ -210,6 +210,16 @@ class DatabaseController:
         self.connection.commit()
 
         return user_id
+
+    def set_admin(self, user_id):
+        self.cursor.execute(
+            """UPDATE users
+               SET is_admin = ?
+               WHERE user_id = ?;
+               """,
+               (1, user_id),
+        )
+        self.connection.commit()
     
         
     def get_user_from_id(self, user_id: str) -> tuple:
