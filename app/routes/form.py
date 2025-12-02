@@ -61,3 +61,9 @@ async def getUpdateForm(UCS: UpdateCoffeeShop):
             UCS.picture_url)
 
     return {"storeName":UCS.coffee_shop_name}
+
+@FormRouter.delete("/deleteCoffeeshop/{selectedShop}")
+async def deleteCoffeeshop(selectedShop):
+
+    newStore = Store()
+    newStore.deleteCoffeeshop(selectedShop)
