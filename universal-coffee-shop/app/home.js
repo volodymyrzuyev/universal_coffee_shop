@@ -1,6 +1,6 @@
 // universal-coffee-shop/app/home.js
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import CoffeeShopCard from '../components/CoffeeShopCard';
 import { useRouter } from 'expo-router';
@@ -36,8 +36,12 @@ export default function HomeScreen() {
   const [userLocation, setUserLocation] = useState(null);
 
 
+  //the state variable for the spinning loading wheel
+  const [isAnimating, setisAnimating] = useState(true);
+
   // FIRST LOAD — get location then fetch shops
   useEffect(() => {
+    setisAnimating(true);
     initLocationAndShops();
   }, []);
 
@@ -107,6 +111,7 @@ export default function HomeScreen() {
       });
 
       const data = await response.json();
+      console.log("back from fetching")
       const mapped = mapRows(data.Coffeeshops);
 
       if (!userCoords) {
@@ -160,12 +165,19 @@ export default function HomeScreen() {
         })
       );
 
+      console.log("back from fetching2")
+
       updated.sort((a, b) => {
         if (a.distance == null) return 1;
         if (b.distance == null) return -1;
         return a.distance - b.distance;
       });
 
+      console.log("back from fetching3");
+
+      setisAnimating(false);
+
+      console.log("back from fetching4")
       setShops(updated);
 
     } catch (err) {
@@ -317,6 +329,9 @@ export default function HomeScreen() {
 
       <Text style={styles.sectionTitle}>NEARBY</Text>
 
+      <View style={styles.loadingWheelView}> 
+       <ActivityIndicator size={'large'} color={"black"} animating={isAnimating} hidesWhenStopped={true}/>
+      </View>
       <FlatList
         data={shops}
         keyExtractor={(item) => item.id}
@@ -361,4 +376,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Anton-Regular',
     paddingLeft: 9,
   },
+  loadingWheelView:
+  {
+    flex:1,
+    justifyContent:"center",
+    alignItem:'center',
+  }
 });
