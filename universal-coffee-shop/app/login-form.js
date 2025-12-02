@@ -3,8 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Styl
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import Constants from 'expo-constants';
 
-const API_BASE = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://192.168.1.175:8080";
+const config = Constants.expoConfig;
+
+
+
+const API_BASE = config.backendUrl;
 
 export default function LoginForm() {
 
@@ -40,8 +45,14 @@ async function handleLogin() {
       Alert.alert("Login failed", msg);
       return;
     }
-    // Store user_id in secure storage afetrter successful login
+    // Store user_id and role in secure storage afetrter successful login
     await SecureStore.setItemAsync("user_id", String(data.user_id));
+    await SecureStore.setItemAsync("name", String(data.name));
+    await SecureStore.setItemAsync("email", String(data.email));
+    await SecureStore.setItemAsync("password", String(data.password))
+    await SecureStore.setItemAsync("is_admin", String(data.is_admin));
+
+
 
     if (data.mfa_required) {
       router.push({
@@ -126,7 +137,7 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
   },
   header: {
-    
+    flex: 0.2,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -137,6 +148,7 @@ const styles = StyleSheet.create({
     fontFamily: "Anton-Regular",
     textAlign: "center",
     lineHeight: 50,
+    padding:10,
   },
 
   stylizedTitle: {

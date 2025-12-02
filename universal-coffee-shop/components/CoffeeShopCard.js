@@ -1,13 +1,25 @@
-// universal-coffee-shop/components/CoffeeShopCard.js
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+const BACKGROUND_COLOR = 'red';
+
+function getRandomColor()
+{
+  let letters = '0123456789ABCDEF';
+  let color = '#'
+
+  for(let i = 0; i < 6; i++)
+  {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+ 
 export default function CoffeeShopCard({ shop }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
-
 
   const shopId = shop.id
    
@@ -17,15 +29,21 @@ export default function CoffeeShopCard({ shop }) {
       pathname:'/CoffeeShopPage/[shop_id]/page',
       params: {shop_id: shopId}
     })
-
-
    }
 
   return (
     <TouchableOpacity style={styles.card}  onPress={handleRedirect}>
       <View className="logo" style={styles.logo} />
 
-      <Text style={styles.shopName}>{shop.name}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.shopName}>{shop.name}</Text>
+
+        {shop.distance != null && (
+          <Text style={{ fontSize: 14, fontFamily: "Anton-Regular" }}>
+            {shop.distance.toFixed(1)} km away
+          </Text>
+        )}
+      </View>
 
       <TouchableOpacity
         style={styles.favoriteButton}
@@ -50,6 +68,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 2,
     borderColor: '#000',
+    backgroundColor:getRandomColor(),
   },
   logo: {
     width: 60,

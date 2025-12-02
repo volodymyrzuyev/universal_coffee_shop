@@ -1,7 +1,6 @@
 //login screen
 // universal-coffee-shop/app/login.js
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -29,11 +28,6 @@ export default function AuthScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-      
-          <TouchableOpacity  
-          onPress={() => router.push('/AddCoffeeShop')}>
-          <Text >ADD COFFEESHOP DEV ONLY</Text>
-        </TouchableOpacity>
 
     </SafeAreaView>
   );
@@ -57,6 +51,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Anton-Regular',
     textAlign: 'center',
     lineHeight: 50,
+    paddingTop:5,
   },
   stylizedTitle: {
     fontSize: 54,

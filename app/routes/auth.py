@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr
 import databaseStuff.db_controller as db_controller
 import string
 import jwt
-
+from .email_MFA import send_mfa_email
 
 def createAuthRouter(
     providers: dict[str, provider.providers],
@@ -50,10 +50,12 @@ def createAuthRouter(
     @router.post("/register")
     async def register_user(payload: RegisterIn):
         try:
+            email = payload.email.lower().strip()
             if not db.check_unique_email(payload.email):
                 raise HTTPException(status_code=409, detail="An account with this email already exists.")
+            print(payload)
 
-            user_id = db.create_user(payload.email, payload.password, False)
+            user_id = db.create_user(payload.name, payload.email, payload.password, False,mfa_enabled=False)    
 
             return {
                 "uniqueEmail": True,
@@ -81,21 +83,19 @@ def createAuthRouter(
 
     @router.post("/login")
     async def login_user(payload: LoginIn):
-
-
         try:
             row = db.get_user_by_email(payload.email)
             if row is None:
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
             
-            user_id, user_name, stored_pw, is_admin = row
+            user_id, user_name, stored_pw, is_admin, mfa_enabled = row
 
 
             if str(stored_pw) != payload.password:
                 raise HTTPException(status_code=401, detail="Invalid email or password.")
 
 
-            mfa_enabled = False # i will put a logic on this later(enable or dissable MFA per user)
+            #mfa_enabled = True # i will put a logic on this later(enable or dissable MFA per user)
              # I dissabled it for now
             if mfa_enabled:
                 code = f"{random.randint(0, 999999):06d}"
@@ -104,8 +104,8 @@ def createAuthRouter(
 
                 db.create_mfa_challenge(user_id, code, expires_at, challenge_id)
 
-
-                print(f"[MFA] Code for {payload.email}: {code}")
+                #Send an email containing the code to the user's registered email instead ofthe console
+                send_mfa_email(payload.email, code)
 
                 return {
                     "mfa_required": True,
@@ -114,7 +114,8 @@ def createAuthRouter(
 
 
 
-            return {"user_id": user_id}
+            intJwt = jwt.encode({"id": user_id}, secretKey, algorithm="HS256")
+            return {"user_id": intJwt, "is_admin": is_admin}
 
         except HTTPException:
             raise
@@ -132,7 +133,6 @@ def createAuthRouter(
         code: str
 
     class MFAVerifyOut(BaseModel):
-        token: str
         user_id: str
         is_admin: bool
 
@@ -159,7 +159,7 @@ def createAuthRouter(
             db.consume_mfa_challenge(challenge_id)
 
 
-            token = str(uuid.uuid4())
+            intJwt = jwt.encode({"id": user_id}, secretKey, algorithm="HS256")
 
 
             user_row = db.get_user_from_id(user_id) 
@@ -167,16 +167,39 @@ def createAuthRouter(
                 raise HTTPException(status_code=500, detail="User not found")
 
 
-            _, _, _, is_admin = user_row
+            _, _, _, _, is_admin,_ = user_row
 
             return MFAVerifyOut(
-                token=token,
-                user_id=user_id,
+                user_id=intJwt,
                 is_admin=bool(is_admin),
             )
         except:
             print("Error: MFA verification failed.")
+    class ToggleIn(BaseModel):
+        user_id: str  
 
+    @router.post("/mfa/toggle")
+    async def toggle_mfa(payload: ToggleIn):
+        token = payload.user_id
+        try:
+            #since now we ar storing the user id in the JWT itself, we can just decode it here.
+            decoded = jwt.decode(token, secretKey, algorithms=["HS256"])
+            user_id = decoded.get("id")
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+
+        row = db.get_user_from_id(user_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # row: [user_id, name, email, password, is_admin, mfa_enabled]
+        current = row[5]
+        new_value = 0 if current == 1 else 1
+        db.update_mfa_enabled(user_id, new_value)
+
+        return {"mfa_enabled": new_value}
 
 
 

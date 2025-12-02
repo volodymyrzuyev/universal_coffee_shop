@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import Constants from 'expo-constants';
 
-const API_BASE =
-  process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") ||
-  "http://192.168.1.164:8080";
+const config = Constants.expoConfig;
+
+const API_BASE = config.backendUrl;
 
 export default function MFAScreen() {
   const { challenge_id, email } = useLocalSearchParams();
@@ -50,21 +51,14 @@ export default function MFAScreen() {
       );
       return;
     }
-
+// Store user_id and is_admin after successful MFA. SecureStore errors are ignored on web.
     try {
-      if (data?.token && SecureStore?.setItemAsync) {
-        await SecureStore.setItemAsync("access_token", String(data.token));
-      }
-      if (data?.user_id && SecureStore?.setItemAsync) {
-        await SecureStore.setItemAsync("user_id", String(data.user_id));
-      }
-      if (data?.is_admin !== undefined && SecureStore?.setItemAsync) {
-        await SecureStore.setItemAsync(
-          "is_admin",
-          JSON.stringify(data.is_admin)
-        );
-      }
-    } catch (err) {
+      await SecureStore.setItemAsync("user_id", String(data.user_id));
+      await SecureStore.setItemAsync(
+      "is_admin",
+      data.is_admin ? "1" : "0"
+      );
+        } catch (err) {
       console.log("SecureStore error (ignored on web):", err);
 
     }

@@ -28,17 +28,23 @@ class Store(StoredObject):
     def get_coffeeshop_by_name(self, shop_name):
         return db.get_coffeeshop_by_name(shop_name)
 
-    def add(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, logo_url: str) ->str:
+    def add(self, coffee_shop_name: str, owner_id: str, street_address: str, city: str, state: str, phone_number: int, picture_url: str) ->str:
         """
         Creates a coffee shop and returns the unique ID as a string.
         """
-        return db.create_coffee_shop(coffee_shop_name, owner_id, street_address, city, state, phone_number, logo_url)
+        return db.create_coffee_shop(coffee_shop_name, owner_id, street_address, city, state, phone_number, picture_url)
+    
+    def updateCoffeeshop(self,coffee_shop_id:str,coffee_shop_name: str, street_address: str, city: str, state: str, phone_number: int, picture_url: str) ->str:
+        return db.updateCoffeeshop(coffee_shop_id, coffee_shop_name, street_address, city, state, phone_number, picture_url)
     
     def add_menu_item(self, store_id: str, item_name:str, item_price: float, picture_url:str)-> None:
         db.add_menu_item(store_id, item_name, item_price, picture_url)
 
     def remove_menu_item(self, store_id:str, item_name:str) ->None:
         db.remove_menu_item(store_id, item_name)
+
+    def get_shops_admin_owns(self, admin_id) -> List[tuple]:
+        return db.get_stores_for_user(admin_id)
 
 class User(StoredObject):
     def get_by_id(self, id) -> tuple:

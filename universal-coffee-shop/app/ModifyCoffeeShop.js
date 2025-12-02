@@ -1,19 +1,26 @@
  
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {Text,TextInput,StyleSheet,ScrollView,TouchableOpacity, Alert} from 'react-native';
-import { useRouter } from "expo-router";
+import {useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as SecureStore from "expo-secure-store";
 import Constants from 'expo-constants';
+import * as SecureStore from "expo-secure-store";
+
 
 const config = Constants.expoConfig;
+
+const BASE_URL = config.backendUrl;
 
 function AddCoffeeShop()
 {
 
+//this contains the shop selected on the modify_or_add.js page
+const {selectedShop} = useLocalSearchParams();  
+
 const router = useRouter();
 
 const [coffeeShopName, setCoffeeShopName] = useState("");
+const [OwnerID, setID] = useState("");
 const [streetAddress, setStreetAddress] = useState("");
 const [city, setCity] = useState("");
 const [state, setState] = useState("");
@@ -25,6 +32,8 @@ const [responseMessage, setResponseMessage] = useState("");
 
 function fun1(e){ setCoffeeShopName(e);}
 
+function fun2(e){setID(e);}
+
 function fun3(e){ setStreetAddress(e);}
 
 function fun4(e){setCity(e);}
@@ -35,26 +44,81 @@ function fun6(e){setPhoneNumber(e);}
 
 function fun7(e){setLogoURL(e);}
 
- const submitForm = async () => {
-  //This 'if' statement forces the user to fill out every section of the form
-    if(coffeeShopName!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
-     
-     const form_content = {
-        'coffee_shop_name': coffeeShopName, 
-        'street_address': streetAddress, 
-        'city': city, 
-        'state': state, 
-        'phone_number': PhoneNum,
-        'picture_url': logoURL 
-    }; 
+ const form_content = {
+    'coffee_shop_id': selectedShop,
+    'coffee_shop_name': coffeeShopName, 
+    'street_address': streetAddress, 
+    'city': city, 
+    'state': state, 
+    'phone_number': PhoneNum,
+    'picture_url': logoURL 
+};
 
+//called on page load to set the text for the coffeeshops to already be
+//there so the user doesn't have to manually retype everything
+//it also runs when selectedShop changes which should be right away as
+// the useLocalSearchParams hook grabs the shop id from the URL
+  useEffect(() => {
+      
+        setShopInfo(selectedShop);
+     }, [selectedShop]);
+
+ //grabs data for the coffeeshop that the user clicked on and updates
+    //the page accordingly
+    async function setShopInfo(shop_id)
+    {
+    try {
+      //fetch api that gets and returns to 'response' object, information about a single coffeeshop
+      const url = `${BASE_URL}/home/get_coffeeshop_by_id/${shop_id}`;
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+          },
+      });
+
+      //if the coffeeshop doesn't exist we need to make sure the user knows
+      if(!response.ok)
+      {
+         Alert.alert("that coffeeshop is poopoo (doesn't exist)")
+         return;
+      }
+
+      //this holds the un-jsoned object containing information about the single coffeeshop the user clicked on
+      const data = await response.json();
+      console.log("THE FORMAT: " + data.Coffeeshop)
+      //using array destructuring on the six elements we need for the coffeeshop
+      const [, coffee_shop_name, owner_id, street_address, city, state, 
+        phone_num, picture_url] = data.Coffeeshop;
+       
+      //setting the state variables to the ones destructured above
+      setCoffeeShopName(coffee_shop_name);
+      setID(owner_id);
+      setStreetAddress(street_address);
+      setCity(city);
+      setState(state);
+      setPhoneNumber(phone_num.toString());
+      setLogoURL(picture_url)
+
+    } catch (err) {
+      console.log('FETCH ERROR:', err);
+    }
+  }
+
+ 
+
+ const submitForm = async () => {
+console.log(selectedShop)
+  //This 'if' statement forces the user to fill out every section of the form
+    if(coffeeShopName!="" && OwnerID!="" && streetAddress !="" && city !="" && state !="" && PhoneNum!="" && logoURL!=""){
      try {
         
-        const response = await fetch(`${config.backendUrl}/recieveForm/`, {
+        const response = await fetch(`${BASE_URL}/updateCoffeeshop`, {
              method: 'POST',
              headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,              
+                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
             },
              body: JSON.stringify(form_content)
         });
@@ -63,20 +127,9 @@ function fun7(e){setLogoURL(e);}
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
             
-            Alert.alert("Form submitted sucessfully");
+            Alert.alert(`Shop '${selectedShop}' submitted sucessfully`);
             const data = await response.json();
             setResponseMessage(data.storeName);
-            
-            /*resets the coffeeshop form to standard state after form
-             successfully submits*/
-            setCoffeeShopName("");
-            setStreetAddress("");
-            setCity("");
-            setState("");
-            setPhoneNumber("");
-            setLogoURL("");
-
-
             
         } else {
             /*This hits if the server address is correct, but the response from the
@@ -100,7 +153,7 @@ function fun7(e){setLogoURL(e);}
 
         <ScrollView style={styles.form}>
 
-            <Text style={styles.header}>Please enter the details for your new Coffee shop</Text>
+            <Text style={styles.header}>Modify your coffeeshop {"\n"} <Text style={styles.headerID}>ID: ({selectedShop})</Text>  </Text>
 
             <Text style={styles.label}>Coffeeshop name:</Text>
             <TextInput placeholderTextColor={'#747474ff'} placeholder='My Coffee Shop' style={styles.input} value={coffeeShopName} onChangeText={fun1}></TextInput>
@@ -139,6 +192,9 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     padding:7,
   },
+  form:{
+    width:'100%',
+  },
   label: 
   {
     backgroundColor:'lightblue',
@@ -170,6 +226,10 @@ const styles = StyleSheet.create({
     fontWeight:'bold',
     color: "#000",
     fontFamily: "Anton-Regular",
+  },
+  headerID:
+  {
+    fontSize: 12,
   },
   submit:
   {
