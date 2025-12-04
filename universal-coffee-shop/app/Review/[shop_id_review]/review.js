@@ -41,8 +41,8 @@ export default function review()
             if(reviewContent != "" && selectedNum != 0)
               {
 
-          
-                const url = `${API_BASE}/home/shop/reviews/${shop_id_review}`;
+
+                const url = `${API_BASE}/home/shop/reviews/${shop_id_review}/`;
                 const response = await fetch(url, {
                         method: 'POST',
                         headers: {

@@ -8,7 +8,7 @@ export default function AuthScreen() {
   const router = useRouter();
 
   function handleGoogleLogin() {
-    Linking.openURL("http://10.135.15.85:8000/auth/google/login");
+    Linking.openURL("http://10.135.15.85:8000/auth/login/google/");
   }
 
   return (
