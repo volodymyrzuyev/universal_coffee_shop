@@ -1,15 +1,16 @@
-#this file is a fastAPI endpoint for the for receiving the form that 
-#user fills out. 
+#this file is the fastapi endpoints for creating, updating, or deleting
+# a coffeeshop.
 
 from models.object_types import Store
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
-from databaseStuff.config import db
-
 
 FormRouter = APIRouter(tags=["Coffeeshop Form Submission"])
 
+#instance of the Store object of the methods we will be calling
+store_instance = Store()
 
+#this is the class model for a coffeeshop when a form is recieved
 class CoffeeShop(BaseModel):
     coffee_shop_name: str
     street_address: str
@@ -18,7 +19,8 @@ class CoffeeShop(BaseModel):
     phone_number: str
     picture_url: str
 
-
+#this is the class model for an updated coffeeshop, which includes
+# the shop id for the database method
 class UpdateCoffeeShop(BaseModel):
     coffee_shop_id: str
     coffee_shop_name: str
@@ -28,13 +30,18 @@ class UpdateCoffeeShop(BaseModel):
     phone_number: str
     picture_url: str
 
-
-
+#this endpoint recieves the coffeeshop form a user has filled out
 @FormRouter.post("/recieveForm/")
 async def getForm(CS: CoffeeShop, request: Request):
-    #create an instance of a Store object to call the database method
-    newStore = Store()
-    newStore.add(
+    """
+    Docstring for getForm
+    
+    :param CS: The object that represents the incoming data from the frontend
+    :type CS: CoffeeShop
+    :param request: Http request data
+    :type request: Request
+    """
+    store_instance.add(
             CS.coffee_shop_name,
             request.state.user_id,
             CS.street_address,
@@ -47,11 +54,13 @@ async def getForm(CS: CoffeeShop, request: Request):
 
 @FormRouter.post("/updateCoffeeshop")
 async def getUpdateForm(UCS: UpdateCoffeeShop):
-    #create an instance of a Store object to call the database method
-
-    print("hello")
-    newStore = Store()
-    newStore.updateCoffeeshop(
+    """
+    Docstring for getUpdateForm
+    
+    :param UCS: An UpdateCoffeeShop object representing the data we're receiving from the frontend
+    :type UCS: UpdateCoffeeShop
+    """
+    store_instance.updateCoffeeshop(
             UCS.coffee_shop_id,
             UCS.coffee_shop_name,
             UCS.street_address,
@@ -64,6 +73,9 @@ async def getUpdateForm(UCS: UpdateCoffeeShop):
 
 @FormRouter.delete("/deleteCoffeeshop/{selectedShop}")
 async def deleteCoffeeshop(selectedShop):
-
-    newStore = Store()
-    newStore.delete(selectedShop)
+    """
+    Docstring for deleteCoffeeshop
+    
+    :param selectedShop: the id of the shop to be deleted
+    """
+    store_instance.delete(selectedShop)
