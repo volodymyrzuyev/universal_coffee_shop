@@ -190,7 +190,7 @@ class DatabaseController:
             """, (user_id, store_id, text,num_stars))
             self.connection.commit()
             return True
-    def get_store_reviews(self, store_id: str) -> list:
+    def get_store_reviews(self, store_id: str) -> list[tuple]:
         self.cursor.execute("SELECT * from reviews WHERE store_id = ?;", (store_id,))
         return self.cursor.fetchall()
 

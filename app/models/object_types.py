@@ -49,7 +49,7 @@ class Store(StoredObject):
     def delete(self, store_id: str) -> None:
         db.remove_coffee_shop(store_id)
 
-    def get_store_reviews(self, store_id:str) ->list:
+    def get_store_reviews(self, store_id:str) ->list[tuple]:
         return db.get_store_reviews(store_id)
 
 class User(StoredObject):

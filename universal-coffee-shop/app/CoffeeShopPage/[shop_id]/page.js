@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import * as SecureStore from "expo-secure-store";
+import {SelectList} from 'react-native-dropdown-select-list'
+
 
 const config = Constants.expoConfig;
 
@@ -26,8 +28,13 @@ export default function page() {
     //runs on component mount to get the information based on the coffeeshops id
     useEffect(() => {
         fetchShopById(shop_id);
+        fetchShopReviews(shop_id);
     }, []);
 
+    const [reviews, setReview] = useState([]);
+
+
+ 
     //grabs data for the coffeeshop that the user clicked on and updates
     //the page accordingly
     async function fetchShopById(shop_id) {
@@ -68,6 +75,40 @@ export default function page() {
         }
     }
 
+     async function fetchShopReviews(shop_id) {
+        try {
+            //fetch api that gets and returns to 'response' object, information about a single coffeeshop
+            const url = `${BASE_URL}/home/shop/reviews/${shop_id}/`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+                },
+            });
+
+            //if the coffeeshop doesn't exist we need to make sure the user knows
+            if (!response.ok) {
+                alert("couldn't find that shop (doesn't exist)")
+                return;
+            }
+
+            //this holds the un-jsoned object containing information about the single coffeeshop the user clicked on
+            const data = await response.json();
+            //temporary array we can store data in before pushing to the state review array
+            const tmpReviewsForStateVariable = []
+            for(let array of data.reviews)
+            {
+                tmpReviewsForStateVariable.push({key: array[0], value: `Review : ${array[3]},  Rating: ${array[4]}`})
+            }
+            //forces a reload once the data is put into the actual review array
+            setReview(tmpReviewsForStateVariable)
+            
+        } catch (err) {
+            console.log('FETCH ERROR:', err);
+        }
+    }
+
     /*This gets the name of the coffeeshop that was sent from CoffeeShopCard.js
     'id' is used because it represents the route of the [id] folder */
     const { shop_id } = useLocalSearchParams();
@@ -87,6 +128,17 @@ export default function page() {
                         <Text style={styles.text}>You can find us at {streetAddress} {city}, {state}</Text>
                         <Text style={styles.text}>Call us at {PhoneNum}</Text>
                         <Text style={styles.text}>For more information visit us at <Text style={styles.link}>{shopUrl}</Text>  </Text>
+                    </View>
+
+                    <View style={styles.infoBox}>
+                        <Text style={styles.text}>REVIEWS</Text>
+                        <SelectList boxStyles={{borderWidth:10, borderColor:'black'}}  
+                             inputStyles={{fontFamily:'Anton-Regular', color:'black'}}
+                             dropdownStyles={{borderWidth:10, borderColor:'black'}}
+                             placeholder='List of Reviews' 
+                             data={reviews}
+                              
+                        />
                     </View>
 
                     <TouchableOpacity style={styles.button} onPress={() => router.navigate({pathname:'/Review/[shop_id_review]/review', params: {shop_id_review: shop_id, shopName:coffeeShopName}})}>
