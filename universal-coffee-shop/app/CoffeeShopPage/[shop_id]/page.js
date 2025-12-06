@@ -87,19 +87,13 @@ export default function page() {
                 },
             });
 
-            //if the coffeeshop doesn't exist we need to make sure the user knows
-            if (!response.ok) {
-                alert("couldn't find that shop (doesn't exist)")
-                return;
-            }
-
             //this holds the un-jsoned object containing information about the single coffeeshop the user clicked on
             const data = await response.json();
             //temporary array we can store data in before pushing to the state review array
             const tmpReviewsForStateVariable = []
             for(let array of data.reviews)
             {
-                tmpReviewsForStateVariable.push({key: array[0], value: `Review : ${array[3]},  Rating: ${array[4]}`})
+                tmpReviewsForStateVariable.push({key: array[0], value: `Review : ${array[3]},  Rating: ${array[4]} star`})
             }
             //forces a reload once the data is put into the actual review array
             setReview(tmpReviewsForStateVariable)
