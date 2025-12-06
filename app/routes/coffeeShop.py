@@ -32,7 +32,7 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     @coffeeShopRouter.post("/shop/reviews/{store_id}/")
     async def post_review(store_id, RW: review, request: Request):
         try:
-            db.create_review(request.state.user_id, store_id, RW.text, RW.num_stars)
+            newStore.create_review(request.state.user_id, store_id, RW.text, RW.num_stars)
             return {"successful": True}
         except Exception as e: 
             print("I failed")
@@ -62,13 +62,13 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
 
     @coffeeShopRouter.post("/add_item/{store_id}")
     async def add_item(store_id, it: item):
-        db.add_menu_item(store_id, it.item_name, it.item_price, it.picture_url)
+        newStore.add_menu_item(store_id, it.item_name, it.item_price, it.picture_url)
         return
 
     @coffeeShopRouter.get("/get_items/{store_id}")
     async def get_items(store_id):
         try:
-            return db.get_menu_items(store_id)
+            return newStore.get_menu_items(store_id)
         except Exception as e:
             print(e)
             pass

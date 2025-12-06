@@ -40,6 +40,9 @@ class Store(StoredObject):
     def add_menu_item(self, store_id: str, item_name:str, item_price: float, picture_url:str)-> None:
         db.add_menu_item(store_id, item_name, item_price, picture_url)
 
+    def get_menu_item(self, store_id:str):
+        return db.get_menu_items(store_id)
+
     def remove_menu_item(self, store_id:str, item_name:str) ->None:
         db.remove_menu_item(store_id, item_name)
 
@@ -51,6 +54,9 @@ class Store(StoredObject):
 
     def get_store_reviews(self, store_id:str) ->list[tuple]:
         return db.get_store_reviews(store_id)
+    
+    def create_review(self, user_id:str, store_id:str, text:str,num_stars:int):
+        db.create_review(user_id,store_id,text,num_stars)
 
 class User(StoredObject):
     def get_by_id(self, id) -> tuple:
