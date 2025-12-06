@@ -170,11 +170,12 @@ class DatabaseController:
         """)
         self.cursor.execute("""
         CREATE TABLE reviews(
+            review_id INTEGER
             user_id TEXT,
             store_id TEXT,
             data TEXT,
             num_stars INTEGER,
-            PRIMARY KEY (user_id, store_id)
+            PRIMARY KEY (review_id)
         );
         """)
         self.connection.commit()
