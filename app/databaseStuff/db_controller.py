@@ -170,12 +170,13 @@ class DatabaseController:
         """)
         self.cursor.execute("""
         CREATE TABLE reviews(
-            review_id INTEGER
+            review_id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             store_id TEXT,
             data TEXT,
             num_stars INTEGER,
-            PRIMARY KEY (review_id)
+            FOREIGN KEY(user_id) REFERENCES users(user_id)
+            FOREIGN KEY(store_id) REFERENCES stores(store_id)                
         );
         """)
         self.connection.commit()
@@ -185,13 +186,10 @@ class DatabaseController:
     def create_review(self, user_id: str, store_id: str, text: str,num_stars:int) -> bool:
             self.cursor.execute("""
                 INSERT INTO reviews (user_id, store_id, data, num_stars)
-                VALUES (?, ?, ?,?)
+                VALUES (?,?,?,?)
             """, (user_id, store_id, text,num_stars))
             self.connection.commit()
             return True
-        
-
-
     def get_store_reviews(self, store_id: str) -> list:
         self.cursor.execute("SELECT * from reviews WHERE store_id = ?;", (store_id,))
         return self.cursor.fetchall()
