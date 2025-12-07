@@ -24,4 +24,3 @@ if resp.status_code == 200:
     print(resp.json())
 else: 
     print("Test failed 'status_code'="+str(resp.status_code))
-
