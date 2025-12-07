@@ -17,7 +17,7 @@ payload = {
 resp = requests.post(url, json=payload)
 
 
-if resp.status_code == 401:
+if resp.status_code == 200:
     print("Test succesfull 'status_code'="+str(resp.status_code))
 else: 
     print("Test failed 'status_code'="+str(resp.status_code))
