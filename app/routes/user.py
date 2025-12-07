@@ -47,11 +47,22 @@ async def updatePassword(userUpdatingPassword: UpdatePasswordUser):
 @UserRouter.get("/me/")
 async def getUserData(request: Request):
     data = db.get_user_from_id(request.state.user_id)
+    try:
+        contactInfo = db.get_contact_info(request.state.user_id)
+        dList = list(data)
+        dList.append(contactInfo[2])
+        data = tuple(dList)
+    except:
+        db.set_contact_info(request.state.user_id, data[2],"teset")
+        dList = list(data)
+        dList.append("")
+        data = tuple(dList)
     print(data)
     return {"user":data }
 
-   
-    
-    
-
-
+@UserRouter.get("/updatePhoneNumber/{number}/")
+async def updatePhoneNumber(number, request: Request):
+    try:
+        data = db.set_contact_phone_number(request.state.user_id, number)
+    except:
+        return "fail"

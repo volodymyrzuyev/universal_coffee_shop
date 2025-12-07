@@ -673,6 +673,17 @@ class DatabaseController:
         """, (user_id, email, phone_number))
         self.connection.commit()
 
+    def set_contact_phone_number(self, user_id: str, phone_number: str) -> None:
+        """
+        Updates only the phone number for a user identified by user_id.
+        """
+        self.cursor.execute("""
+            UPDATE contact_info
+            SET phone_number = ?
+            WHERE user_id = ?;
+        """, (phone_number, user_id))
+        self.connection.commit()
+
     def get_contact_info(self, user_id: str) -> tuple | None:
         """
         Retrieves the contact info for a user.

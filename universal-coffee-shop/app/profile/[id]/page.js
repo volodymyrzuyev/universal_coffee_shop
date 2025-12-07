@@ -59,6 +59,7 @@ export default function UserProfilePage()
      setName(data.user[1]);
      setCurrentEmail(data.user[2]);
      setPassword(data.user[3]);
+     set_phone_number(data.user[6]);
     }
 
     /*gets the time of day and sets the hello message in the profile
