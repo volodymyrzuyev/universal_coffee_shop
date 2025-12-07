@@ -31,6 +31,7 @@ export default function UserProfilePage()
     won't be nothing*/
     const [currentEmail, setCurrentEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [phone_number, set_phone_number] = useState();
     
 
 
@@ -38,6 +39,7 @@ export default function UserProfilePage()
     password should the user choose to change them. */
     const [updatedEmail, setUpdatedEmail] = useState("");
     const [updatedPassword, setUpdatedPassword] = useState("");
+    const [UpdatedPhoneNumber,setUpdatedPhoneNumber] = useState();
 
     /*gets the profile info of the person signed in so that we can 
     show it to the UI*/
@@ -160,6 +162,44 @@ export default function UserProfilePage()
         setResponseMessage(`Network Error: ${error.message}`); 
     }
   }
+
+  async function updatePhoneNumber()
+    {
+     if(phone_number == "") {
+        Alert.alert("Cannot submit an empty phone number");
+        return;
+      }
+
+      try {  
+        const response = await fetch(`${BASE_URL}/updatePhoneNumber/${phone_number}`, {
+             method: 'GET',
+             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+            },
+        });
+ 
+        if (response.ok) {
+            /*this hits if everything runs correctly and fetch returns
+            with a status code in the range of 200 */
+            
+            Alert.alert(`Email updated sucessfully to: ${UpdatedPhoneNumber}.`);
+            
+        } else {
+            /*This hits if the server address is correct, but the response from the
+            server gave an error like a 404 status code. One reason for an error 
+            could be an incorrect endpoint name*/
+          
+            Alert.alert("There was an error when submitting the phone number, please try again.")        
+        }
+    } catch (error) {
+        //This hits if the server address is incorrect (couldn't reach the server)
+        setResponseMessage(`Network Error: ${error.message}`); 
+    }
+    }
+
+
+  
       async function toggleMfa() {
       const userId = await SecureStore.getItemAsync("user_id");
 
@@ -216,6 +256,19 @@ export default function UserProfilePage()
                     />
                     <TouchableOpacity style={styles.button} onPress={updatePassword}>
                         <Text style={styles.buttonText}>UPDATE PASSWORD</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.infoBox}>
+                  <Text style={styles.text}>PHONE NUMBER (current)</Text>
+                  <TextInput 
+                    style={styles.option} 
+                    placeholder={phone_number} 
+                    placeholderTextColor={'#454545ff'} 
+                    onChangeText={set_phone_number}
+                    />
+                    <TouchableOpacity style={styles.button} onPress={updatePhoneNumber}>
+                        <Text style={styles.buttonText}>UPDATE PHONE NUMBER</Text>
                     </TouchableOpacity>
                 </View>
 
