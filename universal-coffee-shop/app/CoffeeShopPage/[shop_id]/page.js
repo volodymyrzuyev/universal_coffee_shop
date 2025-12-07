@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import * as SecureStore from "expo-secure-store";
+import {SelectList} from 'react-native-dropdown-select-list'
+
 
 const config = Constants.expoConfig;
 
@@ -16,6 +18,7 @@ export default function page() {
     const [city, setCity] = useState("");
     const [state, setState] = useState("");
     const [PhoneNum, setPhoneNumber] = useState("");
+    const [shopUrl, setShopURL] = useState("");
 
     const router = useRouter();
 
@@ -25,8 +28,13 @@ export default function page() {
     //runs on component mount to get the information based on the coffeeshops id
     useEffect(() => {
         fetchShopById(shop_id);
+        fetchShopReviews(shop_id);
     }, []);
 
+    const [reviews, setReview] = useState([]);
+
+
+ 
     //grabs data for the coffeeshop that the user clicked on and updates
     //the page accordingly
     async function fetchShopById(shop_id) {
@@ -51,7 +59,7 @@ export default function page() {
             const data = await response.json();
 
             //using array destructuring on the six elements we need for the coffeeshop
-            const [, coffee_shop_name, owner_id, street_address, city, state, phone_num] = data.Coffeeshop;
+            const [, coffee_shop_name, owner_id, street_address, city, state, phone_num, shop_url] = data.Coffeeshop;
 
             //setting the state variables to the ones destructured above
             setCoffeeShopName(coffee_shop_name);
@@ -60,7 +68,36 @@ export default function page() {
             setCity(city);
             setState(state);
             setPhoneNumber(phone_num);
+            setShopURL(shop_url)
 
+        } catch (err) {
+            console.log('FETCH ERROR:', err);
+        }
+    }
+
+     async function fetchShopReviews(shop_id) {
+        try {
+            //fetch api that gets and returns to 'response' object, information about a single coffeeshop
+            const url = `${BASE_URL}/home/shop/reviews/${shop_id}/`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+                },
+            });
+
+            //this holds the un-jsoned object containing information about the single coffeeshop the user clicked on
+            const data = await response.json();
+            //temporary array we can store data in before pushing to the state review array
+            const tmpReviewsForStateVariable = []
+            for(let array of data.reviews)
+            {
+                tmpReviewsForStateVariable.push({key: array[0], value: `Review : ${array[3]},  Rating: ${array[4]} star`})
+            }
+            //forces a reload once the data is put into the actual review array
+            setReview(tmpReviewsForStateVariable)
+            
         } catch (err) {
             console.log('FETCH ERROR:', err);
         }
@@ -70,6 +107,8 @@ export default function page() {
     'id' is used because it represents the route of the [id] folder */
     const { shop_id } = useLocalSearchParams();
 
+
+    
     return (
         <>
             <SafeAreaView style={styles.container}>
@@ -80,13 +119,23 @@ export default function page() {
                     </Text>
 
                     <View style={styles.infoBox}>
-                        <Text style={styles.text}>The owner of our establishment is {OwnerID}</Text>
-                        <Text style={styles.text}>You can find us at {streetAddress}</Text>
-                        <Text style={styles.text}>{city}, {state}</Text>
+                        <Text style={styles.text}>You can find us at {streetAddress} {city}, {state}</Text>
                         <Text style={styles.text}>Call us at {PhoneNum}</Text>
+                        <Text style={styles.text}>For more information visit us at <Text style={styles.link}>{shopUrl}</Text>  </Text>
                     </View>
 
-                    <TouchableOpacity style={styles.button} onPress={() => router.push("/home")}>
+                    <View style={styles.infoBox}>
+                        <Text style={styles.text}>REVIEWS</Text>
+                        <SelectList boxStyles={{borderWidth:10, borderColor:'black'}}  
+                             inputStyles={{fontFamily:'Anton-Regular', color:'black'}}
+                             dropdownStyles={{borderWidth:10, borderColor:'black'}}
+                             placeholder='List of Reviews' 
+                             data={reviews}
+                              
+                        />
+                    </View>
+
+                    <TouchableOpacity style={styles.button} onPress={() => router.navigate({pathname:'/Review/[shop_id_review]/review', params: {shop_id_review: shop_id, shopName:coffeeShopName}})}>
                         <Text style={styles.buttonText}>Write a review of this shop</Text>
                     </TouchableOpacity>
 
@@ -158,4 +207,10 @@ const styles = StyleSheet.create({
         fontFamily: "Anton-Regular",
     },
     perimeter: { textAlign: 'center' },
+    link:
+    {
+        textDecorationStyle:'solid',
+        textDecorationColor:'#0d4883ff',
+        textDecorationLine:'underline'
+    }
 });

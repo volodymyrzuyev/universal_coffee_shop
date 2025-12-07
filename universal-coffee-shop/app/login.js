@@ -1,11 +1,15 @@
-//login screen
 // universal-coffee-shop/app/login.js
- import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import * as Linking from 'expo-linking';
 
 export default function AuthScreen() {
   const router = useRouter();
+
+  function handleGoogleLogin() {
+    Linking.openURL("http://10.135.15.85:8000/auth/login/google/");
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -15,11 +19,25 @@ export default function AuthScreen() {
       </View>
 
       <View style={styles.buttonContainer}>
+
         <TouchableOpacity 
           style={styles.primaryButton} 
           onPress={() => router.push('/signup')}>
           <Text style={styles.primaryButtonText}>CREATE ACCOUNT</Text>
         </TouchableOpacity>
+
+        {/* google login button*/}
+        <TouchableOpacity 
+          style={styles.googleButton} 
+          onPress={handleGoogleLogin}
+        >
+          <Image 
+            source={require('../assets/google.png')} 
+            style={styles.googleIcon}
+          />
+          <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+        </TouchableOpacity>
+        {/* push button for login */}
 
         <TouchableOpacity 
           onPress={() => router.push('/login-form')}>
@@ -27,6 +45,7 @@ export default function AuthScreen() {
             ALREADY HAVE AN ACCOUNT? LOG IN
           </Text>
         </TouchableOpacity>
+
       </View>
 
     </SafeAreaView>
@@ -78,6 +97,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Anton-Regular',
   },
+
+  // prev styling copied from old commit before button removed
+  googleButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFF',
+    borderColor: '#000',
+    borderWidth: 2,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 25,
+  },
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+    resizeMode: 'contain',
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontFamily: 'Anton-Regular',
+    color: '#000',
+  },
+
   secondaryButtonText: {
     color: '#000',
     fontSize: 14,

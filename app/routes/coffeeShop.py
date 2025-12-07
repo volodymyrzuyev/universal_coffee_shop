@@ -1,19 +1,10 @@
 from fastapi import APIRouter, Request
-
-
-#importing Store so it can be used to call the db methods instead of directly calling them through db
 from databaseStuff import db_controller
-from models.object_types import Store
 from pydantic import BaseModel
 
-'''
-{
-    "text": "this was amazin"
-    "shop_id": "fasdfs"
-}
-
-'''
-
+#importing Store so it can be used to call the db methods instead of directly calling them through db
+from models.object_types import Store
+newStore = Store() 
 
 def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     coffeeShopRouter = APIRouter(
@@ -21,29 +12,32 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
         tags=["Gets specific coffeeshop"])
 
     #Store object that is created to call the methods in the database
-    newStore = Store()
+     
+
     #endpoint that returns all information from all coffeeshops
     @coffeeShopRouter.get("/get_all_coffeeshops")
     async def get_all_stores():
         return {"Coffeeshops": newStore.get_all()}
 
-    #endpoint that returns all information from all coffeeshops
+    #endpoint that returns all reviews from all coffeeshops
     @coffeeShopRouter.get("/shop/reviews/{store_id}/")
     async def get_all_reviews(store_id):
-        data = db.get_store_reviews(store_id)
+        data = newStore.get_store_reviews(store_id)
         return {"reviews": data}
 
     class review(BaseModel):
         text: str
+        num_stars:int
 
     @coffeeShopRouter.post("/shop/reviews/{store_id}/")
     async def post_review(store_id, RW: review, request: Request):
         try:
-            db.create_review(request.state.user_id, store_id, RW.text)
+            newStore.create_review(request.state.user_id, store_id, RW.text, RW.num_stars)
+            return {"successful": True}
         except Exception as e: 
             print("I failed")
             print(e)
-            pass
+            return {"successful": False}
 
     @coffeeShopRouter.get("/get_shops_admin_owns/")
     async def get_shops_admin_owns(request: Request):
@@ -59,6 +53,27 @@ def initStoreRouter(db: db_controller.DatabaseController) -> APIRouter:
     @coffeeShopRouter.get("/get_coffeeshop_by_name/{shop_name}")
     async def get_coffeeshops_by_name(shop_name):
          return {"Coffeeshops":newStore.get_coffeeshop_by_name(shop_name)}
+
+
+    class item(BaseModel):
+        item_name: str
+        item_price: float
+        picture_url: str
+
+    @coffeeShopRouter.post("/add_item/{store_id}")
+    async def add_item(store_id, it: item):
+        newStore.add_menu_item(store_id, it.item_name, it.item_price, it.picture_url)
+        return
+
+    @coffeeShopRouter.get("/get_items/{store_id}")
+    async def get_items(store_id):
+        try:
+            return newStore.get_menu_items(store_id)
+        except Exception as e:
+            print(e)
+            pass
+
+
 
     return coffeeShopRouter
 

@@ -170,24 +170,27 @@ class DatabaseController:
         """)
         self.cursor.execute("""
         CREATE TABLE reviews(
+            review_id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             store_id TEXT,
             data TEXT,
-            PRIMARY KEY (user_id, store_id)
+            num_stars INTEGER,
+            FOREIGN KEY(user_id) REFERENCES users(user_id)
+            FOREIGN KEY(store_id) REFERENCES stores(store_id)                
         );
         """)
         self.connection.commit()
 
         self.database_close()
 
-    def create_review(self, user_id: str, store_id: str, text: str) -> None:
-        self.cursor.execute("""
-            INSERT INTO reviews (user_id, store_id, data)
-            VALUES (?, ?, ?)
-        """, (user_id, store_id, text))
-        self.connection.commit()
-
-    def get_store_reviews(self, store_id: str) -> list:
+    def create_review(self, user_id: str, store_id: str, text: str,num_stars:int) -> bool:
+            self.cursor.execute("""
+                INSERT INTO reviews (user_id, store_id, data, num_stars)
+                VALUES (?,?,?,?)
+            """, (user_id, store_id, text,num_stars))
+            self.connection.commit()
+            return True
+    def get_store_reviews(self, store_id: str) -> list[tuple]:
         self.cursor.execute("SELECT * from reviews WHERE store_id = ?;", (store_id,))
         return self.cursor.fetchall()
 
@@ -210,6 +213,16 @@ class DatabaseController:
         self.connection.commit()
 
         return user_id
+
+    def set_admin(self, user_id):
+        self.cursor.execute(
+            """UPDATE users
+               SET is_admin = ?
+               WHERE user_id = ?;
+               """,
+               (1, user_id),
+        )
+        self.connection.commit()
     
         
     def get_user_from_id(self, user_id: str) -> tuple:
@@ -357,6 +370,15 @@ class DatabaseController:
         """, (store_id, item_name))
         self.connection.commit()
 
+    def get_menu_items(self, store_id: str):
+        self.cursor.execute(
+            """
+            SELECT * FROM menu_items
+            WHERE store_id = ?
+            """, (store_id,)
+        )
+        return self.cursor.fetchall()
+
     def add_user_store(self, user_id: str, store_id: str) -> None:
         """Creates a link in user_owns: a user owns/has access to a store."""
         self.cursor.execute(
@@ -425,6 +447,21 @@ class DatabaseController:
                (email, user_id),
         )
         self.connection.commit()
+
+    def update_user_password(self, password:str, user_id:str):
+        """
+        Updates the password for a user. This comes from the page.js page of the profile
+        """
+        self.cursor.execute(
+            """UPDATE users
+               SET password = ?
+               WHERE user_id = ?;
+               """,
+               (password, user_id),
+        )
+        self.connection.commit()
+
+     
 
     def get_stores_for_user(self, user_id: str) -> List[tuple]:
         """Return all stores linked to a user via user_owns."""
@@ -634,6 +671,17 @@ class DatabaseController:
             email = excluded.email,
             phone_number = excluded.phone_number;
         """, (user_id, email, phone_number))
+        self.connection.commit()
+
+    def set_contact_phone_number(self, user_id: str, phone_number: str) -> None:
+        """
+        Updates only the phone number for a user identified by user_id.
+        """
+        self.cursor.execute("""
+            UPDATE contact_info
+            SET phone_number = ?
+            WHERE user_id = ?;
+        """, (phone_number, user_id))
         self.connection.commit()
 
     def get_contact_info(self, user_id: str) -> tuple | None:

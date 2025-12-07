@@ -127,7 +127,7 @@ console.log(selectedShop)
             /*this hits if everything runs correctly and fetch returns
             with a status code in the range of 200 */
             
-            Alert.alert(`Shop '${selectedShop}' submitted sucessfully`);
+            Alert.alert(`Shop '${selectedShop}' updated sucessfully`);
             const data = await response.json();
             setResponseMessage(data.storeName);
             
@@ -147,6 +147,39 @@ console.log(selectedShop)
     Alert.alert("Please fill out all fields of the form")
   }
   };
+
+  const deleteShop = async () => 
+  {
+    try {
+
+    console.log(selectedShop);
+    const response = await fetch(`${BASE_URL}/deleteCoffeeshop/${selectedShop}`,{
+       
+        method:'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await SecureStore.getItemAsync("user_id")}`,
+          },
+      });
+
+      if(response.ok)
+      {
+        Alert.alert(`Shop '${selectedShop}' sucessfully deleted`)
+      } else {
+            /*This hits if the server address is correct, but the response from the
+            server gave an error like a 404 status code. One reason for an error 
+            could be an incorrect endpoint name*/
+          
+            Alert.alert("There was an error when deleting the shop, try again")        
+        }
+
+      } catch (error) {
+        //This hits if the server address is incorrect (couldn't reach the server)
+        setResponseMessage(`Network Error: ${error.message}`); 
+    }
+    
+    router.push("/modify_or_add")
+  }
 
     return (<>
      <SafeAreaView style={styles.container}>
@@ -175,6 +208,8 @@ console.log(selectedShop)
         </ScrollView>
 
         <TouchableOpacity onPress={submitForm}><Text style={styles.submit}>Submit Form</Text></TouchableOpacity>
+
+        <TouchableOpacity onPress={deleteShop}><Text style={styles.deleteCoffeeText}>Delete Coffeeshop</Text></TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push("/modify_or_add")}>
                   <Text style={styles.backText}>Back</Text>
@@ -251,6 +286,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Anton-Regular",
   },
+  deleteCoffeeText:
+  {
+     fontSize: 20,
+    color: "#ff0000ff",
+    fontFamily: "Anton-Regular",
+    textAlign: "center",
+    lineHeight: 50,
+    borderRadius:6,
+    borderWidth:5,
+    borderColor:'red',
+    width:'90%',
+    margin:10,
+    padding:5,
+  }
 });
  
 export default AddCoffeeShop;

@@ -10,6 +10,8 @@
 ### React Native Frontend (...\universal-coffee-shop\universal-coffee-shop)
 ###### **npm install**
 ###### **npx expo install expo-location**
+###### **npx expo install react-native-maps**
+###### **npx expo install expo-linking**
 
 
 <img width="436" height="25" alt="image" src="https://github.com/user-attachments/assets/09a0a031-1d7b-474c-89b0-0d4d5d69f396" />

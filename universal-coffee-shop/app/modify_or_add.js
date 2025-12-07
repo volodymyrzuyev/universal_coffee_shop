@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     padding:10,
     color: "#000",
     fontFamily: "Anton-Regular",
+    textAlign:'center'
   },
   box:{
     flex:1,
